@@ -1536,13 +1536,9 @@ L5e7c:
   ld hl,0x50c8 ;   21 c8 50
   ld (0x41bc),hl ;   22 bc 41
   call 0x41a9 ;   cd a9 41
-  ld b,c ;   41
-  ld h,h ;   64
-  ld h,h ;   64
-  ld (hl),d ;   72
-  ld h,l ;   65
-  ld (hl),e ;   73
-  ld (hl),e ;   73
+
+.ascii "Address"
+
 L5e8c:
   cp d ;   ba
   call 0x41a9 ;   cd a9 41
@@ -9218,125 +9214,88 @@ L871b:
   adc a,e ;   8b
   inc hl ;   23
   sub c ;   91
-  ld c,h ;   4c
-  ld h,l ;   65
-  ld l,(hl) ;   6e
-  ld h,a ;   67
-  ld l,b ;   68
-  call p,0x6946 ;   f4 46 69
-  ld (hl),d ;   72
-  ld (hl),e ;   73
-  call p,0x614c ;   f4 4c 61
-  ld (hl),e ;   73
-  call p,0x654d ;   f4 4d 65
-  ld l,l ;   6d
-  ld l,a ;   6f
-  ld (hl),d ;   72
-  ld sp,hl ;   f9
-  ld l,h ;   6c
-  call po,0x5520 ;   e4 20 55
-  ld c,(hl) ;   4e
-  ld c,c ;   49
-  ld d,(hl) ;   56
-  ld b,l ;   45
-  ld d,d ;   52
-  ld d,e ;   53
-  ld d,l ;   55
-  ld c,l ;   4d
-  jr nz,L879d ;   20 43
-  ld l,a ;   6f
-  ld l,(hl) ;   6e
-  ld (hl),h ;   74
-  ld (hl),d ;   72
-  ld l,a ;   6f
-  call pe,0x4e4f ;   ec 4f 4e
-  and b ;   a0
-  ld c,a ;   4f
-  ld b,(hl) ;   46
-  add a,0x4e ;   c6 4e
-  ld c,a ;   4f
-  adc a,0x44 ;   ce 44
-  ld b,l ;   45
-  add a,0x41 ;   c6 41
-  ld c,h ;   4c
-  call z,0x6143 ;   cc 43 61
-  ld l,h ;   6c
-  call pe,0x6552 ;   ec 52 65
-  ld h,c ;   61
-  ld h,h ;   64
-  cpl ;   2f
-  ld d,a ;   57
-  ld (hl),d ;   72
-  ld l,c ;   69
-  ld (hl),h ;   74
-  push hl ;   e5
-  ld d,d ;   52
-  ld (hl),l ;   75
-  xor 0x49 ;   ee 49
-  ld l,(hl) ;   6e
-  ld (hl),h ;   74
-  ld h,l ;   65
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  ld (hl),l ;   75
-  ld (hl),b ;   70
-  call p,0x5245 ;   f4 45 52
-  ld d,d ;   52
-  ld c,a ;   4f
-  jp nc,0x6f4e ;   d2 4e 6f
-  jr nz,L8804 ;   20 72
-  ld (hl),l ;   75
-  xor 0x4e ;   ee 4e
-  ld l,a ;   6f
-  jr nz,L880f ;   20 77
-  ld (hl),d ;   72
-  ld l,c ;   69
-  ld (hl),h ;   74
-  push hl ;   e5
-  ld c,(hl) ;   4e
-L879d:
-  ld l,a ;   6f
-  jr nz,L8812 ;   20 72
-  ld h,l ;   65
-  ld h,c ;   61
-  call po,0x6544 ;   e4 44 65
-  ld h,(hl) ;   66
-  jp po,0x6544 ;   e2 44 65
-  ld h,(hl) ;   66
-  rst 0x30 ;   f7
-  ld (hl),a ;   77
-  ld l,c ;   69
-  ld l,(hl) ;   6e
-  ld h,h ;   64
-  ld l,a ;   6f
-  ld (hl),a ;   77
-  ld (hl),e ;   73
-  cp d ;   ba
-  ld d,a ;   57
-  ld l,c ;   69
-  ld (hl),h ;   74
-  ret pe ;   e8
-  ld d,h ;   54
-  rst 0x28 ;   ef
-  ld c,h ;   4c
-  ld h,l ;   65
-  ld h,c ;   61
-  ld h,h ;   64
-  ld h,l ;   65
-  jp p,0x2e31 ;   f2 31 2e
-  defb 0x20, 0x62
-  ld a,c ;   79
-  ld (hl),h ;   74
-  ld h,l ;   65
-  cp d ;   ba
-  defb 0x20, 0x4d
-  ld h,l ;   65
-  ld l,l ;   6d
-  ld d,b ;   50
-  ld h,c ;   61
-  ld h,a ;   67
-  ld h,l ;   65
-  cp d ;   ba
+
+.ascii "Lengh"
+.byte 't'+0x80
+
+.ascii "Firs"
+.byte 't'+0x80
+
+.ascii "Las"
+.byte 't'+0x80
+
+.ascii "Memor"
+.byte 'y'+0x80
+
+.ascii "l"
+.byte 'd'+0x80
+
+.ascii " UNIVERSUM Contro"
+.byte 'l'+0x80
+
+.ascii "ON"
+.byte ' '+0x80
+
+.ascii "OF"
+.byte 'F'+0x80
+
+.ascii "NO"
+.byte 'N'+0x80
+
+.ascii "DE"
+.byte 'F'+0x80
+
+.ascii "AL"
+.byte 'L'+0x80
+
+.ascii "Cal"
+.byte 'l'+0x80
+
+.ascii "Read/Writ"
+.byte 'e'+0x80
+
+.ascii "Ru"
+.byte 'n'+0x80
+
+.ascii "Interrup"
+.byte 't'+0x80
+
+.ascii "ERRO"
+.byte 'R'+0x80
+
+.ascii "No ru"
+.byte 'n'+0x80
+
+.ascii "No writ"
+.byte 'e'+0x80
+
+.ascii "No rea"
+.byte 'd'+0x80
+
+.ascii "Def"
+.byte 'b'+0x80
+
+.ascii "Def"
+.byte 'w'+0x80
+
+.ascii "windows"
+.byte ':'+0x80
+
+.ascii "Wit"
+.byte 'h'+0x80
+
+.ascii "T"
+.byte 'o'+0x80
+
+.ascii "Leade"
+.byte 'r'+0x80
+
+.ascii "1. byte"
+.byte ':'+0x80
+
+.ascii " MemPage"
+.byte ':'+0x80
+
   ld d,e ;   53
   rst 0x08 ;   cf
   sbc a,c ;   99
@@ -13683,357 +13642,150 @@ La489:
   pop de ;   d1
   jp 0xad7c ;   c3 7c ad
   add a,b ;   80
-  ld b,d ;   42
-  ld h,c ;   61
-  ld h,h ;   64
-  jr nz,La51d ;   20 6d
-  ld l,(hl) ;   6e
-  ld h,l ;   65
-  ld l,l ;   6d
-  ld l,a ;   6f
-  ld l,(hl) ;   6e
-  ld l,c ;   69
-  ex (sp),hl ;   e3
-  ld b,d ;   42
-  ld h,c ;   61
-  ld h,h ;   64
-  jr nz,La52b ;   20 6f
-  ld (hl),b ;   70
-  ld h,l ;   65
-  ld (hl),d ;   72
-  ld h,c ;   61
-  ld l,(hl) ;   6e
-  call po,0x6942 ;   e4 42 69
-  ld h,a ;   67
-  jr nz,La535 ;   20 6e
-  ld (hl),l ;   75
-  ld l,l ;   6d
-  ld h,d ;   62
-  ld h,l ;   65
-  jp p,0x7953 ;   f2 53 79
-  ld l,(hl) ;   6e
-  ld (hl),h ;   74
-  ld h,c ;   61
-  ld a,b ;   78
-  jr nz,La53c ;   20 68
-  ld l,a ;   6f
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  ld l,a ;   6f
-  jp p,0x6142 ;   f2 42 61
-  ld h,h ;   64
-  jr nz,La551 ;   20 73
-  ld (hl),h ;   74
-  ld (hl),d ;   72
-  ld l,c ;   69
-  ld l,(hl) ;   6e
-  rst 0x20 ;   e7
-  ld b,d ;   42
-  ld h,c ;   61
-  ld h,h ;   64
-  jr nz,La551 ;   20 69
-  ld l,(hl) ;   6e
-  ld (hl),e ;   73
-  ld (hl),h ;   74
-  ld (hl),d ;   72
-  ld (hl),l ;   75
-  ld h,e ;   63
-  ld (hl),h ;   74
-  ld l,c ;   69
-  ld l,a ;   6f
-  xor 0x4d ;   ee 4d
-  ld h,l ;   65
-  ld l,l ;   6d
-  ld l,a ;   6f
-  ld (hl),d ;   72
-  ld a,c ;   79
-  defb 0x20, 0x66
-  ld (hl),l ;   75
-  ld l,h ;   6c
-  call pe,0x6142 ;   ec 42 61
-  ld h,h ;   64
-  jr nz,La552 ;   20 50
-  ld d,l ;   55
-  ld d,h ;   54
-  jr nz,La52e ;   20 28
-  ld c,a ;   4f
-  ld d,d ;   52
-  ld b,a ;   47
-  xor c ;   a9
-  jr nz,La581 ;   20 75
-  ld l,(hl) ;   6e
-  ld l,e ;   6b
-  ld l,(hl) ;   6e
-  ld l,a ;   6f
-  ld (hl),a ;   77
-  xor 0x57 ;   ee 57
-  ld h,c ;   61
-  ld l,c ;   69
-  ld (hl),h ;   74
-  defb 0x20, 0x70
-  ld l,h ;   6c
-  ld h,l ;   65
-  ld h,c ;   61
-  ld (hl),e ;   73
-  push hl ;   e5
-La51d:
-  ld b,c ;   41
-  ld (hl),e ;   73
-  ld (hl),e ;   73
-  ld h,l ;   65
-  ld l,l ;   6d
-  ld h,d ;   62
-  ld l,h ;   6c
-  ld a,c ;   79
-  jr nz,La58a ;   20 63
-  ld l,a ;   6f
-  ld l,l ;   6d
-  ld (hl),b ;   70
-  ld l,h ;   6c
-La52b:
-  ld h,l ;   65
-  ld (hl),h ;   74
-  push hl ;   e5
-La52e:
-  ld d,e ;   53
-  ld (hl),h ;   74
-  ld h,c ;   61
-  ld (hl),d ;   72
-  ld (hl),h ;   74
-  jr nz,La5a9 ;   20 74
-La535:
-  ld h,c ;   61
-  ld (hl),b ;   70
-  push hl ;   e5
-  ld d,h ;   54
-  ld h,c ;   61
-  ld (hl),b ;   70
-  ld h,l ;   65
-La53c:
-  jr nz,La5a3 ;   20 65
-La53e:
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  ld l,a ;   6f
-  jp p,0x6e41 ;   f2 41 6e
-  ld a,c ;   79
-  jr nz,La5b2 ;   20 6b
-  ld h,l ;   65
-  ld sp,hl ;   f9
-  jr z,La58e ;   28 43
-  add hl,hl ;   29
-  jr nz,La587 ;   20 39
-  inc sp ;   33
-  jr nz,La5a6 ;   20 55
-La551:
-  ld c,(hl) ;   4e
-La552:
-  ld c,c ;   49
-  ld d,(hl) ;   56
-  ld b,l ;   45
-  ld d,d ;   52
-  ld d,e ;   53
-  ld d,l ;   55
-  call 0x6f53 ;   cd 53 6f
-  ld (hl),l ;   75
-  ld (hl),d ;   72
-  ld h,e ;   63
-  ld h,l ;   65
-  jr nz,La5a6 ;   20 45
-  ld d,d ;   52
-  ld d,d ;   52
-  ld c,a ;   4f
-  jp nc,0x6f46 ;   d2 46 6f
-  ld (hl),l ;   75
-  ld l,(hl) ;   6e
-  ld h,h ;   64
-  cp d ;   ba
-  ld b,c ;   41
-  ld l,h ;   6c
-  ld (hl),d ;   72
-  ld h,l ;   65
-  ld h,c ;   61
-  ld h,h ;   64
-  ld a,c ;   79
-  jr nz,La5d8 ;   20 64
-  ld h,l ;   65
-  ld h,(hl) ;   66
-  ld l,c ;   69
-  ld l,(hl) ;   6e
-  ld h,l ;   65
-  call po,0x4e45 ;   e4 45 4e
-  ld d,h ;   54
-  jr nz,La53e ;   20 bf
-  ld c,(hl) ;   4e
-  ld l,a ;   6f
-La581:
-  ld (hl),h ;   74
-  jr nz,La5ea ;   20 66
-  ld l,a ;   6f
-  ld (hl),l ;   75
-  ld l,(hl) ;   6e
-La587:
-  call po,0x764f ;   e4 4f 76
-La58a:
-  ld h,l ;   65
-  ld (hl),d ;   72
-  ld (hl),a ;   77
-  ld (hl),d ;   72
-La58e:
-  ld l,c ;   69
-  ld (hl),h ;   74
-  ld h,l ;   65
-  cp a ;   bf
-  ld b,h ;   44
-  ld l,c ;   69
-  ld (hl),e ;   73
-  ld l,e ;   6b
-  jr nz,La5fd ;   20 65
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  ld l,a ;   6f
-  jp p,0x211a ;   f2 1a 21
-  dec h ;   25
-  jr z,La5c8 ;   28 27
-  inc l ;   2c
-  cpl ;   2f
-La5a3:
-  ld l,0x6b ;   2e 6b
-  ld (hl),c ;   71
-La5a6:
-  dec hl ;   2b
-  ld l,0x31 ;   2e 31
-La5a9:
-  scf ;   37
-  ld (hl),0x38 ;   36 38
-  inc a ;   3c
-  ccf ;   3f
-  ld b,c ;   41
-  ld b,h ;   44
-  ld c,b ;   48
-  ld c,h ;   4c
-La5b2:
-  ld c,e ;   4b
-  ld d,b ;   50
-  ld h,a ;   67
-  ld d,e ;   53
-  ld b,c ;   41
-  ld d,e ;   53
-  ld d,e ;   53
-  ld b,l ;   45
-  ld c,l ;   4d
-  ld b,d ;   42
-  ld c,h ;   4c
-  exx ;   d9
-  ld b,d ;   42
-  ld b,c ;   41
-  ld d,e ;   53
-  ld c,c ;   49
-  jp 0x4f43 ;   c3 43 4f
-  ld d,b ;   50
-  exx ;   d9
-  ld b,h ;   44
-La5c8:
-  ld b,l ;   45
-  ld c,h ;   4c
-  ld b,l ;   45
-  ld d,h ;   54
-  push bc ;   c5
-  ld b,(hl) ;   46
-  ld c,c ;   49
-  ld c,(hl) ;   4e
-  call nz,0x4547 ;   c4 47 45
-  ld c,(hl) ;   4e
-  out (0x4c),a ;   d3 4c
-  ld c,a ;   4f
-  ld b,c ;   41
-La5d8:
-  call nz,0x4f4d ;   c4 4d 4f
-  ld c,(hl) ;   4e
-  ld c,c ;   49
-  ld d,h ;   54
-  ld c,a ;   4f
-  jp nc,0x454e ;   d2 4e 45
-  rst 0x10 ;   d7
-  ld d,b ;   50
-  ld d,d ;   52
-  ld c,c ;   49
-  ld c,(hl) ;   4e
-  call nc,0x5551 ;   d4 51 55
-La5ea:
-  ld c,c ;   49
-  call nc,0x5552 ;   d4 52 55
-  adc a,0x53 ;   ce 53
-  ld b,c ;   41
-  ld d,(hl) ;   56
-  push bc ;   c5
-  ld d,h ;   54
-  ld b,c ;   41
-  ld b,d ;   42
-  ld c,h ;   4c
-  push bc ;   c5
-  ld d,l ;   55
-  dec l ;   2d
-  ld d,h ;   54
-  ld c,a ;   4f
-  ret nc ;   d0
-La5fd:
-  ld d,(hl) ;   56
-  ld b,l ;   45
-  ld d,d ;   52
-  ld c,c ;   49
-  ld b,(hl) ;   46
-  exx ;   d9
-  ld b,e ;   43
-  ld c,h ;   4c
-  ld b,l ;   45
-  ld b,c ;   41
-  jp nc,0x4552 ;   d2 52 45
-  ld d,b ;   50
-  ld c,h ;   4c
-  ld b,c ;   41
-  ld b,e ;   43
-  push bc ;   c5
-  ld d,e ;   53
-  dec l ;   2d
-  ld b,d ;   42
-  ld b,l ;   45
-  ld b,a ;   47
-  ld c,c ;   49
-  adc a,0x53 ;   ce 53
-  dec l ;   2d
-  ld d,h ;   54
-  ld c,a ;   4f
-  ret nc ;   d0
-  ld b,e ;   43
-  ld b,c ;   41
-  ld c,h ;   4c
-  jp 0x6f53 ;   c3 53 6f
-  ld (hl),l ;   75
-  ld (hl),d ;   72
-  ld h,e ;   63
-  ld h,l ;   65
-  jr nz,La689 ;   20 62
-  ld h,l ;   65
-  ld h,a ;   67
-  ld l,c ;   69
-  ld l,(hl) ;   6e
-  cp d ;   ba
-  jr nz,La64e ;   20 20
-  jr nz,La683 ;   20 53
-  dec l ;   2d
-  ld (hl),h ;   74
-  ld l,a ;   6f
-  ld (hl),b ;   70
-  cp d ;   ba
-  ld d,d ;   52
-  ld h,l ;   65
-  ld (hl),e ;   73
-  ld (hl),l ;   75
-  ld l,h ;   6c
-  ld (hl),h ;   74
-  cp d ;   ba
-  nop ;   00
+
+
+.ascii "Bad mnemoni"
+.byte 'c'+0x80
+
+.ascii "Bad operan"
+.byte 'd'+0x80
+
+.ascii "Big numbe"
+.byte 'r'+0x80
+
+.ascii "Syntax horro"
+.byte 'r'+0x80
+
+.ascii "Bad strin"
+.byte 'g'+0x80
+
+.ascii "Bad instructio"
+.byte 'n'+0x80
+
+.ascii "Memory ful"
+.byte 'l'+0x80
+
+.ascii "Bad PUT (ORG"
+.byte ')'+0x80
+
+.ascii " unknow"
+.byte 'n'+0x80
+
+.ascii "Wait pleas"
+.byte 'e'+0x80
+
+.ascii "Assembly complet"
+.byte 'e'+0x80
+
+.ascii "Start tap"
+.byte 'e'+0x80
+
+.ascii "Tape erro"
+.byte 'r'+0x80
+
+.ascii "Any ke"
+.byte 'y'+0x80
+
+.ascii "(C) 93 UNIVERSU"
+.byte 'M'+0x80
+
+.ascii "Source ERRO"
+.byte 'R'+0x80
+
+.ascii "Found"
+.byte ':'+0x80
+
+.ascii "Already define"
+.byte 'd'+0x80
+
+.ascii "ENT "
+.byte '?'+0x80
+
+.ascii "Not foun"
+.byte 'd'+0x80
+
+.ascii "Overwrite"
+.byte '?'+0x80
+
+.ascii "Disk erro"
+.byte 'r'+0x80
+
+.byte 0x1a
+
+.ascii "!%(',/.kq+.1768<?ADHLKPgSASSEMBL"
+.byte 'Y'+0x80
+
+.ascii "BASI"
+.byte 'C'+0x80
+
+.ascii "COP"
+.byte 'Y'+0x80
+
+.ascii "DELET"
+.byte 'E'+0x80
+
+.ascii "FIN"
+.byte 'D'+0x80
+
+.ascii "GEN"
+.byte 'S'+0x80
+
+.ascii "LOA"
+.byte 'D'+0x80
+
+.ascii "MONITO"
+.byte 'R'+0x80
+
+.ascii "NE"
+.byte 'W'+0x80
+
+.ascii "PRIN"
+.byte 'T'+0x80
+
+.ascii "QUI"
+.byte 'T'+0x80
+
+.ascii "RU"
+.byte 'N'+0x80
+
+.ascii "SAV"
+.byte 'E'+0x80
+
+.ascii "TABL"
+.byte 'E'+0x80
+
+.ascii "U-TO"
+.byte 'P'+0x80
+
+.ascii "VERIF"
+.byte 'Y'+0x80
+
+.ascii "CLEA"
+.byte 'R'+0x80
+
+.ascii "REPLAC"
+.byte 'E'+0x80
+
+.ascii "S-BEGI"
+.byte 'N'+0x80
+
+.ascii "S-TO"
+.byte 'P'+0x80
+
+.ascii "CAL"
+.byte 'C'+0x80
+
+.ascii "Source begin"
+.byte ':'+0x80
+
+.ascii "   S-top"
+.byte ':'+0x80
+
+.ascii "Result"
+.byte ':'+0x80
+.byte 0
+
+
   ld c,l ;   4d
   ld c,l ;   4d
   ld c,(hl) ;   4e
