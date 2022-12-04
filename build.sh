@@ -4,6 +4,9 @@ CODE_ADDRESS=0x8000
 
 set -e
 
+cat prometheus.s | ~/git/spectrum4/utils/asm-format/asm-format > p.s
+mv p.s prometheus.s
+
 z80-unknown-elf-as prometheus.s -o prometheus.o
 z80-unknown-elf-ld -N -Ttext="${CODE_ADDRESS}" -o prometheus.elf prometheus.o
 z80-unknown-elf-objcopy --set-start="${CODE_ADDRESS}" prometheus.elf -O binary prometheus.img
