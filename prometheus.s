@@ -16,56 +16,56 @@ _start:
   pop     hl                              ; fetch it into HL
   push    hl                              ; stack it
   ld      bc,0x0013                       ;
-  add     hl,bc                           ; add 0x13 bytes to HL => HL=_start+0x17=L5dd7
-  ld      bc,0x01cd                       ; prepare to copy 0x1cd bytes memory region: (L5dd7 - L5fa4)
+  add     hl,bc                           ; add 0x13 bytes to HL => HL=_start+0x17=L0017
+  ld      bc,0x01cd                       ; prepare to copy 0x1cd bytes memory region: (L0017 - L01E4)
   ld      de,0x4017                       ; target location is in 0x17 bytes into display file
   ldir                                    ; copy 0x1cd bytes from _start+0x17 to 0x4017 in display file
   jp      0x4017                          ; jump to the code that has just been copied to display file
-                                          ; (L5dd7)
+                                          ; (L0017)
 
 
-# The following section (L5dd7 until L6d6a) gets relocated to 0x4017-4fa9 in the display file
+# The following section (L0017 until L0FAA) gets relocated to 0x4017-4fa9 in the display file
 
-L5dd7:
-  ld      bc,0x0dc6                       ; prepare to copy remaining 0xdc6 bytes (L5fa4-L6d6a)
-  push    de                              ; stack L5fa4 location (0x41e4)
-  ldir                                    ; relocate L5fa4-L6d6a to 0x41e4
+L0017:
+  ld      bc,0x0dc6                       ; prepare to copy remaining 0xdc6 bytes (L01E4-L0FAA)
+  push    de                              ; stack L01E4 location (0x41e4)
+  ldir                                    ; relocate L01E4-L0FAA to 0x41e4
   xor     a                               ; a=0
   ld      (de),a                          ; [0x4faa] = 0 (first byte after code)
   inc     de                              ;
   ld      (de),a                          ; [0x4fab] = 0 (second byte after code)
   ld      de,0x5800                       ; DE = start of attributes file
   ld      b,0x00
-  L5de6:
+  L0026:
     ld      a,0x3f
     ld      (de),a                        ; write 0x3f to next memory address
     inc     de
     ld      (de),a                        ; write 0x3f to next memory address
     inc     de
-    djnz    L5de6                         ; repeat 256 times
+    djnz    L0026                         ; repeat 256 times
                                           ; top two screen thirds are now white on white (no flash no bright)
-  L5dee:
+  L002E:
     ld      a,0x38                        ; white paper black ink
     ld      (de),a                        ; for bottom third of
     inc     de                            ; screen
-    djnz    L5dee                         ;
+    djnz    L002E                         ;
   ld      de,0x5000                       ; DE=display file address for start of bottom third of screen
-  L5df7:
+  L0037:
     xor     a                             ; Clear
     ld      (de),a                        ; display file
     inc     de                            ; for entire
     ld      a,d                           ; bottom
     cp      0x58                          ; third
-    jr      c,L5df7                       ; of screen
-  pop     ix                              ; IX=0x41e4 (location of L5fa4)
+    jr      c,L0037                       ; of screen
+  pop     ix                              ; IX=0x41e4 (location of L01E4)
   pop     de                              ; DE=original location of code block + 4
   dec     de
   dec     de
   dec     de
   dec     de                              ; DE=original location of code block
-  push    hl                              ; push location of L6d6a (start of code that hasn't been relocated)
-  push    ix                              ; push 0x41e4 (location of relocated L5fa4)
-  ex      de,hl                           ; DE=location of L6d6a (start of code that hasn't been relocated)
+  push    hl                              ; push location of L0FAA (start of code that hasn't been relocated)
+  push    ix                              ; push 0x41e4 (location of relocated L01E4)
+  ex      de,hl                           ; DE=location of L0FAA (start of code that hasn't been relocated)
                                           ; HL=original location of code block
   ld      bc,0x40d0                       ; 01 d0 40
   ld      de,0x2710                       ; 11 10 27
@@ -91,31 +91,31 @@ defb    0xcc
 
 defb    0x7f                              ; (C)
 .ascii " 1993 PROXIMA software "
-L5e6f:
+L00AF:
 defb    0x76
   ld      l,0x6f                          ; 2e 6f
   ld      l,0xf3                          ; 2e f3
   im      1                               ; ed 56
   ei                                      ; fb
   res     5,(iy+1)                        ; fd cb 01 ae
-L5e7c:
+L00BC:
   ld      hl,0x50c8                       ; 21 c8 50
   ld      (0x41bc),hl                     ; 22 bc 41
   call    0x41a9                          ; cd a9 41
 
 .ascii "Address"
 
-L5e8c:
+L00CC:
   cp      d                               ; ba
   call    0x41a9                          ; cd a9 41
   defb    0x30, 0x30
   defb    0x30, 0x30
-  jr      nc,L5ef5                        ; 30 5f
+  jr      nc,L0135                        ; 30 5f
   and     b                               ; a0
-L5e97:
+L00D7:
   halt                                    ; 76
   bit     5,(iy+1)                        ; fd cb 01 6e
-  jr      z,L5e97                         ; 28 f9
+  jr      z,L00D7                         ; 28 f9
   ld      hl,0x00c8                       ; 21 c8 00
   ld      e,0x02                          ; 1e 02
   ld      d,h                             ; 54
@@ -123,58 +123,58 @@ L5e97:
   ld      a,(0x5c08)                      ; 3a 08 5c
   res     5,(iy+1)                        ; fd cb 01 ae
   cp      0x0c                            ; fe 0c
-L5eb0:
-  jr      nz,L5ec8                        ; 20 16
+L00F0:
+  jr      nz,L0108                        ; 20 16
   ld      hl,(0x4115)                     ; 2a 15 41
   ld      bc,0x40d0                       ; 01 d0 40
   or      a                               ; b7
   sbc     hl,bc                           ; ed 42
   add     hl,bc                           ; 09
-  jr      z,L5e97                         ; 28 d9
+  jr      z,L00D7                         ; 28 d9
   ld      (hl),0x20                       ; 36 20
   dec     hl                              ; 2b
   ld      (hl),0x5f                       ; 36 5f
   ld      (0x4115),hl                     ; 22 15 41
-  jr      L5e7c                           ; 18 b4
-L5ec8:
+  jr      L00BC                           ; 18 b4
+L0108:
   cp      0x0d                            ; fe 0d
-  jr      z,L5ef2                         ; 28 26
+  jr      z,L0132                         ; 28 26
   cp      0x30                            ; fe 30
-  jr      c,L5e97                         ; 38 c7
+  jr      c,L00D7                         ; 38 c7
   cp      0x3a                            ; fe 3a
-  jr      nc,L5e97                        ; 30 c3
+  jr      nc,L00D7                        ; 30 c3
   ld      hl,0x40d5                       ; 21 d5 40
   inc     hl                              ; 23
   bit     7,(hl)                          ; cb 7e
   dec     hl                              ; 2b
-L5edb:
-  jr      nz,L5e97                        ; 20 ba
+L011B:
+  jr      nz,L00D7                        ; 20 ba
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
   ld      (hl),0x5f                       ; 36 5f
   ld      (0x4115),hl                     ; 22 15 41
-  jr      L5e7c                           ; 18 96
+  jr      L00BC                           ; 18 96
   ld      a,0x2f                          ; 3e 2f
-L5ee8:
+L0128:
   or      a                               ; b7
   inc     a                               ; 3c
   sbc     hl,de                           ; ed 52
-  jr      nc,L5ee8                        ; 30 fa
+  jr      nc,L0128                        ; 30 fa
   add     hl,de                           ; 19
   ld      (bc),a                          ; 02
   inc     bc                              ; 03
   ret                                     ; c9
-L5ef2:
+L0132:
   ld      bc,0x40d0                       ; 01 d0 40
-L5ef5:
+L0135:
   ld      a,0x04                          ; 3e 04
   out     (0xfe),a                        ; d3 fe
   ld      hl,0x0000                       ; 21 00 00
-L5efc:
+L013C:
   ld      a,(bc)                          ; 0a
   inc     bc                              ; 03
   cp      0x5f                            ; fe 5f
-  jr      z,L5f10                         ; 28 0e
+  jr      z,L0150                         ; 28 0e
   add     hl,hl                           ; 29
   push    hl                              ; e5
   add     hl,hl                           ; 29
@@ -185,8 +185,8 @@ L5efc:
   ld      e,a                             ; 5f
   ld      d,0x00                          ; 16 00
   add     hl,de                           ; 19
-  jr      L5efc                           ; 18 ec
-L5f10:
+  jr      L013C                           ; 18 ec
+L0150:
   ex      de,hl                           ; eb
   pop     ix                              ; dd e1
   pop     hl                              ; e1
@@ -204,7 +204,7 @@ L5f10:
   pop     de                              ; d1
   xor     a                               ; af
   ld      (0x4196),a                      ; 32 96 41
-L5f2b:
+L016B:
   ld      l,(ix+0)                        ; dd 6e 00
   ld      h,(ix+1)                        ; dd 66 01
   inc     ix                              ; dd 23
@@ -223,40 +223,40 @@ L5f2b:
   ld      d,(hl)                          ; 56
   ex      de,hl                           ; eb
   or      a                               ; b7
-  jr      z,L5f5d                         ; 28 15
+  jr      z,L019D                         ; 28 15
   cp      0x40                            ; fe 40
-  jr      z,L5f55                         ; 28 09
+  jr      z,L0195                         ; 28 09
   ld      a,l                             ; 7d
   add     a,c                             ; 81
   ld      l,a                             ; 6f
   ld      a,0x00                          ; 3e 00
   adc     a,0x00                          ; ce 00
-  jr      L5f5f                           ; 18 0a
-L5f55:
+  jr      L019F                           ; 18 0a
+L0195:
   ld      a,0x00                          ; 3e 00
   add     a,l                             ; 85
   add     a,b                             ; 80
   ld      l,a                             ; 6f
   xor     a                               ; af
-  jr      L5f5f                           ; 18 02
-L5f5d:
+  jr      L019F                           ; 18 02
+L019D:
   add     hl,bc                           ; 09
   xor     a                               ; af
-L5f5f:
+L019F:
   ld      (0x4196),a                      ; 32 96 41
   ex      de,hl                           ; eb
   ld      (hl),d                          ; 72
   dec     hl                              ; 2b
   ld      (hl),e                          ; 73
   pop     de                              ; d1
-  jr      L5f2b                           ; 18 c2
+  jr      L016B                           ; 18 c2
   pop     hl                              ; e1
-L5f6a:
+L01AA:
   ld      a,(hl)                          ; 7e
   call    0x41b4                          ; cd b4 41
   bit     7,(hl)                          ; cb 7e
   inc     hl                              ; 23
-  jr      z,L5f6a                         ; 28 f7
+  jr      z,L01AA                         ; 28 f7
   jp      (hl)                            ; e9
   add     a,a                             ; 87
   exx                                     ; d9
@@ -267,12 +267,12 @@ L5f6a:
   ld      de,0x0000                       ; 11 00 00
   push    de                              ; d5
   ld      b,0x08                          ; 06 08
-L5f81:
+L01C1:
   ld      a,(hl)                          ; 7e
   ld      (de),a                          ; 12
   inc     hl                              ; 23
   inc     d                               ; 14
-  djnz    L5f81                           ; 10 fa
+  djnz    L01C1                           ; 10 fa
   pop     hl                              ; e1
   inc     l                               ; 2c
   ld      (0x41bc),hl                     ; 22 bc 41
@@ -285,10 +285,10 @@ L5f81:
   xor     a                               ; af
   sbc     hl,de                           ; ed 52
   pop     hl                              ; e1
-  jr      c,L5f9b                         ; 38 03
+  jr      c,L01DB                         ; 38 03
   ldir                                    ; ed b0
   ret                                     ; c9
-L5f9b:
+L01DB:
   add     hl,bc                           ; 09
   dec     hl                              ; 2b
   ex      de,hl                           ; eb
@@ -301,7 +301,7 @@ L5f9b:
 
 
 
-L5fa4:
+L01E4:
   ld      bc,0x0400                       ; 01 00 04
   nop                                     ; 00
   inc     bc                              ; 03
@@ -402,8 +402,8 @@ L5fa4:
   nop                                     ; 00
   inc     bc                              ; 03
   nop                                     ; 00
-  djnz    L6014                           ; 10 00
-L6014:
+  djnz    L0254                           ; 10 00
+L0254:
   add     hl,bc                           ; 09
   nop                                     ; 00
   dec     h                               ; 25
@@ -1001,8 +1001,8 @@ L6014:
   nop                                     ; 00
   ex      af,af'                          ; 08
   nop                                     ; 00
-  djnz    L628c                           ; 10 00
-L628c:
+  djnz    L04CC                           ; 10 00
+L04CC:
   dec     b                               ; 05
   nop                                     ; 00
   dec     de                              ; 1b
@@ -1017,10 +1017,10 @@ L628c:
   nop                                     ; 00
   ld      (bc),a                          ; 02
   nop                                     ; 00
-  jr      nz,L629c                        ; 20 00
-L629c:
-  djnz    L629e                           ; 10 00
-L629e:
+  jr      nz,L04DC                        ; 20 00
+L04DC:
+  djnz    L04DE                           ; 10 00
+L04DE:
   dec     b                               ; 05
   nop                                     ; 00
   ld      b,0x00                          ; 06 00
@@ -1265,8 +1265,8 @@ L629e:
   nop                                     ; 00
   dec     b                               ; 05
   nop                                     ; 00
-  djnz    L63a2                           ; 10 00
-L63a2:
+  djnz    L05E2                           ; 10 00
+L05E2:
   dec     b                               ; 05
   nop                                     ; 00
   dec     b                               ; 05
@@ -1399,8 +1399,8 @@ L63a2:
   nop                                     ; 00
   rlca                                    ; 07
   nop                                     ; 00
-  jr      nz,L6432                        ; 20 00
-L6432:
+  jr      nz,L0672                        ; 20 00
+L0672:
   dec     b                               ; 05
   nop                                     ; 00
   add     hl,bc                           ; 09
@@ -1460,8 +1460,8 @@ L6432:
   ld      c,0x00                          ; 0e 00
   inc     bc                              ; 03
   nop                                     ; 00
-  djnz    L6476                           ; 10 00
-L6476:
+  djnz    L06B6                           ; 10 00
+L06B6:
   dec     b                               ; 05
   nop                                     ; 00
   dec     bc                              ; 0b
@@ -1633,8 +1633,8 @@ L6476:
   nop                                     ; 00
   dec     b                               ; 05
   nop                                     ; 00
-  djnz    L6536                           ; 10 00
-L6536:
+  djnz    L0776                           ; 10 00
+L0776:
   dec     b                               ; 05
   nop                                     ; 00
   ld      a,(bc)                          ; 0a
@@ -2360,8 +2360,8 @@ L6536:
   nop                                     ; 00
   inc     bc                              ; 03
   nop                                     ; 00
-  djnz    L683a                           ; 10 00
-L683a:
+  djnz    L0A7A                           ; 10 00
+L0A7A:
   inc     b                               ; 04
   nop                                     ; 00
   rlca                                    ; 07
@@ -2540,8 +2540,8 @@ L683a:
   nop                                     ; 00
   inc     d                               ; 14
   nop                                     ; 00
-  jr      z,L68fa                         ; 28 00
-L68fa:
+  jr      z,L0B3A                         ; 28 00
+L0B3A:
   ex      af,af'                          ; 08
   nop                                     ; 00
   ex      af,af'                          ; 08
@@ -2622,8 +2622,8 @@ L68fa:
   nop                                     ; 00
   inc     bc                              ; 03
   nop                                     ; 00
-  djnz    L694e                           ; 10 00
-L694e:
+  djnz    L0B8E                           ; 10 00
+L0B8E:
   ld      b,0x00                          ; 06 00
   ld      a,(bc)                          ; 0a
   nop                                     ; 00
@@ -2660,8 +2660,8 @@ L694e:
   nop                                     ; 00
   ex      af,af'                          ; 08
   nop                                     ; 00
-  djnz    L6976                           ; 10 00
-L6976:
+  djnz    L0BB6                           ; 10 00
+L0BB6:
   add     hl,bc                           ; 09
   nop                                     ; 00
   rlca                                    ; 07
@@ -2746,8 +2746,8 @@ L6976:
   nop                                     ; 00
   dec     b                               ; 05
   nop                                     ; 00
-  djnz    L69ce                           ; 10 00
-L69ce:
+  djnz    L0C0E                           ; 10 00
+L0C0E:
   inc     bc                              ; 03
   nop                                     ; 00
   inc     bc                              ; 03
@@ -2859,8 +2859,8 @@ L69ce:
   nop                                     ; 00
   inc     b                               ; 04
   nop                                     ; 00
-  jr      L6a44                           ; 18 00
-L6a44:
+  jr      L0C84                           ; 18 00
+L0C84:
   inc     bc                              ; 03
   nop                                     ; 00
   inc     bc                              ; 03
@@ -2878,8 +2878,8 @@ L6a44:
   rrca                                    ; 0f
   nop                                     ; 00
   ld      c,0x00                          ; 0e 00
-  jr      nz,L6a58                        ; 20 00
-L6a58:
+  jr      nz,L0C98                        ; 20 00
+L0C98:
   inc     bc                              ; 03
   nop                                     ; 00
   dec     b                               ; 05
@@ -2888,8 +2888,8 @@ L6a58:
   nop                                     ; 00
   inc     bc                              ; 03
   nop                                     ; 00
-  djnz    L6a62                           ; 10 00
-L6a62:
+  djnz    L0CA2                           ; 10 00
+L0CA2:
   dec     b                               ; 05
   nop                                     ; 00
   ld      de,0x0a00                       ; 11 00 0a
@@ -2898,12 +2898,12 @@ L6a62:
   nop                                     ; 00
   ld      a,(bc)                          ; 0a
   nop                                     ; 00
-  jr      nz,L6a6e                        ; 20 00
-L6a6e:
+  jr      nz,L0CAE                        ; 20 00
+L0CAE:
   dec     b                               ; 05
   nop                                     ; 00
-  djnz    L6a72                           ; 10 00
-L6a72:
+  djnz    L0CB2                           ; 10 00
+L0CB2:
   inc     bc                              ; 03
   nop                                     ; 00
   inc     bc                              ; 03
@@ -2997,8 +2997,8 @@ L6a72:
   nop                                     ; 00
   inc     de                              ; 13
   nop                                     ; 00
-  djnz    L6ad6                           ; 10 00
-L6ad6:
+  djnz    L0D16                           ; 10 00
+L0D16:
   inc     bc                              ; 03
   nop                                     ; 00
   ld      c,0x00                          ; 0e 00
@@ -3063,8 +3063,8 @@ L6ad6:
   nop                                     ; 00
   inc     b                               ; 04
   nop                                     ; 00
-  jr      nz,L6b1c                        ; 20 00
-L6b1c:
+  jr      nz,L0D5C                        ; 20 00
+L0D5C:
   inc     bc                              ; 03
   nop                                     ; 00
   ld      c,c                             ; 49
@@ -3073,8 +3073,8 @@ L6b1c:
   nop                                     ; 00
   add     hl,bc                           ; 09
   nop                                     ; 00
-  jr      nz,L6b26                        ; 20 00
-L6b26:
+  jr      nz,L0D66                        ; 20 00
+L0D66:
   inc     bc                              ; 03
   nop                                     ; 00
   dec     bc                              ; 0b
@@ -3241,8 +3241,8 @@ L6b26:
   nop                                     ; 00
   ld      a,(bc)                          ; 0a
   nop                                     ; 00
-  djnz    L6bdc                           ; 10 00
-L6bdc:
+  djnz    L0E1C                           ; 10 00
+L0E1C:
   ld      a,(bc)                          ; 0a
   nop                                     ; 00
   ld      b,0x00                          ; 06 00
@@ -3299,12 +3299,12 @@ L6bdc:
   ld      b,0x00                          ; 06 00
   dec     b                               ; 05
   nop                                     ; 00
-  jr      nz,L6c1e                        ; 20 00
-L6c1e:
+  jr      nz,L0E5E                        ; 20 00
+L0E5E:
   rrca                                    ; 0f
   nop                                     ; 00
-  djnz    L6c22                           ; 10 00
-L6c22:
+  djnz    L0E62                           ; 10 00
+L0E62:
   ld      b,0x00                          ; 06 00
   dec     b                               ; 05
   nop                                     ; 00
@@ -3452,7 +3452,7 @@ L6c22:
   dec     b                               ; 05
   nop                                     ; 00
   defb    0xdd
-  djnz    L6cc9                           ; 10 0c
+  djnz    L0F09                           ; 10 0c
   nop                                     ; 00
   rlca                                    ; 07
   nop                                     ; 00
@@ -3464,7 +3464,7 @@ L6c22:
   inc     bc                              ; 03
   nop                                     ; 00
   inc     bc                              ; 03
-L6cc9:
+L0F09:
   nop                                     ; 00
   inc     bc                              ; 03
   nop                                     ; 00
@@ -3620,7 +3620,7 @@ L6cc9:
 
 
 
-L6d6a:
+L0FAA:
   jp      0xabe4                          ; c3 e4 ab
   nop                                     ; 00
   ld      hl,0xd43a                       ; 21 3a d4
@@ -3632,9 +3632,9 @@ L6d6a:
   call    0xd868                          ; cd 68 d8
   call    0xde03                          ; cd 03 de
   cp      0x61                            ; fe 61
-  jr      z,L6da5                         ; 28 1b
+  jr      z,L0FE5                         ; 28 1b
   cp      0x79                            ; fe 79
-  jr      z,L6da5                         ; 28 17
+  jr      z,L0FE5                         ; 28 17
   ld      hl,0xf3d7                       ; 21 d7 f3
   ld      (0xd098),hl                     ; 22 98 d0
   xor     a                               ; af
@@ -3644,7 +3644,7 @@ L6d6a:
   ld      (0xcc74),a                      ; 32 74 cc
   ld      a,0x01                          ; 3e 01
   ld      (0xb6e6),a                      ; 32 e6 b6
-L6da5:
+L0FE5:
   jp      0xd41c                          ; c3 1c d4
   ld      c,c                             ; 49
   ld      l,(hl)                          ; 6e
@@ -3653,12 +3653,12 @@ L6da5:
   ld      h,c                             ; 61
   ld      l,h                             ; 6c
   ld      l,h                             ; 6c
-  jr      nz,L6df5                        ; 20 44
+  jr      nz,L1035                        ; 20 44
   inc     (hl)                            ; 34
-  jr      nc,L6de3                        ; 30 2f
+  jr      nc,L1023                        ; 30 2f
   ld      b,h                             ; 44
-  jr      c,L6de7                         ; 38 30
-  jr      nz,L6e2f                        ; 20 76
+  jr      c,L1027                         ; 38 30
+  jr      nz,L106F                        ; 20 76
   ld      h,l                             ; 65
   ld      (hl),d                          ; 72
   ld      (hl),e                          ; 73
@@ -3701,12 +3701,12 @@ L6da5:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L6de3:
+L1023:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L6de7:
+L1027:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
@@ -3721,7 +3721,7 @@ L6de7:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L6df5:
+L1035:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
@@ -3780,7 +3780,7 @@ L6df5:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L6e2f:
+L106F:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
@@ -3876,7 +3876,7 @@ L6e2f:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L6e8e:
+L10CE:
   call    0xade9                          ; cd e9 ad
   ex      de,hl                           ; eb
   call    0xae29                          ; cd 29 ae
@@ -3886,36 +3886,36 @@ L6e8e:
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,L6e8e                        ; 20 f1
+  jr      nz,L10CE                        ; 20 f1
   pop     bc                              ; c1
-  jr      L6ea6                           ; 18 06
-L6ea0:
+  jr      L10E6                           ; 18 06
+L10E0:
   add     hl,bc                           ; 09
   dec     hl                              ; 2b
   ex      de,hl                           ; eb
   add     hl,bc                           ; 09
   dec     hl                              ; 2b
   ex      de,hl                           ; eb
-L6ea6:
+L10E6:
   ld      a,b                             ; 78
   or      c                               ; b1
   jp      z,0xaf25                        ; ca 25 af
   push    hl                              ; e5
   push    de                              ; d5
   call    0xad6f                          ; cd 6f ad
-  jr      nc,L6eb3                        ; 30 01
+  jr      nc,L10F3                        ; 30 01
   ex      de,hl                           ; eb
-L6eb3:
+L10F3:
   inc     de                              ; 13
   ld      h,b                             ; 60
   ld      l,c                             ; 69
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
-  jr      nc,L6ec0                        ; 30 05
+  jr      nc,L1100                        ; 30 05
   add     hl,de                           ; 19
   ex      de,hl                           ; eb
   ld      hl,0x0000                       ; 21 00 00
-L6ec0:
+L1100:
   ld      b,d                             ; 42
   ld      c,e                             ; 4b
   pop     de                              ; d1
@@ -3923,19 +3923,19 @@ L6ec0:
   ld      a,h                             ; 7c
   xor     d                               ; aa
   and     0xc0                            ; e6 c0
-  jr      nz,L6e8e                        ; 20 c4
+  jr      nz,L10CE                        ; 20 c4
   push    hl                              ; e5
   push    de                              ; d5
   push    bc                              ; c5
   ld      a,0x16                          ; 3e 16
   bit     7,h                             ; cb 7c
-  jr      nz,L6ed5                        ; 20 02
+  jr      nz,L1115                        ; 20 02
   ld      a,0x13                          ; 3e 13
-L6ed5:
+L1115:
   bit     6,h                             ; cb 74
-  jr      nz,L6edb                        ; 20 02
+  jr      nz,L111B                        ; 20 02
   sub     0x02                            ; d6 02
-L6edb:
+L111B:
   push    bc                              ; c5
   ld      bc,0x7ffd                       ; 01 fd 7f
   out     (c),a                           ; ed 79
@@ -3954,7 +3954,7 @@ L6edb:
   or      a                               ; b7
   sbc     hl,bc                           ; ed 42
   pop     bc                              ; c1
-  jr      L6ea6                           ; 18 ad
+  jr      L10E6                           ; 18 ad
   res     6,h                             ; cb b4
   res     7,h                             ; cb bc
   res     6,d                             ; cb b2
@@ -3964,17 +3964,17 @@ L6edb:
   add     hl,de                           ; 19
   ret                                     ; c9
   call    0xad77                          ; cd 77 ad
-  jr      c,L6ea0                         ; 38 95
-L6f0b:
+  jr      c,L10E0                         ; 38 95
+L114B:
   ld      a,b                             ; 78
   or      c                               ; b1
   jp      z,0xaf25                        ; ca 25 af
   push    hl                              ; e5
   push    de                              ; d5
   call    0xad6f                          ; cd 6f ad
-  jr      c,L6f18                         ; 38 01
+  jr      c,L1158                         ; 38 01
   ex      de,hl                           ; eb
-L6f18:
+L1158:
   ld      hl,0x4000                       ; 21 00 40
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
@@ -3983,11 +3983,11 @@ L6f18:
   ld      l,c                             ; 69
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
-  jr      nc,L6f2b                        ; 30 05
+  jr      nc,L116B                        ; 30 05
   add     hl,de                           ; 19
   ex      de,hl                           ; eb
   ld      hl,0x0000                       ; 21 00 00
-L6f2b:
+L116B:
   ld      b,d                             ; 42
   ld      c,e                             ; 4b
   pop     de                              ; d1
@@ -3995,19 +3995,19 @@ L6f2b:
   ld      a,h                             ; 7c
   xor     d                               ; aa
   and     0xc0                            ; e6 c0
-  jr      nz,L6f60                        ; 20 2b
+  jr      nz,L11A0                        ; 20 2b
   push    hl                              ; e5
   push    de                              ; d5
   push    bc                              ; c5
   ld      a,0x16                          ; 3e 16
   bit     7,h                             ; cb 7c
-  jr      nz,L6f40                        ; 20 02
+  jr      nz,L1180                        ; 20 02
   ld      a,0x13                          ; 3e 13
-L6f40:
+L1180:
   bit     6,h                             ; cb 74
-  jr      nz,L6f46                        ; 20 02
+  jr      nz,L1186                        ; 20 02
   sub     0x02                            ; d6 02
-L6f46:
+L1186:
   push    bc                              ; c5
   ld      bc,0x7ffd                       ; 01 fd 7f
   out     (c),a                           ; ed 79
@@ -4024,8 +4024,8 @@ L6f46:
   pop     hl                              ; e1
   add     hl,bc                           ; 09
   pop     bc                              ; c1
-  jr      L6f0b                           ; 18 ab
-L6f60:
+  jr      L114B                           ; 18 ab
+L11A0:
   call    0xade9                          ; cd e9 ad
   ex      de,hl                           ; eb
   call    0xae29                          ; cd 29 ae
@@ -4035,19 +4035,19 @@ L6f60:
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,L6f60                        ; 20 f1
+  jr      nz,L11A0                        ; 20 f1
   pop     bc                              ; c1
   jp      0xad81                          ; c3 81 ad
   push    bc                              ; c5
   bit     7,h                             ; cb 7c
   ld      a,0x16                          ; 3e 16
-  jr      nz,L6f7c                        ; 20 02
+  jr      nz,L11BC                        ; 20 02
   ld      a,0x13                          ; 3e 13
-L6f7c:
+L11BC:
   bit     6,h                             ; cb 74
-  jr      nz,L6f82                        ; 20 02
+  jr      nz,L11C2                        ; 20 02
   sub     0x02                            ; d6 02
-L6f82:
+L11C2:
   ld      bc,0x7ffd                       ; 01 fd 7f
   out     (c),a                           ; ed 79
   ld      b,h                             ; 44
@@ -4064,13 +4064,13 @@ L6f82:
   ret                                     ; c9
   bit     7,h                             ; cb 7c
   ld      a,0x16                          ; 3e 16
-  jr      nz,L6fa0                        ; 20 02
+  jr      nz,L11E0                        ; 20 02
   ld      a,0x13                          ; 3e 13
-L6fa0:
+L11E0:
   bit     6,h                             ; cb 74
-  jr      nz,L6fa6                        ; 20 02
+  jr      nz,L11E6                        ; 20 02
   sub     0x02                            ; d6 02
-L6fa6:
+L11E6:
   ld      bc,0x7ffd                       ; 01 fd 7f
   out     (c),a                           ; ed 79
   ld      b,h                             ; 44
@@ -4083,13 +4083,13 @@ L6fa6:
   push    af                              ; f5
   bit     7,h                             ; cb 7c
   ld      a,0x16                          ; 3e 16
-  jr      nz,L6fbd                        ; 20 02
+  jr      nz,L11FD                        ; 20 02
   ld      a,0x13                          ; 3e 13
-L6fbd:
+L11FD:
   bit     6,h                             ; cb 74
-  jr      nz,L6fc3                        ; 20 02
+  jr      nz,L1203                        ; 20 02
   sub     0x02                            ; d6 02
-L6fc3:
+L1203:
   ld      bc,0x7ffd                       ; 01 fd 7f
   out     (c),a                           ; ed 79
   pop     af                              ; f1
@@ -4109,14 +4109,14 @@ L6fc3:
   pop     hl                              ; e1
   bit     7,h                             ; cb 7c
   ld      d,0x16                          ; 16 16
-  jr      nz,L6fe5                        ; 20 02
+  jr      nz,L1225                        ; 20 02
   ld      d,0x13                          ; 16 13
-L6fe5:
+L1225:
   bit     6,h                             ; cb 74
-  jr      nz,L6feb                        ; 20 02
+  jr      nz,L122B                        ; 20 02
   dec     d                               ; 15
   dec     d                               ; 15
-L6feb:
+L122B:
   ld      bc,0x7ffd                       ; 01 fd 7f
   set     7,h                             ; cb fc
   set     6,h                             ; cb f4
@@ -4137,60 +4137,60 @@ L6feb:
   or      0x02                            ; f6 02
   ld      c,a                             ; 4f
   cp      a                               ; bf
-L700c:
+L124C:
   jp      nz,0xaf25                       ; c2 25 af
-L700f:
+L124F:
   call    0x05e7                          ; cd e7 05
-  jr      nc,L700c                        ; 30 f8
+  jr      nc,L124C                        ; 30 f8
   ld      hl,0x0415                       ; 21 15 04
-L7017:
-  djnz    L7017                           ; 10 fe
+L1257:
+  djnz    L1257                           ; 10 fe
   dec     hl                              ; 2b
   ld      a,h                             ; 7c
   or      l                               ; b5
-  jr      nz,L7017                        ; 20 f9
+  jr      nz,L1257                        ; 20 f9
   call    0x05e3                          ; cd e3 05
-  jr      nc,L700c                        ; 30 e9
-L7023:
+  jr      nc,L124C                        ; 30 e9
+L1263:
   ld      b,0x9c                          ; 06 9c
   call    0x05e3                          ; cd e3 05
-  jr      nc,L700c                        ; 30 e2
+  jr      nc,L124C                        ; 30 e2
   ld      a,0xc6                          ; 3e c6
   cp      b                               ; b8
-  jr      nc,L700f                        ; 30 e0
+  jr      nc,L124F                        ; 30 e0
   inc     h                               ; 24
-  jr      nz,L7023                        ; 20 f1
-L7032:
+  jr      nz,L1263                        ; 20 f1
+L1272:
   ld      b,0xc9                          ; 06 c9
   call    0x05e7                          ; cd e7 05
-  jr      nc,L700c                        ; 30 d3
+  jr      nc,L124C                        ; 30 d3
   ld      a,b                             ; 78
   cp      0xd4                            ; fe d4
-  jr      nc,L7032                        ; 30 f4
+  jr      nc,L1272                        ; 30 f4
   call    0x05e7                          ; cd e7 05
-  jr      nc,L70af                        ; 30 6c
+  jr      nc,L12EF                        ; 30 6c
   ld      a,c                             ; 79
   xor     0x03                            ; ee 03
   ld      c,a                             ; 4f
   ld      h,0x00                          ; 26 00
   ld      b,0xb0                          ; 06 b0
-  jr      L7094                           ; 18 47
-L704d:
+  jr      L12D4                           ; 18 47
+L128D:
   ex      af,af'                          ; 08
-  jr      z,L7077                         ; 28 27
+  jr      z,L12B7                         ; 28 27
   rl      c                               ; cb 11
   xor     l                               ; ad
-  jr      nz,L70af                        ; 20 5a
+  jr      nz,L12EF                        ; 20 5a
   ld      a,c                             ; 79
   rra                                     ; 1f
   ld      c,a                             ; 4f
   inc     de                              ; 13
   ex      af,af'                          ; 08
-  jr      L7091                           ; 18 35
-L705c:
+  jr      L12D1                           ; 18 35
+L129C:
   xor     (hl)                            ; ae
-  jr      z,L707c                         ; 28 1d
-  jr      L70af                           ; 18 4e
+  jr      z,L12BC                         ; 28 1d
+  jr      L12EF                           ; 18 4e
   exx                                     ; d9
   ld      hl,0x0000                       ; 21 00 00
   ld      d,0x00                          ; 16 00
@@ -4203,35 +4203,35 @@ L705c:
   xor     a                               ; af
   dec     a                               ; 3d
   ex      af,af'                          ; 08
-  jr      L7094                           ; 18 1d
-L7077:
+  jr      L12D4                           ; 18 1d
+L12B7:
   ld      a,l                             ; 7d
   exx                                     ; d9
-  jr      nc,L705c                        ; 30 e1
+  jr      nc,L129C                        ; 30 e1
   ld      (hl),a                          ; 77
-L707c:
+L12BC:
   ex      af,af'                          ; 08
   inc     hl                              ; 23
   bit     7,h                             ; cb 7c
-  jr      nz,L7090                        ; 20 0e
+  jr      nz,L12D0                        ; 20 0e
   ld      h,0xc0                          ; 26 c0
-L7084:
+L12C4:
   inc     d                               ; 14
   ld      a,d                             ; 7a
   cp      0x12                            ; fe 12
-  jr      z,L7084                         ; 28 fa
+  jr      z,L12C4                         ; 28 fa
   cp      0x15                            ; fe 15
-  jr      z,L7084                         ; 28 f6
+  jr      z,L12C4                         ; 28 f6
   out     (c),d                           ; ed 51
-L7090:
+L12D0:
   exx                                     ; d9
-L7091:
+L12D1:
   dec     de                              ; 1b
   ld      b,0xb2                          ; 06 b2
-L7094:
+L12D4:
   ld      l,0x01                          ; 2e 01
   call    0x05e3                          ; cd e3 05
-  jr      nc,L70af                        ; 30 14
+  jr      nc,L12EF                        ; 30 14
   ld      a,0xcb                          ; 3e cb
   cp      b                               ; b8
   rl      l                               ; cb 15
@@ -4242,10 +4242,10 @@ L7094:
   ld      h,a                             ; 67
   ld      a,d                             ; 7a
   or      e                               ; b3
-  jr      nz,L704d                        ; 20 a1
+  jr      nz,L128D                        ; 20 a1
   ld      a,h                             ; 7c
   cp      0x01                            ; fe 01
-L70af:
+L12EF:
   push    af                              ; f5
   push    bc                              ; c5
   ld      a,0x10                          ; 3e 10
@@ -4261,7 +4261,7 @@ L70af:
   ld      hl,0x0000                       ; 21 00 00
   inc     hl                              ; 23
   ld      (0xaf3b),hl                     ; 22 3b af
-  jr      L70af                           ; 18 e2
+  jr      L12EF                           ; 18 e2
   call    0xaf5d                          ; cd 5d af
   ld      hl,0x0000                       ; 21 00 00
   dec     hl                              ; 2b
@@ -4271,13 +4271,13 @@ L70af:
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
   ld      (hl),b                          ; 70
-  jr      L70af                           ; 18 d3
+  jr      L12EF                           ; 18 d3
   call    0xaf5d                          ; cd 5d af
   ld      hl,(0xaf47)                     ; 2a 47 af
   dec     hl                              ; 2b
   add     a,(hl)                          ; 86
   ld      (hl),a                          ; 77
-  jr      L70af                           ; 18 c8
+  jr      L12EF                           ; 18 c8
   push    af                              ; f5
   push    bc                              ; c5
   ld      bc,0x7ffd                       ; 01 fd 7f
@@ -4291,37 +4291,37 @@ L70af:
   out     (c),a                           ; ed 79
   call    0x0000                          ; cd 00 00
   di                                      ; f3
-  jr      L70af                           ; 18 af
+  jr      L12EF                           ; 18 af
   ld      hl,0x1f80                       ; 21 80 1f
   exx                                     ; d9
   out     (c),d                           ; ed 51
   exx                                     ; d9
   bit     7,a                             ; cb 7f
-  jr      z,L710e                         ; 28 03
+  jr      z,L134E                         ; 28 03
   ld      hl,0x0c98                       ; 21 98 0c
-L710e:
+L134E:
   ex      af,af'                          ; 08
   inc     de                              ; 13
   ld      a,0x02                          ; 3e 02
   ld      b,a                             ; 47
-L7113:
-  djnz    L7113                           ; 10 fe
+L1353:
+  djnz    L1353                           ; 10 fe
   out     (0xfe),a                        ; d3 fe
   xor     0x0f                            ; ee 0f
   ld      b,0xa4                          ; 06 a4
   dec     l                               ; 2d
-  jr      nz,L7113                        ; 20 f5
+  jr      nz,L1353                        ; 20 f5
   dec     b                               ; 05
   dec     h                               ; 25
   jp      p,0xaf89                        ; f2 89 af
   ld      b,0x2f                          ; 06 2f
-L7125:
-  djnz    L7125                           ; 10 fe
+L1365:
+  djnz    L1365                           ; 10 fe
   out     (0xfe),a                        ; d3 fe
   ld      a,0x0d                          ; 3e 0d
   ld      b,0x37                          ; 06 37
-L712d:
-  djnz    L712d                           ; 10 fe
+L136D:
+  djnz    L136D                           ; 10 fe
   out     (0xfe),a                        ; d3 fe
   ld      bc,0x3b0e                       ; 01 0e 3b
   ex      af,af'                          ; 08
@@ -4329,21 +4329,21 @@ L712d:
   jp      0xafb9                          ; c3 b9 af
   ld      a,d                             ; 7a
   or      e                               ; b3
-  jr      z,L714a                         ; 28 0d
+  jr      z,L138A                         ; 28 0d
   exx                                     ; d9
   ld      a,(hl)                          ; 7e
   exx                                     ; d9
   ld      l,a                             ; 6f
-L7141:
+L1381:
   ld      a,h                             ; 7c
   xor     l                               ; ad
   ld      h,a                             ; 67
   ld      a,0x01                          ; 3e 01
   scf                                     ; 37
   jp      0xaff1                          ; c3 f1 af
-L714a:
+L138A:
   ld      l,h                             ; 6c
-  jr      L7141                           ; 18 f4
+  jr      L1381                           ; 18 f4
   exx                                     ; d9
   ld      hl,0x0000                       ; 21 00 00
   ld      d,0x00                          ; 16 00
@@ -4358,20 +4358,20 @@ L714a:
   scf                                     ; 37
   rl      l                               ; cb 15
   ld      b,0x31                          ; 06 31
-  jr      L7170                           ; 18 09
-L7167:
+  jr      L13B0                           ; 18 09
+L13A7:
   ld      a,c                             ; 79
   bit     7,b                             ; cb 78
-L716a:
-  djnz    L716a                           ; 10 fe
-  jr      nc,L7172                        ; 30 04
+L13AA:
+  djnz    L13AA                           ; 10 fe
+  jr      nc,L13B2                        ; 30 04
   ld      b,0x42                          ; 06 42
-L7170:
-  djnz    L7170                           ; 10 fe
-L7172:
+L13B0:
+  djnz    L13B0                           ; 10 fe
+L13B2:
   out     (0xfe),a                        ; d3 fe
   ld      b,0x3e                          ; 06 3e
-  jr      nz,L7167                        ; 20 ef
+  jr      nz,L13A7                        ; 20 ef
   dec     b                               ; 05
   xor     a                               ; af
   inc     a                               ; 3c
@@ -4381,30 +4381,30 @@ L7172:
   exx                                     ; d9
   inc     hl                              ; 23
   bit     7,h                             ; cb 7c
-  jr      nz,L7195                        ; 20 0e
+  jr      nz,L13D5                        ; 20 0e
   ld      h,0xc0                          ; 26 c0
-L7189:
+L13C9:
   inc     d                               ; 14
   ld      a,d                             ; 7a
   cp      0x12                            ; fe 12
-  jr      z,L7189                         ; 28 fa
+  jr      z,L13C9                         ; 28 fa
   cp      0x15                            ; fe 15
-  jr      z,L7189                         ; 28 f6
+  jr      z,L13C9                         ; 28 f6
   out     (c),d                           ; ed 51
-L7195:
+L13D5:
   exx                                     ; d9
   ld      b,0x2f                          ; 06 2f
   ld      a,0x7f                          ; 3e 7f
   in      a,(0xfe)                        ; db fe
   rra                                     ; 1f
-  jr      nc,L71a8                        ; 30 09
+  jr      nc,L13E8                        ; 30 09
   ld      a,d                             ; 7a
   inc     a                               ; 3c
   jp      nz,0xafaf                       ; c2 af af
   ld      b,0x3b                          ; 06 3b
-L71a6:
-  djnz    L71a6                           ; 10 fe
-L71a8:
+L13E6:
+  djnz    L13E6                           ; 10 fe
+L13E8:
   exx                                     ; d9
   ld      a,0x10                          ; 3e 10
   out     (c),a                           ; ed 79
@@ -4421,21 +4421,21 @@ L71a8:
   exx                                     ; d9
   pop     hl                              ; e1
   exx                                     ; d9
-L71c0:
+L1400:
   ld      a,b                             ; 78
   or      c                               ; b1
   scf                                     ; 37
-  jr      z,L71f5                         ; 28 30
+  jr      z,L1435                         ; 28 30
   exx                                     ; d9
   inc     hl                              ; 23
   call    0xae0e                          ; cd 0e ae
   ld      c,a                             ; 4f
   and     0xc0                            ; e6 c0
   ld      a,c                             ; 79
-  jr      nz,L71d3                        ; 20 03
+  jr      nz,L1413                        ; 20 03
   inc     a                               ; 3c
-  jr      L71ee                           ; 18 1b
-L71d3:
+  jr      L142E                           ; 18 1b
+L1413:
   push    hl                              ; e5
   dec     hl                              ; 2b
   and     0x3f                            ; e6 3f
@@ -4448,37 +4448,37 @@ L71d3:
   add     hl,bc                           ; 09
   call    0xae0e                          ; cd 0e ae
   cp      e                               ; bb
-  jr      nz,L71ed                        ; 20 05
+  jr      nz,L142D                        ; 20 05
   inc     hl                              ; 23
   call    0xae0e                          ; cd 0e ae
   cp      d                               ; ba
-L71ed:
+L142D:
   pop     hl                              ; e1
-L71ee:
+L142E:
   inc     hl                              ; 23
   exx                                     ; d9
   dec     bc                              ; 0b
   inc     de                              ; 13
-  jr      nz,L71c0                        ; 20 cc
+  jr      nz,L1400                        ; 20 cc
   exx                                     ; d9
-L71f5:
+L1435:
   exx                                     ; d9
   pop     bc                              ; c1
-L71f7:
+L1437:
   jp      0xaf25                          ; c3 25 af
   call    0xb1c1                          ; cd c1 b1
   call    0x1a00                          ; cd 00 1a
-  jr      L71f7                           ; 18 f5
+  jr      L1437                           ; 18 f5
   call    0xb1c1                          ; cd c1 b1
   call    0x19ae                          ; cd ae 19
-  jr      L71f7                           ; 18 ed
+  jr      L1437                           ; 18 ed
   ld      sp,0xad04                       ; 31 04 ad
   call    0xf430                          ; cd 30 f4
   call    0xf4df                          ; cd df f4
   call    0xaf25                          ; cd 25 af
   jp      0xbbf0                          ; c3 f0 bb
   call    0xae69                          ; cd 69 ae
-  jr      L722c                           ; 18 0e
+  jr      L146C                           ; 18 0e
   inc     d                               ; 14
   ex      af,af'                          ; 08
   dec     d                               ; 15
@@ -4487,7 +4487,7 @@ L71f7:
   out     (0xfe),a                        ; d3 fe
   call    0x0562                          ; cd 62 05
   call    0xaf25                          ; cd 25 af
-L722c:
+L146C:
   push    af                              ; f5
   ld      a,0x7f                          ; 3e 7f
   in      a,(0xfe)                        ; db fe
@@ -4563,7 +4563,7 @@ L722c:
   ld      a,0x01                          ; 3e 01
   ld      de,0x0000                       ; 11 00 00
   ld      hl,0x0000                       ; 21 00 00
-  jr      L72c4                           ; 18 22
+  jr      L1504                           ; 18 22
   nop                                     ; 00
   ld      (0xb0c3),sp                     ; ed 73 c3 b0
   ld      sp,0xac60                       ; 31 60 ac
@@ -4584,7 +4584,7 @@ L722c:
   ld      de,0x0000                       ; 11 00 00
   ld      hl,0x0000                       ; 21 00 00
   nop                                     ; 00
-L72c4:
+L1504:
   push    bc                              ; c5
   push    ix                              ; dd e5
   push    iy                              ; fd e5
@@ -4627,7 +4627,7 @@ L72c4:
   pop     de                              ; d1
   ldir                                    ; ed b0
   xor     a                               ; af
-L730b:
+L154B:
   ld      bc,0x7ffd                       ; 01 fd 7f
   ld      e,a                             ; 5f
   or      0x10                            ; f6 10
@@ -4636,13 +4636,13 @@ L730b:
   ld      hl,0xad04                       ; 21 04 ad
   ld      de,0xc000                       ; 11 00 c0
   ld      b,0x08                          ; 06 08
-L731c:
+L155C:
   ld      a,(de)                          ; 1a
   cp      (hl)                            ; be
-  jr      nz,L7336                        ; 20 16
+  jr      nz,L1576                        ; 20 16
   inc     l                               ; 2c
   inc     e                               ; 1c
-  djnz    L731c                           ; 10 f8
+  djnz    L155C                           ; 10 f8
   ld      a,c                             ; 79
   ld      (0xb1c2),a                      ; 32 c2 b1
   ld      hl,0xac82                       ; 21 82 ac
@@ -4650,17 +4650,17 @@ L731c:
   ld      bc,0x0008                       ; 01 08 00
   ldir                                    ; ed b0
   jp      0xaf25                          ; c3 25 af
-L7336:
+L1576:
   ld      a,c                             ; 79
   call    0xb1b5                          ; cd b5 b1
-  jr      nz,L730b                        ; 20 cf
+  jr      nz,L154B                        ; 20 cf
   jp      0xaf25                          ; c3 25 af
-L733f:
+L157F:
   inc     a                               ; 3c
   cp      0x02                            ; fe 02
-  jr      z,L733f                         ; 28 fb
+  jr      z,L157F                         ; 28 fb
   cp      0x05                            ; fe 05
-  jr      z,L733f                         ; 28 f7
+  jr      z,L157F                         ; 28 f7
   cp      0x08                            ; fe 08
   ret                                     ; c9
   ld      a,0x00                          ; 3e 00
@@ -4674,30 +4674,30 @@ L733f:
   ret                                     ; c9
   call    0xb1c1                          ; cd c1 b1
   ld      a,(hl)                          ; 7e
-L735d:
+L159D:
   jp      0xaf25                          ; c3 25 af
   push    af                              ; f5
   call    0xb1c1                          ; cd c1 b1
   pop     af                              ; f1
   ld      (hl),a                          ; 77
-  jr      L735d                           ; 18 f5
+  jr      L159D                           ; 18 f5
   push    af                              ; f5
   call    0xb1c1                          ; cd c1 b1
   pop     af                              ; f1
   ld      (hl),a                          ; 77
   ldir                                    ; ed b0
-  jr      L735d                           ; 18 eb
+  jr      L159D                           ; 18 eb
   call    0xb1c1                          ; cd c1 b1
   call    0xb1f0                          ; cd f0 b1
-  jr      L735d                           ; 18 e3
+  jr      L159D                           ; 18 e3
   ld      a,b                             ; 78
   or      c                               ; b1
   ret     z                               ; c8
   call    0xad77                          ; cd 77 ad
-  jr      c,L7385                         ; 38 03
+  jr      c,L15C5                         ; 38 03
   ldir                                    ; ed b0
   ret                                     ; c9
-L7385:
+L15C5:
   add     hl,bc                           ; 09
   dec     hl                              ; 2b
   ex      de,hl                           ; eb
@@ -4765,7 +4765,7 @@ L7385:
   pop     bc                              ; c1
   or      d                               ; b2
   ld      bc,0xb0c2                       ; 01 c2 b0
-  jr      nz,L7448                        ; 20 50
+  jr      nz,L1688                        ; 20 50
   jp      nz,0x0192                       ; c2 92 01
   cp      h                               ; bc
   or      b                               ; b0
@@ -4813,7 +4813,7 @@ L7385:
   nop                                     ; 00
   cp      d                               ; ba
   or      b                               ; b0
-  jr      nz,L747f                        ; 20 48
+  jr      nz,L16BF                        ; 20 48
   dec     e                               ; 1d
   add     a,d                             ; 82
   nop                                     ; 00
@@ -4830,7 +4830,7 @@ L7385:
   ld      c,b                             ; 48
   ld      e,0x82                          ; 1e 82
   nop                                     ; 00
-L7448:
+L1688:
   or      a                               ; b7
   or      b                               ; b0
   adc     a,0x50                          ; ce 50
@@ -4870,7 +4870,7 @@ L7448:
   ld      d,b                             ; 50
   inc     e                               ; 1c
   adc     a,d                             ; 8a
-L747f:
+L16BF:
   ld      bc,0xb0b7                       ; 01 b7 b0
   exx                                     ; d9
   ld      d,b                             ; 50
@@ -4897,7 +4897,7 @@ L747f:
   ret     po                              ; e0
   cp      e                               ; bb
   or      b                               ; b0
-  jr      z,L74e8                         ; 28 48
+  jr      z,L1728                         ; 28 48
   daa                                     ; 27
   add     a,c                             ; 81
   ret     po                              ; e0
@@ -4962,7 +4962,7 @@ L747f:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L74e8:
+L1728:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
@@ -5138,7 +5138,7 @@ L74e8:
   ld      hl,0xac3e                       ; 21 3e ac
   ld      a,(0xb16a)                      ; 3a 6a b1
   or      a                               ; b7
-  jr      z,L75bd                         ; 28 0e
+  jr      z,L17FD                         ; 28 0e
   ld      (hl),0xdc                       ; 36 dc
   inc     hl                              ; 23
   ld      a,(0xb1c2)                      ; 3a c2 b1
@@ -5146,10 +5146,10 @@ L74e8:
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
   ld      (hl),0xdb                       ; 36 db
-  jr      L75bf                           ; 18 02
-L75bd:
+  jr      L17FF                           ; 18 02
+L17FD:
   ld      (hl),0xc6                       ; 36 c6
-L75bf:
+L17FF:
   inc     hl                              ; 23
   ld      a,(0xbd8b)                      ; 3a 8b bd
   add     a,0xc7                          ; c6 c7
@@ -5159,9 +5159,9 @@ L75bf:
   inc     hl                              ; 23
   ld      a,(0xbcec)                      ; 3a ec bc
   or      a                               ; b7
-  jr      z,L75d2                         ; 28 02
+  jr      z,L1812                         ; 28 02
   sub     0xc7                            ; d6 c7
-L75d2:
+L1812:
   add     a,0xc9                          ; c6 c9
   ld      (hl),a                          ; 77
   call    0xbb95                          ; cd 95 bb
@@ -5199,18 +5199,18 @@ L75d2:
   ld      b,0x2b                          ; 06 2b
   ld      hl,0xb4bc                       ; 21 bc b4
   ld      de,0xb53a                       ; 11 3a b5
-L7631:
+L1871:
   ld      a,(de)                          ; 1a
   inc     de                              ; 13
   call    0xc05d                          ; cd 5d c0
   ld      a,(de)                          ; 1a
   cp      c                               ; b9
   inc     de                              ; 13
-  jr      z,L7641                         ; 28 06
-  djnz    L7631                           ; 10 f4
+  jr      z,L1881                         ; 28 06
+  djnz    L1871                           ; 10 f4
   ld      a,c                             ; 79
   jp      0xb99f                          ; c3 9f b9
-L7641:
+L1881:
   push    hl                              ; e5
   ld      hl,(0xb4ed)                     ; 2a ed b4
   ret                                     ; c9
@@ -5218,7 +5218,7 @@ L7641:
   call    nz,0x2b23                       ; c4 23 2b
   dec     hl                              ; 2b
   inc     hl                              ; 23
-L764e:
+L188E:
   ld      (0xb4ed),hl                     ; 22 ed b4
   ret                                     ; c9
   ld      hl,0xb373                       ; 21 73 b3
@@ -5232,7 +5232,7 @@ L764e:
   dec     hl                              ; 2b
   ld      l,(hl)                          ; 6e
   ld      h,a                             ; 67
-  jr      L764e                           ; 18 eb
+  jr      L188E                           ; 18 eb
   ld      hl,0xb373                       ; 21 73 b3
   ld      a,(hl)                          ; 7e
   cp      0x0a                            ; fe 0a
@@ -5248,7 +5248,7 @@ L764e:
   dec     hl                              ; 2b
   ld      (hl),e                          ; 73
   pop     hl                              ; e1
-  jr      L764e                           ; 18 cf
+  jr      L188E                           ; 18 cf
   ld      hl,0xb373                       ; 21 73 b3
   ld      a,(hl)                          ; 7e
   cp      0x0a                            ; fe 0a
@@ -5258,12 +5258,12 @@ L764e:
   call    0xb1cf                          ; cd cf b1
   inc     hl                              ; 23
   cp      0xdd                            ; fe dd
-  jr      z,L7696                         ; 28 04
+  jr      z,L18D6                         ; 28 04
   cp      0xfd                            ; fe fd
-  jr      nz,L7697                        ; 20 01
-L7696:
+  jr      nz,L18D7                        ; 20 01
+L18D6:
   inc     hl                              ; 23
-L7697:
+L18D7:
   call    0xb1cf                          ; cd cf b1
   push    af                              ; f5
   inc     hl                              ; 23
@@ -5273,14 +5273,14 @@ L7697:
   ld      l,a                             ; 6f
   defb    0x18, 0xcb
   call    0xbfc6                          ; cd c6 bf
-  jr      L764e                           ; 18 a5
+  jr      L188E                           ; 18 a5
   call    0xb5a0                          ; cd a0 b5
   jp      nz,0x43cd                       ; c2 cd 43
   pop     bc                              ; c1
-L76b0:
+L18F0:
   call    0xbeaf                          ; cd af be
   call    0xb402                          ; cd 02 b4
-  jr      L76b0                           ; 18 f8
+  jr      L18F0                           ; 18 f8
   ld      ix,0xb250                       ; dd 21 50 b2
   ld      a,(ix+4)                        ; dd 7e 04
   and     0x1f                            ; e6 1f
@@ -5355,19 +5355,19 @@ L76b0:
   ld      de,0x0001                       ; 11 01 00
   ld      hl,(0xda17)                     ; 2a 17 da
   ld      (0xd115),hl                     ; 22 15 d1
-  jr      L7732                           ; 18 08
+  jr      L1972                           ; 18 08
   pop     hl                              ; e1
   ld      e,(hl)                          ; 5e
   inc     hl                              ; 23
   push    hl                              ; e5
   ld      d,0x01                          ; 16 01
   ld      a,0xc3                          ; 3e c3
-L7732:
+L1972:
   ld      (0xb5ce),a                      ; 32 ce b5
   call    0xbb86                          ; cd 86 bb
   ld      (0xac3e),de                     ; ed 53 3e ac
   ld      (0xb5b7),sp                     ; ed 73 b7 b5
-L7740:
+L1980:
   ld      sp,0x0000                       ; 31 00 00
   call    0xdaa5                          ; cd a5 da
   ld      hl,0xb612                       ; 21 12 b6
@@ -5403,66 +5403,66 @@ L7740:
   call    0xb5f8                          ; cd f8 b5
   call    0xd833                          ; cd 33 d8
   ld      h,0x01                          ; 26 01
-L7794:
+L19D4:
   inc     hl                              ; 23
   ex      (sp),hl                         ; e3
   ex      (sp),hl                         ; e3
   inc     h                               ; 24
   dec     h                               ; 25
-  jr      nz,L7794                        ; 20 f9
+  jr      nz,L19D4                        ; 20 f9
   ret                                     ; c9
   call    0xb602                          ; cd 02 b6
-  jr      L7740                           ; 18 9f
+  jr      L1980                           ; 18 9f
   call    0xb590                          ; cd 90 b5
-L77a4:
+L19E4:
   ld      hl,(0xbb71)                     ; 2a 71 bb
   call    0xc278                          ; cd 78 c2
   call    0xb593                          ; cd 93 b5
-  jr      L77a4                           ; 18 f5
+  jr      L19E4                           ; 18 f5
   ld      hl,0xbd8b                       ; 21 8b bd
-L77b2:
+L19F2:
   jp      0xd394                          ; c3 94 d3
   ld      hl,0xbcec                       ; 21 ec bc
   ld      a,(hl)                          ; 7e
   or      a                               ; b7
-  jr      nz,L77be                        ; 20 02
+  jr      nz,L19FE                        ; 20 02
   ld      a,0xc7                          ; 3e c7
-L77be:
+L19FE:
   inc     a                               ; 3c
   cp      0xca                            ; fe ca
-  jr      nz,L77c4                        ; 20 01
+  jr      nz,L1A04                        ; 20 01
   xor     a                               ; af
-L77c4:
+L1A04:
   ld      (hl),a                          ; 77
   ret                                     ; c9
   ld      hl,0xbfa0                       ; 21 a0 bf
-  jr      L77b2                           ; 18 e7
+  jr      L19F2                           ; 18 e7
   ld      hl,0xbf36                       ; 21 36 bf
   ld      a,(hl)                          ; 7e
   or      a                               ; b7
-  jr      nz,L77d4                        ; 20 02
+  jr      nz,L1A14                        ; 20 02
   ld      a,0x03                          ; 3e 03
-L77d4:
+L1A14:
   dec     a                               ; 3d
   ld      (hl),a                          ; 77
   out     (0xfe),a                        ; d3 fe
   ret                                     ; c9
-L77d9:
+L1A19:
   call    0xbc13                          ; cd 13 bc
   call    c,0xc275                        ; dc 75 c2
   call    0x1f54                          ; cd 54 1f
-  jr      c,L77d9                         ; 38 f5
-L77e4:
+  jr      c,L1A19                         ; 38 f5
+L1A24:
   xor     a                               ; af
   in      a,(0xfe)                        ; db fe
   cpl                                     ; 2f
   and     0x1f                            ; e6 1f
-  jr      nz,L77e4                        ; 20 f8
+  jr      nz,L1A24                        ; 20 f8
   ret                                     ; c9
   call    0xb5a0                          ; cd a0 b5
   jp      0x7422                          ; c3 22 74
   or      (hl)                            ; b6
-L77f4:
+L1A34:
   call    0xbc13                          ; cd 13 bc
   call    nc,0xc275                       ; d4 75 c2
   ld      hl,(0xb4ed)                     ; 2a ed b4
@@ -5471,20 +5471,20 @@ L77f4:
   sbc     hl,de                           ; ed 52
   ret     z                               ; c8
   call    0x1f54                          ; cd 54 1f
-  jr      nc,L77e4                        ; 30 db
-  jr      L77f4                           ; 18 e9
+  jr      nc,L1A24                        ; 30 db
+  jr      L1A34                           ; 18 e9
   ld      hl,0xc368                       ; 21 68 c3
-  jr      L77b2                           ; 18 a2
+  jr      L19F2                           ; 18 a2
   call    0xbbd4                          ; cd d4 bb
-  jr      L7818                           ; 18 03
+  jr      L1A58                           ; 18 03
   call    0xbbc7                          ; cd c7 bb
-L7818:
+L1A58:
   push    hl                              ; e5
   push    de                              ; d5
   call    0xb5a0                          ; cd a0 b5
   exx                                     ; d9
   xor     0x3a                            ; ee 3a
-  jr      nz,L784b                        ; 20 29
+  jr      nz,L1A8B                        ; 20 29
   ld      ix,0xac10                       ; dd 21 10 ac
   ld      (ix+0),0x03                     ; dd 36 00 03
   ld      de,0xac11                       ; 11 11 ac
@@ -5503,7 +5503,7 @@ L7818:
   jp      nz,0xf653                       ; c2 53 f6
   call    0xcd3a                          ; cd 3a cd
   ld      l,0xff                          ; 2e ff
-L784b:
+L1A8B:
   call    0xb6c7                          ; cd c7 b6
   jp      0xb20f                          ; c3 0f b2
   ld      a,l                             ; 7d
@@ -5519,15 +5519,15 @@ L784b:
   pop     ix                              ; dd e1
   ret                                     ; c9
   call    0xbbd4                          ; cd d4 bb
-  jr      L7867                           ; 18 03
+  jr      L1AA7                           ; 18 03
   call    0xbbc7                          ; cd c7 bb
-L7867:
+L1AA7:
   call    0xbbdf                          ; cd df bb
   call    0xb5a0                          ; cd a0 b5
   exx                                     ; d9
   xor     0x3a                            ; ee 3a
   jp      z,0xf674                        ; ca 74 f6
-L7873:
+L1AB3:
   call    0xb6c7                          ; cd c7 b6
   scf                                     ; 37
   call    0xb21a                          ; cd 1a b2
@@ -5543,27 +5543,27 @@ L7873:
   out     (0xfe),a                        ; d3 fe
   call    0x0562                          ; cd 62 05
   ld      ix,0xabe7                       ; dd 21 e7 ab
-  jr      c,L78a3                         ; 38 0b
+  jr      c,L1AE3                         ; 38 0b
   ld      hl,(0xac3e)                     ; 2a 3e ac
   ld      h,0x00                          ; 26 00
   call    0xbfb4                          ; cd b4 bf
   jp      0xc146                          ; c3 46 c1
-L78a3:
+L1AE3:
   ld      hl,0xac3f                       ; 21 3f ac
   ld      a,(hl)                          ; 7e
   add     a,0x30                          ; c6 30
   ld      (ix-3),a                        ; dd 77 fd
   ld      b,0x0a                          ; 06 0a
-L78ae:
+L1AEE:
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   cp      0x20                            ; fe 20
-  jr      nc,L78b6                        ; 30 02
+  jr      nc,L1AF6                        ; 30 02
   ld      a,0x3f                          ; 3e 3f
-L78b6:
+L1AF6:
   ld      (ix+0),a                        ; dd 77 00
   inc     ix                              ; dd 23
-  djnz    L78ae                           ; 10 f1
+  djnz    L1AEE                           ; 10 f1
   inc     ix                              ; dd 23
   ld      hl,(0xac4c)                     ; 2a 4c ac
   push    hl                              ; e5
@@ -5583,11 +5583,11 @@ L78b6:
   dec     hl                              ; 2b
   call    0xbbdf                          ; cd df bb
   ld      l,0xff                          ; 2e ff
-  jr      L7873                           ; 18 8c
+  jr      L1AB3                           ; 18 8c
   ld      b,0x08                          ; 06 08
   ld      hl,0xb0bb                       ; 21 bb b0
   ld      de,0xb0af                       ; 11 af b0
-L78ef:
+L1B2F:
   ld      c,(hl)                          ; 4e
   ld      a,(de)                          ; 1a
   ld      (hl),a                          ; 77
@@ -5595,10 +5595,10 @@ L78ef:
   ld      (de),a                          ; 12
   inc     hl                              ; 23
   inc     de                              ; 13
-  djnz    L78ef                           ; 10 f7
+  djnz    L1B2F                           ; 10 f7
   ret                                     ; c9
   ld      hl,0xc91c                       ; 21 1c c9
-L78fc:
+L1B3C:
   ld      (0xb794),hl                     ; 22 94 b7
   ld      hl,0xb7a4                       ; 21 a4 b7
   ld      (0xd5ae),hl                     ; 22 ae d5
@@ -5608,7 +5608,7 @@ L78fc:
   ld      (0xd81c),hl                     ; 22 1c d8
   pop     hl                              ; e1
   ex      de,hl                           ; eb
-L7911:
+L1B51:
   push    de                              ; d5
   call    0xbeaf                          ; cd af be
   call    0xc146                          ; cd 46 c1
@@ -5616,24 +5616,24 @@ L7911:
   ld      (0xb7a6),sp                     ; ed 73 a6 b7
   call    0x0052                          ; cd 52 00
   di                                      ; f3
-L7921:
+L1B61:
   pop     hl                              ; e1
   pop     de                              ; d1
   call    0xbc89                          ; cd 89 bc
   jp      nc,0xb65a                       ; d2 5a b6
   call    0xad77                          ; cd 77 ad
-  jr      c,L7911                         ; 38 e3
+  jr      c,L1B51                         ; 38 e3
   ret                                     ; c9
   ld      sp,0x0000                       ; 31 00 00
   call    0xbba1                          ; cd a1 bb
   call    0xb7ca                          ; cd ca b7
-  jr      L7921                           ; 18 e7
+  jr      L1B61                           ; 18 e7
   ld      hl,0xb7a4                       ; 21 a4 b7
   ld      (0xd5ae),hl                     ; 22 ae d5
   xor     a                               ; af
   ld      (0xbfa0),a                      ; 32 a0 bf
   ld      hl,0xb7bf                       ; 21 bf b7
-  jr      L78fc                           ; 18 b3
+  jr      L1B3C                           ; 18 b3
   ld      hl,0xabe4                       ; 21 e4 ab
   ld      de,0xac3e                       ; 11 3e ac
   ld      bc,0x0020                       ; 01 20 00
@@ -5645,12 +5645,12 @@ L7921:
   ld      c,0x09                          ; 0e 09
   jp      0xd57c                          ; c3 7c d5
   cp      0x77                            ; fe 77
-  jr      nz,L7972                        ; 20 0a
+  jr      nz,L1BB2                        ; 20 0a
   ld      (0xb807),hl                     ; 22 07 b8
   ld      a,(0xb1c2)                      ; 3a c2 b1
   ld      (0xb80e),a                      ; 32 0e b8
   ret                                     ; c9
-L7972:
+L1BB2:
   push    hl                              ; e5
   ld      (0xaf47),hl                     ; 22 47 af
   ld      de,0xb82a                       ; 11 2a b8
@@ -5698,9 +5698,9 @@ L7972:
   call    0xb238                          ; cd 38 b2
   jp      0xb0cb                          ; c3 cb b0
   call    0xbbd4                          ; cd d4 bb
-  jr      L79d5                           ; 18 03
+  jr      L1C15                           ; 18 03
   call    0xbbc7                          ; cd c7 bb
-L79d5:
+L1C15:
   push    hl                              ; e5
   push    de                              ; d5
   call    0xb5a0                          ; cd a0 b5
@@ -5724,9 +5724,9 @@ L79d5:
   pop     hl                              ; e1
   jp      0xb1e8                          ; c3 e8 b1
   call    0xbbd4                          ; cd d4 bb
-  jr      L79fb                           ; 18 03
+  jr      L1C3B                           ; 18 03
   call    0xbbc7                          ; cd c7 bb
-L79fb:
+L1C3B:
   call    0xbbdf                          ; cd df bb
   call    0xb5a0                          ; cd a0 b5
   rst     0x10                            ; d7
@@ -5746,7 +5746,7 @@ L79fb:
   call    0xb5a0                          ; cd a0 b5
   jp      nz,0x43cd                       ; c2 cd 43
   pop     bc                              ; c1
-L7a19:
+L1C59:
   ld      ix,0xabe4                       ; dd 21 e4 ab
   push    hl                              ; e5
   call    0xe0d6                          ; cd d6 e0
@@ -5755,7 +5755,7 @@ L7a19:
   inc     ix                              ; dd 23
   push    hl                              ; e5
   ld      bc,0x0500                       ; 01 00 05
-L7a2a:
+L1C6A:
   push    hl                              ; e5
   call    0xb1cf                          ; cd cf b1
   ld      l,a                             ; 6f
@@ -5763,30 +5763,30 @@ L7a2a:
   ld      a,(0xe0cd)                      ; 3a cd e0
   push    bc                              ; c5
   or      a                               ; b7
-  jr      z,L7a43                         ; 28 0b
+  jr      z,L1C83                         ; 28 0b
   ld      (ix+0),0x23                     ; dd 36 00 23
   inc     ix                              ; dd 23
   call    0xe0ec                          ; cd ec e0
-  jr      L7a46                           ; 18 03
-L7a43:
+  jr      L1C86                           ; 18 03
+L1C83:
   call    0xe100                          ; cd 00 e1
-L7a46:
+L1C86:
   pop     bc                              ; c1
   inc     ix                              ; dd 23
   pop     hl                              ; e1
   inc     hl                              ; 23
-  djnz    L7a2a                           ; 10 dd
+  djnz    L1C6A                           ; 10 dd
   pop     hl                              ; e1
   ld      b,0x05                          ; 06 05
-L7a50:
+L1C90:
   call    0xb8f0                          ; cd f0 b8
-  djnz    L7a50                           ; 10 fb
+  djnz    L1C90                           ; 10 fb
   call    0xb402                          ; cd 02 b4
-  jr      L7a19                           ; 18 bf
+  jr      L1C59                           ; 18 bf
   call    0xb5a0                          ; cd a0 b5
   jp      nz,0x43cd                       ; c2 cd 43
   pop     bc                              ; c1
-L7a61:
+L1CA1:
   ld      ix,0xabe4                       ; dd 21 e4 ab
   push    hl                              ; e5
   call    0xbfb0                          ; cd b0 bf
@@ -5794,30 +5794,30 @@ L7a61:
   inc     ix                              ; dd 23
   inc     ix                              ; dd 23
   ld      b,0x19                          ; 06 19
-L7a70:
+L1CB0:
   call    0xb8f0                          ; cd f0 b8
-  djnz    L7a70                           ; 10 fb
+  djnz    L1CB0                           ; 10 fb
   call    0xb402                          ; cd 02 b4
-  jr      L7a61                           ; 18 e7
+  jr      L1CA1                           ; 18 e7
   call    0xb1cf                          ; cd cf b1
   ld      d,a                             ; 57
   and     0x7f                            ; e6 7f
   cp      0x20                            ; fe 20
   ld      a,d                             ; 7a
   inc     hl                              ; 23
-  jr      nc,L7a8a                        ; 30 04
+  jr      nc,L1CCA                        ; 30 04
   and     0x80                            ; e6 80
   or      0x2e                            ; f6 2e
-L7a8a:
+L1CCA:
   ld      (ix+0),a                        ; dd 77 00
   inc     ix                              ; dd 23
   ret                                     ; c9
   ld      hl,0xb3eb                       ; 21 eb b3
-L7a93:
+L1CD3:
   push    hl                              ; e5
   call    0xbae5                          ; cd e5 ba
   pop     hl                              ; e1
-  jr      nz,L7b0a                        ; 20 70
+  jr      nz,L1D4A                        ; 20 70
   ld      a,(hl)                          ; 7e
   cp      0x0b                            ; fe 0b
   ret     nc                              ; d0
@@ -5834,20 +5834,20 @@ L7a93:
   ld      (hl),d                          ; 72
   pop     hl                              ; e1
   inc     (hl)                            ; 34
-  jr      L7a93                           ; 18 e0
+  jr      L1CD3                           ; 18 e0
   ld      a,0x31                          ; 3e 31
   ld      (0xc635),a                      ; 32 35 c6
   ld      b,0x05                          ; 06 05
   ld      hl,0xb9f0                       ; 21 f0 b9
-L7abd:
+L1CFD:
   push    bc                              ; c5
   push    hl                              ; e5
   call    0xb5a0                          ; cd a0 b5
   jp      c,0x3aee                        ; da ee 3a
   ld      c,0x00                          ; 0e 00
-  jr      z,L7aca                         ; 28 01
+  jr      z,L1D0A                         ; 28 01
   dec     c                               ; 0d
-L7aca:
+L1D0A:
   ld      b,l                             ; 45
   ld      hl,0xc635                       ; 21 35 c6
   inc     (hl)                            ; 34
@@ -5857,13 +5857,13 @@ L7aca:
   ld      (hl),c                          ; 71
   inc     hl                              ; 23
   pop     bc                              ; c1
-  djnz    L7abd                           ; 10 e6
+  djnz    L1CFD                           ; 10 e6
   ld      de,(0xb4ed)                     ; ed 5b ed b4
   inc     de                              ; 13
   push    de                              ; d5
   ld      hl,0xb9f0                       ; 21 f0 b9
   ld      b,0x05                          ; 06 05
-L7ae2:
+L1D22:
   ex      de,hl                           ; eb
   call    0xb1cf                          ; cd cf b1
   ex      de,hl                           ; eb
@@ -5872,8 +5872,8 @@ L7ae2:
   inc     hl                              ; 23
   and     (hl)                            ; a6
   inc     hl                              ; 23
-  jr      nz,L7b68                        ; 20 7a
-  djnz    L7ae2                           ; 10 f2
+  jr      nz,L1DA8                        ; 20 7a
+  djnz    L1D22                           ; 10 f2
   pop     hl                              ; e1
   jp      0xb4c4                          ; c3 c4 b4
   ld      hl,0xb16a                       ; 21 6a b1
@@ -5887,10 +5887,10 @@ L7ae2:
   and     0x07                            ; e6 07
   ld      (hl),a                          ; 77
   ret                                     ; c9
-L7b0a:
+L1D4A:
   sub     0x2f                            ; d6 2f
   cp      (hl)                            ; be
-  jr      nc,L7a93                        ; 30 84
+  jr      nc,L1CD3                        ; 30 84
   dec     a                               ; 3d
   add     a,a                             ; 87
   ld      b,a                             ; 47
@@ -5908,7 +5908,7 @@ L7b0a:
   inc     hl                              ; 23
   ldir                                    ; ed b0
   pop     hl                              ; e1
-L7b25:
+L1D65:
   dec     (hl)                            ; 35
   jp      0xb909                          ; c3 09 b9
   cp      0x31                            ; fe 31
@@ -5923,11 +5923,11 @@ L7b25:
   inc     hl                              ; 23
   ld      d,(hl)                          ; 56
   ex      de,hl                           ; eb
-L7b3c:
+L1D7C:
   push    hl                              ; e5
   call    0xbadf                          ; cd df ba
   pop     hl                              ; e1
-  jr      nz,L7b84                        ; 20 41
+  jr      nz,L1DC4                        ; 20 41
   ld      a,(hl)                          ; 7e
   cp      0x07                            ; fe 07
   ret     nc                              ; d0
@@ -5953,17 +5953,17 @@ L7b3c:
   inc     hl                              ; 23
   ld      (hl),b                          ; 70
   pop     hl                              ; e1
-  jr      c,L7b3c                         ; 38 d7
+  jr      c,L1D7C                         ; 38 d7
   inc     (hl)                            ; 34
-  jr      L7b3c                           ; 18 d4
-L7b68:
+  jr      L1D7C                           ; 18 d4
+L1DA8:
   pop     de                              ; d1
   inc     de                              ; 13
   ld      a,d                             ; 7a
   or      e                               ; b3
   ret     z                               ; c8
   jp      0xb952                          ; c3 52 b9
-  jr      c,L7b25                         ; 38 b3
+  jr      c,L1D65                         ; 38 b3
   ld      d,(hl)                          ; 56
   or      e                               ; b3
   sub     c                               ; 91
@@ -5980,10 +5980,10 @@ L7b68:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
-L7b84:
+L1DC4:
   sub     0x2e                            ; d6 2e
   cp      (hl)                            ; be
-  jr      nc,L7b3c                        ; 30 b3
+  jr      nc,L1D7C                        ; 30 b3
   dec     a                               ; 3d
   add     a,a                             ; 87
   add     a,a                             ; 87
@@ -6006,64 +6006,64 @@ L7b84:
   ldir                                    ; ed b0
   pop     hl                              ; e1
   dec     (hl)                            ; 35
-  jr      L7b3c                           ; 18 95
+  jr      L1D7C                           ; 18 95
   call    0xb602                          ; cd 02 b6
-  jr      L7bbf                           ; 18 13
+  jr      L1DFF                           ; 18 13
   call    0xbb86                          ; cd 86 bb
   ld      hl,0x01c5                       ; 21 c5 01
   ld      (0xac3e),hl                     ; 22 3e ac
   ld      hl,0xba1d                       ; 21 1d ba
   ld      (0xd81c),hl                     ; 22 1c d8
   ld      (0xba36),sp                     ; ed 73 36 ba
-L7bbf:
+L1DFF:
   ld      sp,0x0000                       ; 31 00 00
   call    0xdaa5                          ; cd a5 da
   call    0xbba1                          ; cd a1 bb
   ld      b,0x18                          ; 06 18
   ld      ix,0xb265                       ; dd 21 65 b2
-L7bce:
+L1E0E:
   ld      hl,0xac3f                       ; 21 3f ac
   call    0xdd78                          ; cd 78 dd
   ld      a,(ix+2)                        ; dd 7e 02
   bit     7,a                             ; cb 7f
-  jr      nz,L7bed                        ; 20 12
+  jr      nz,L1E2D                        ; 20 12
   ld      de,0xe5f0                       ; 11 f0 e5
   call    0xda73                          ; cd 73 da
   ld      a,(de)                          ; 1a
   xor     (hl)                            ; ae
   and     0x5f                            ; e6 5f
-  jr      nz,L7bfa                        ; 20 13
+  jr      nz,L1E3A                        ; 20 13
   inc     de                              ; 13
   inc     hl                              ; 23
   call    0xdd78                          ; cd 78 dd
   ld      a,(de)                          ; 1a
-L7bed:
+L1E2D:
   xor     (hl)                            ; ae
   and     0x5f                            ; e6 5f
-  jr      nz,L7bfa                        ; 20 08
+  jr      nz,L1E3A                        ; 20 08
   inc     hl                              ; 23
   call    0xdd78                          ; cd 78 dd
   cp      0x41                            ; fe 41
-  jr      c,L7c29                         ; 38 2f
-L7bfa:
+  jr      c,L1E69                         ; 38 2f
+L1E3A:
   ld      de,0x0007                       ; 11 07 00
   add     ix,de                           ; dd 19
-  djnz    L7bce                           ; 10 cd
+  djnz    L1E0E                           ; 10 cd
   jp      0xd7fa                          ; c3 fa d7
-L7c04:
+L1E44:
   call    0xdd78                          ; cd 78 dd
   or      0x20                            ; f6 20
   push    hl                              ; e5
   ld      hl,0xba8f                       ; 21 8f ba
   ld      b,0x04                          ; 06 04
-L7c0f:
+L1E4F:
   cp      (hl)                            ; be
   inc     hl                              ; 23
   defb    0x28, 0x0e
   inc     hl                              ; 23
-  djnz    L7c0f                           ; 10 f9
+  djnz    L1E4F                           ; 10 f9
   pop     hl                              ; e1
-  jr      L7c31                           ; 18 18
+  jr      L1E71                           ; 18 18
   ld      (hl),e                          ; 73
   add     a,b                             ; 80
   ld      a,d                             ; 7a
@@ -6078,12 +6078,12 @@ L7c0f:
   ld      (de),a                          ; 12
   pop     hl                              ; e1
   ret                                     ; c9
-L7c29:
+L1E69:
   inc     hl                              ; 23
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0xc6                            ; fe c6
-  jr      z,L7c04                         ; 28 d3
-L7c31:
+  jr      z,L1E44                         ; 28 d3
+L1E71:
   push    ix                              ; dd e5
   call    0xc773                          ; cd 73 c7
   pop     ix                              ; dd e1
@@ -6092,14 +6092,14 @@ L7c31:
   ld      h,(ix+6)                        ; dd 66 06
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0xd8                            ; fe d8
-  jr      nc,L7c4c                        ; 30 06
+  jr      nc,L1E8C                        ; 30 06
   bit     3,(ix+3)                        ; dd cb 03 5e
-  jr      z,L7c4f                         ; 28 03
-L7c4c:
+  jr      z,L1E8F                         ; 28 03
+L1E8C:
   inc     hl                              ; 23
   ld      (hl),d                          ; 72
   dec     hl                              ; 2b
-L7c4f:
+L1E8F:
   ld      (hl),e                          ; 73
   ret                                     ; c9
   ld      b,0x00                          ; 06 00
@@ -6108,14 +6108,14 @@ L7c4f:
   add     hl,bc                           ; 09
   ld      c,(hl)                          ; 4e
   add     hl,bc                           ; 09
-L7c5a:
+L1E9A:
   ld      a,(hl)                          ; 7e
   cp      0x80                            ; fe 80
   res     7,a                             ; cb bf
   ld      (de),a                          ; 12
   inc     de                              ; 13
   inc     hl                              ; 23
-  jr      c,L7c5a                         ; 38 f6
+  jr      c,L1E9A                         ; 38 f6
   xor     a                               ; af
   ld      (de),a                          ; 12
   inc     de                              ; 13
@@ -6123,10 +6123,10 @@ L7c5a:
   ret                                     ; c9
   ld      a,0x37                          ; 3e 37
   ld      c,0x35                          ; 0e 35
-  jr      L7c73                           ; 18 04
+  jr      L1EB3                           ; 18 04
   ld      a,0xb7                          ; 3e b7
   ld      c,0x39                          ; 0e 39
-L7c73:
+L1EB3:
   ld      (0xbb02),a                      ; 32 02 bb
   ld      (0xbb11),a                      ; 32 11 bb
   ld      (0xbb2c),a                      ; 32 2c bb
@@ -6146,16 +6146,16 @@ L7c73:
   ld      (0xabe4),a                      ; 32 e4 ab
   ld      a,(hl)                          ; 7e
   scf                                     ; 37
-  jr      nc,L7ca3                        ; 30 05
+  jr      nc,L1EE3                        ; 30 05
   dec     a                               ; 3d
   ld      bc,0x0008                       ; 01 08 00
   add     hl,bc                           ; 09
-L7ca3:
+L1EE3:
   inc     hl                              ; 23
-L7ca4:
+L1EE4:
   ld      ix,0xabe6                       ; dd 21 e6 ab
   dec     a                               ; 3d
-  jr      z,L7cc0                         ; 28 15
+  jr      z,L1F00                         ; 28 15
   push    af                              ; f5
   inc     (ix-2)                          ; dd 34 fe
   ld      (ix-1),0x3a                     ; dd 36 ff 3a
@@ -6164,16 +6164,16 @@ L7ca4:
   call    c,0xbb46                        ; dc 46 bb
   call    0xc146                          ; cd 46 c1
   pop     af                              ; f1
-  jr      L7ca4                           ; 18 e4
-L7cc0:
+  jr      L1EE4                           ; 18 e4
+L1F00:
   call    0xddd2                          ; cd d2 dd
   cp      0x69                            ; fe 69
   ret     z                               ; c8
   cp      0x30                            ; fe 30
-  jr      c,L7ccd                         ; 38 03
+  jr      c,L1F0D                         ; 38 03
   cp      0x35                            ; fe 35
   ret     c                               ; d8
-L7ccd:
+L1F0D:
   jp      0xb412                          ; c3 12 b4
   ld      e,(hl)                          ; 5e
   inc     hl                              ; 23
@@ -6187,19 +6187,19 @@ L7ccd:
   call    0xb025                          ; cd 25 b0
   push    ix                              ; dd e5
   ld      b,0x0a                          ; 06 0a
-L7ce2:
+L1F22:
   ld      (ix+0),0x20                     ; dd 36 00 20
   inc     ix                              ; dd 23
-  djnz    L7ce2                           ; 10 f8
+  djnz    L1F22                           ; 10 f8
   pop     hl                              ; e1
-  jr      c,L7cf8                         ; 38 0b
+  jr      c,L1F38                         ; 38 0b
   push    hl                              ; e5
   call    0xd8a5                          ; cd a5 d8
   pop     hl                              ; e1
   inc     hl                              ; 23
   ld      b,0x09                          ; 06 09
   call    0xda99                          ; cd 99 da
-L7cf8:
+L1F38:
   pop     hl                              ; e1
   ret                                     ; c9
   ld      hl,0x0000                       ; 21 00 00
@@ -6221,22 +6221,22 @@ L7cf8:
   ld      (0xdf1c),hl                     ; 22 1c df
   call    0xb5f8                          ; cd f8 b5
   jp      0xdd91                          ; c3 91 dd
-L7d2b:
+L1F6B:
   call    0xbb95                          ; cd 95 bb
   call    0xde03                          ; cd 03 de
   cp      0x80                            ; fe 80
-  jr      nc,L7d2b                        ; 30 f6
+  jr      nc,L1F6B                        ; 30 f6
   cp      0x04                            ; fe 04
   jp      z,0xb412                        ; ca 12 b4
   cp      0x03                            ; fe 03
-  jr      nz,L7d46                        ; 20 08
+  jr      nz,L1F86                        ; 20 08
   ld      hl,(0xd5b1)                     ; 2a b1 d5
   dec     hl                              ; 2b
   bit     7,(hl)                          ; cb 7e
-  jr      nz,L7d2b                        ; 20 e5
-L7d46:
+  jr      nz,L1F6B                        ; 20 e5
+L1F86:
   call    0xd5b0                          ; cd b0 d5
-  jr      nz,L7d2b                        ; 20 e0
+  jr      nz,L1F6B                        ; 20 e0
   call    0xb5f8                          ; cd f8 b5
   jp      0xddc2                          ; c3 c2 dd
   call    0xb5a0                          ; cd a0 b5
@@ -6297,7 +6297,7 @@ L7d46:
   pop     bc                              ; c1
   ld      hl,0xc566                       ; 21 66 c5
   call    0xbe2a                          ; cd 2a be
-  jr      c,L7deb                         ; 38 20
+  jr      c,L202B                         ; 38 20
   ld      hl,0xbcaa                       ; 21 aa bc
   call    0xc05d                          ; cd 5d c0
   ld      a,(hl)                          ; 7e
@@ -6309,7 +6309,7 @@ L7d46:
   ld      (0xb114),hl                     ; 22 14 b1
   ld      (0xbc7c),bc                     ; ed 43 7c bc
   ld      (0xb111),a                      ; 32 11 b1
-L7deb:
+L202B:
   call    0xb0cb                          ; cd cb b0
   ex      af,af'                          ; 08
   push    af                              ; f5
@@ -6365,15 +6365,15 @@ L7deb:
   ld      hl,(0xb137)                     ; 2a 37 b1
   ld      d,0x00                          ; 16 00
   bit     7,e                             ; cb 7b
-  jr      z,L7e51                         ; 28 01
+  jr      z,L2091                         ; 28 01
   dec     d                               ; 15
-L7e51:
+L2091:
   add     hl,de                           ; 19
   add     a,0x05                          ; c6 05
   ret                                     ; c9
-L7e55:
+L2095:
   cp      0x0a                            ; fe 0a
-  jr      z,L7e80                         ; 28 27
+  jr      z,L20C0                         ; 28 27
   exx                                     ; d9
   ld      de,(0xac62)                     ; ed 5b 62 ac
   ld      (0xbce9),sp                     ; ed 73 e9 bc
@@ -6381,15 +6381,15 @@ L7e55:
   ld      b,(hl)                          ; 46
   inc     hl                              ; 23
   ld      sp,hl                           ; f9
-L7e68:
-  djnz    L7e6c                           ; 10 02
-  jr      L7e72                           ; 18 06
-L7e6c:
+L20A8:
+  djnz    L20AC                           ; 10 02
+  jr      L20B2                           ; 18 06
+L20AC:
   pop     hl                              ; e1
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
-  jr      nz,L7e68                        ; 20 f6
-L7e72:
+  jr      nz,L20A8                        ; 20 f6
+L20B2:
   ld      sp,0x0000                       ; 31 00 00
   exx                                     ; d9
   nop                                     ; 00
@@ -6397,7 +6397,7 @@ L7e72:
   ld      hl,0xb134                       ; 21 34 b1
   inc     (hl)                            ; 34
   ld      bc,0xbc8e                       ; 01 8e bc
-L7e80:
+L20C0:
   ld      hl,(0xac62)                     ; 2a 62 ac
   ld      de,0xac67                       ; 11 67 ac
   ld      (0xac62),de                     ; ed 53 62 ac
@@ -6412,14 +6412,14 @@ L7e80:
   ld      a,(hl)                          ; 7e
   add     a,0x02                          ; c6 02
   cp      0xcb                            ; fe cb
-  jr      nz,L7ea3                        ; 20 02
+  jr      nz,L20E3                        ; 20 02
   sub     0x08                            ; d6 08
-L7ea3:
+L20E3:
   ld      (hl),a                          ; 77
   call    0xb243                          ; cd 43 b2
   ld      a,0x0a                          ; 3e 0a
   ld      bc,0xbca1                       ; 01 a1 bc
-  jr      L7ebe                           ; 18 10
+  jr      L20FE                           ; 18 10
   ld      hl,0xac61                       ; 21 61 ac
   ld      a,(hl)                          ; 7e
   and     0x38                            ; e6 38
@@ -6430,18 +6430,18 @@ L7ea3:
   ld      (hl),0x00                       ; 36 00
   inc     hl                              ; 23
   ld      a,0x03                          ; 3e 03
-L7ebe:
+L20FE:
   call    0xb238                          ; cd 38 b2
-  jr      L7e55                           ; 18 92
+  jr      L2095                           ; 18 92
   ld      hl,(0xb0bf)                     ; 2a bf b0
-  jr      L7ed4                           ; 18 0c
+  jr      L2114                           ; 18 0c
   ld      hl,(0xb0b9)                     ; 2a b9 b0
-  jr      L7ed0                           ; 18 03
+  jr      L2110                           ; 18 03
   ld      hl,(0xb0b7)                     ; 2a b7 b0
-L7ed0:
+L2110:
   xor     a                               ; af
   ld      (0xac62),a                      ; 32 62 ac
-L7ed4:
+L2114:
   xor     a                               ; af
   ld      (0xac61),a                      ; 32 61 ac
   ld      (0xb137),hl                     ; 22 37 b1
@@ -6456,7 +6456,7 @@ L7ed4:
   ld      d,a                             ; 57
   ex      de,hl                           ; eb
   pop     af                              ; f1
-  jr      L7ed0                           ; 18 e0
+  jr      L2110                           ; 18 e0
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
   ld      b,h                             ; 44
@@ -6474,26 +6474,26 @@ L7ed4:
   ld      a,b                             ; 78
   sub     0x76                            ; d6 76
   or      c                               ; b1
-  jr      nz,L7f14                        ; 20 0a
+  jr      nz,L2154                        ; 20 0a
   ld      a,(0xc368)                      ; 3a 68 c3
   or      a                               ; b7
   ret     nz                              ; c0
   ld      a,0xcf                          ; 3e cf
   jp      0xbbf2                          ; c3 f2 bb
-L7f14:
+L2154:
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
   ret     nz                              ; c0
   ld      a,c                             ; 79
   and     0x40                            ; e6 40
-  jr      z,L7f74                         ; 28 57
+  jr      z,L21B4                         ; 28 57
   ld      a,b                             ; 78
   exx                                     ; d9
   cp      0xb0                            ; fe b0
   ld      bc,(0xb0bb)                     ; ed 4b bb b0
   ld      de,(0xb0bd)                     ; ed 5b bd b0
   ld      hl,(0xb0bf)                     ; 2a bf b0
-  jr      nz,L7f38                        ; 20 0a
+  jr      nz,L2178                        ; 20 0a
   push    hl                              ; e5
   add     hl,bc                           ; 09
   dec     hl                              ; 2b
@@ -6502,10 +6502,10 @@ L7f14:
   push    hl                              ; e5
   add     hl,bc                           ; 09
   dec     hl                              ; 2b
-  jr      L7f4a                           ; 18 12
-L7f38:
+  jr      L218A                           ; 18 12
+L2178:
   cp      0xb8                            ; fe b8
-  jr      nz,L7f73                        ; 20 37
+  jr      nz,L21B3                        ; 20 37
   push    hl                              ; e5
   and     a                               ; a7
   sbc     hl,bc                           ; ed 42
@@ -6518,7 +6518,7 @@ L7f38:
   sbc     hl,bc                           ; ed 42
   inc     hl                              ; 23
   ex      (sp),hl                         ; e3
-L7f4a:
+L218A:
   push    hl                              ; e5
   ld      h,b                             ; 60
   ld      l,c                             ; 69
@@ -6542,9 +6542,9 @@ L7f4a:
   jp      c,0xbbf0                        ; da f0 bb
   exx                                     ; d9
   ret                                     ; c9
-L7f73:
+L21B3:
   exx                                     ; d9
-L7f74:
+L21B4:
   ld      hl,0xc4b9                       ; 21 b9 c4
   push    de                              ; d5
   call    0xbe2a                          ; cd 2a be
@@ -6582,24 +6582,24 @@ L7f74:
   ld      c,a                             ; 4f
   ld      d,(hl)                          ; 56
   inc     hl                              ; 23
-L7fba:
+L21FA:
   ld      a,b                             ; 78
   and     (hl)                            ; a6
   inc     hl                              ; 23
   cp      (hl)                            ; be
   inc     hl                              ; 23
-  jr      z,L7fc7                         ; 28 06
-L7fc1:
+  jr      z,L2207                         ; 28 06
+L2201:
   inc     hl                              ; 23
   dec     d                               ; 15
-  jr      nz,L7fba                        ; 20 f5
+  jr      nz,L21FA                        ; 20 f5
   scf                                     ; 37
   ret                                     ; c9
-L7fc7:
+L2207:
   ld      a,(hl)                          ; 7e
   and     0xf0                            ; e6 f0
   cp      c                               ; b9
-  jr      nz,L7fc1                        ; 20 f4
+  jr      nz,L2201                        ; 20 f4
   ld      a,(hl)                          ; 7e
   and     0x0f                            ; e6 0f
   bit     3,a                             ; cb 5f
@@ -6624,14 +6624,14 @@ L7fc7:
   ld      hl,(0xb0bf)                     ; 2a bf b0
   ret                                     ; c9
   ld      hl,(0xb0b9)                     ; 2a b9 b0
-  jr      L8001                           ; 18 03
+  jr      L2241                           ; 18 03
   ld      hl,(0xb0b7)                     ; 2a b7 b0
-L8001:
+L2241:
   bit     7,e                             ; cb 7b
   ld      d,0x00                          ; 16 00
-  jr      z,L8008                         ; 28 01
+  jr      z,L2248                         ; 28 01
   dec     d                               ; 15
-L8008:
+L2248:
   add     hl,de                           ; 19
   ret                                     ; c9
   ld      hl,(0xb0c3)                     ; 2a c3 b0
@@ -6642,7 +6642,7 @@ L8008:
   ret                                     ; c9
   ld      hl,0x0000                       ; 21 00 00
   ret                                     ; c9
-L8018:
+L2258:
   push    af                              ; f5
   call    0xb1cf                          ; cd cf b1
   ld      e,a                             ; 5f
@@ -6651,8 +6651,8 @@ L8018:
   ld      d,a                             ; 57
   pop     af                              ; f1
   ld      bc,0x0937                       ; 01 37 09
-  jr      L8036                           ; 18 0e
-L8028:
+  jr      L2276                           ; 18 0e
+L2268:
   ld      hl,(0xbf2f)                     ; 2a 2f bf
   push    af                              ; f5
   ld      d,0x00                          ; 16 00
@@ -6660,36 +6660,36 @@ L8028:
   ld      e,a                             ; 5f
   pop     af                              ; f1
   ld      bc,0x0637                       ; 01 37 06
-L8036:
+L2276:
   inc     hl                              ; 23
-  jr      L8068                           ; 18 2f
+  jr      L22A8                           ; 18 2f
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
-  jr      z,L804d                         ; 28 0f
+  jr      z,L228D                         ; 28 0f
   ld      a,0x20                          ; 3e 20
   ld      b,a                             ; 47
   ld      de,0xabe4                       ; 11 e4 ab
-L8044:
+L2284:
   ld      (de),a                          ; 12
   inc     de                              ; 13
-  djnz    L8044                           ; 10 fc
+  djnz    L2284                           ; 10 fc
   xor     a                               ; af
   ld      (0xbeb0),a                      ; 32 b0 be
   ret                                     ; c9
-L804d:
+L228D:
   ld      (0xbf2f),hl                     ; 22 2f bf
   ex      de,hl                           ; eb
   ld      hl,0xb338                       ; 21 38 b3
   call    0xc11c                          ; cd 1c c1
-  jr      c,L8028                         ; 38 cf
+  jr      c,L2268                         ; 38 cf
   ld      hl,0xb356                       ; 21 56 b3
   call    0xc11c                          ; cd 1c c1
   ex      de,hl                           ; eb
-  jr      c,L8018                         ; 38 b6
+  jr      c,L2258                         ; 38 b6
   call    0xbfc6                          ; cd c6 bf
   ex      af,af'                          ; 08
-  jr      nz,L8028                        ; 20 c0
-L8068:
+  jr      nz,L2268                        ; 20 c0
+L22A8:
   push    hl                              ; e5
   ld      ix,0xac62                       ; dd 21 62 ac
   ld      (ix-1),c                        ; dd 71 ff
@@ -6721,7 +6721,7 @@ L8068:
   ld      e,a                             ; 5f
   ret                                     ; c9
   call    0xbf01                          ; cd 01 bf
-  jr      L80ed                           ; 18 50
+  jr      L232D                           ; 18 50
   call    0xbf01                          ; cd 01 bf
   ld      h,0x00                          ; 26 00
   ld      l,e                             ; 6b
@@ -6731,12 +6731,12 @@ L8068:
   ld      e,d                             ; 5a
   ld      (ix+0),0x1f                     ; dd 36 00 1f
   inc     ix                              ; dd 23
-  jr      L80ed                           ; 18 3c
+  jr      L232D                           ; 18 3c
   ld      d,0x00                          ; 16 00
   bit     7,e                             ; cb 7b
-  jr      z,L80b8                         ; 28 01
+  jr      z,L22F8                         ; 28 01
   dec     d                               ; 15
-L80b8:
+L22F8:
   ld      hl,0x0000                       ; 21 00 00
   inc     hl                              ; 23
   inc     hl                              ; 23
@@ -6744,33 +6744,33 @@ L80b8:
   ex      de,hl                           ; eb
   ld      c,0x00                          ; 0e 00
   dec     c                               ; 0d
-  jr      z,L80ef                         ; 28 2b
+  jr      z,L232F                         ; 28 2b
   call    0xb025                          ; cd 25 b0
-  jr      c,L80ce                         ; 38 05
+  jr      c,L230E                         ; 38 05
   call    0xbfb9                          ; cd b9 bf
-  jr      L80f3                           ; 18 25
-L80ce:
+  jr      L2333                           ; 18 25
+L230E:
   dec     c                               ; 0d
-  jr      z,L80ef                         ; 28 1e
+  jr      z,L232F                         ; 28 1e
   dec     de                              ; 1b
   call    0xb025                          ; cd 25 b0
   inc     de                              ; 13
-  jr      c,L80ef                         ; 38 17
+  jr      c,L232F                         ; 38 17
   dec     de                              ; 1b
   call    0xbfb9                          ; cd b9 bf
   ld      de,0x2b31                       ; 11 31 2b
   call    0xbfbb                          ; cd bb bf
-  jr      L80f3                           ; 18 0f
+  jr      L2333                           ; 18 0f
   ld      hl,(0xbf2f)                     ; 2a 2f bf
   call    0xb1cf                          ; cd cf b1
   and     0x38                            ; e6 38
   ld      e,a                             ; 5f
-L80ed:
+L232D:
   ld      d,0x00                          ; 16 00
-L80ef:
+L232F:
   ex      de,hl                           ; eb
   call    0xbfb4                          ; cd b4 bf
-L80f3:
+L2333:
   ld      (ix+0),0xc0                     ; dd 36 00 c0
   ld      hl,0xabe4                       ; 21 e4 ab
   push    hl                              ; e5
@@ -6783,30 +6783,30 @@ L80f3:
   ld      de,(0xbf2f)                     ; ed 5b 2f bf
   ld      a,(0xbf36)                      ; 3a 36 bf
   dec     a                               ; 3d
-  jr      z,L8129                         ; 28 12
+  jr      z,L2369                         ; 28 12
   call    0xb025                          ; cd 25 b0
-  jr      c,L8129                         ; 38 0d
+  jr      c,L2369                         ; 38 0d
   call    0xd8a5                          ; cd a5 d8
   ld      b,0x09                          ; 06 09
   push    ix                              ; dd e5
   pop     hl                              ; e1
   call    0xda99                          ; cd 99 da
-  jr      L8136                           ; 18 0d
-L8129:
+  jr      L2376                           ; 18 0d
+L2369:
   ld      a,0x01                          ; 3e 01
   dec     a                               ; 3d
-  jr      nz,L8136                        ; 20 08
+  jr      nz,L2376                        ; 20 08
   ex      de,hl                           ; eb
   call    0xbfb0                          ; cd b0 bf
   ld      (ix+0),0x20                     ; dd 36 00 20
-L8136:
+L2376:
   pop     hl                              ; e1
   ret                                     ; c9
   inc     ix                              ; dd 23
   ld      c,0x00                          ; 0e 00
-  jr      L8140                           ; 18 02
+  jr      L2380                           ; 18 02
   ld      c,0x01                          ; 0e 01
-L8140:
+L2380:
   jp      0xe0d6                          ; c3 d6 e0
   set     7,d                             ; cb fa
   ld      (ix+0),d                        ; dd 72 00
@@ -6819,25 +6819,25 @@ L8140:
   cp      0xc7                            ; fe c7
   ld      b,a                             ; 47
   ld      c,0x00                          ; 0e 00
-  jr      z,L8197                         ; 28 3b
+  jr      z,L23D7                         ; 28 3b
   call    0xb1cf                          ; cd cf b1
   ld      c,0x40                          ; 0e 40
   cp      0xed                            ; fe ed
-  jr      z,L8192                         ; 28 2d
+  jr      z,L23D2                         ; 28 2d
   ld      c,0x00                          ; 0e 00
   cp      0xdd                            ; fe dd
-  jr      nz,L816f                        ; 20 04
+  jr      nz,L23AF                        ; 20 04
   set     5,c                             ; cb e9
-  jr      L8175                           ; 18 06
-L816f:
+  jr      L23B5                           ; 18 06
+L23AF:
   cp      0xfd                            ; fe fd
-  jr      nz,L818c                        ; 20 19
+  jr      nz,L23CC                        ; 20 19
   set     4,c                             ; cb e1
-L8175:
+L23B5:
   inc     hl                              ; 23
   call    0xb1cf                          ; cd cf b1
   cp      0xcb                            ; fe cb
-  jr      nz,L8193                        ; 20 16
+  jr      nz,L23D3                        ; 20 16
   set     7,c                             ; cb f9
   inc     hl                              ; 23
   call    0xb1cf                          ; cd cf b1
@@ -6846,17 +6846,17 @@ L8175:
   call    0xb1cf                          ; cd cf b1
   ld      b,a                             ; 47
   push    hl                              ; e5
-  jr      L81a2                           ; 18 16
-L818c:
+  jr      L23E2                           ; 18 16
+L23CC:
   cp      0xcb                            ; fe cb
-  jr      nz,L8193                        ; 20 03
+  jr      nz,L23D3                        ; 20 03
   set     7,c                             ; cb f9
-L8192:
+L23D2:
   inc     hl                              ; 23
-L8193:
+L23D3:
   call    0xb1cf                          ; cd cf b1
   ld      b,a                             ; 47
-L8197:
+L23D7:
   inc     hl                              ; 23
   push    hl                              ; e5
   call    0xb1cf                          ; cd cf b1
@@ -6864,28 +6864,28 @@ L8197:
   inc     hl                              ; 23
   call    0xb1cf                          ; cd cf b1
   ld      d,a                             ; 57
-L81a2:
+L23E2:
   push    de                              ; d5
   ld      a,c                             ; 79
   cp      0x3f                            ; fe 3f
-  jr      nc,L81bb                        ; 30 13
+  jr      nc,L23FB                        ; 30 13
   cp      0x10                            ; fe 10
   ld      a,b                             ; 78
-  jr      nc,L81b9                        ; 30 0c
+  jr      nc,L23F9                        ; 30 0c
   cp      0x18                            ; fe 18
-  jr      z,L81bf                         ; 28 0e
+  jr      z,L23FF                         ; 28 0e
   cp      0xc9                            ; fe c9
-  jr      z,L81bf                         ; 28 0a
+  jr      z,L23FF                         ; 28 0a
   cp      0xc3                            ; fe c3
-  jr      z,L81bf                         ; 28 06
-L81b9:
+  jr      z,L23FF                         ; 28 06
+L23F9:
   cp      0xe9                            ; fe e9
-L81bb:
+L23FB:
   ld      a,0x00                          ; 3e 00
-  jr      nz,L81c1                        ; 20 02
-L81bf:
+  jr      nz,L2401                        ; 20 02
+L23FF:
   ld      a,0x01                          ; 3e 01
-L81c1:
+L2401:
   ld      (0xbeb0),a                      ; 32 b0 be
   push    bc                              ; c5
   call    0xdae6                          ; cd e6 da
@@ -6922,7 +6922,7 @@ L81c1:
   ld      (0xc0a8),sp                     ; ed 73 a8 c0
   ld      a,0x02                          ; 3e 02
   ld      sp,0xb3b0                       ; 31 b0 b3
-  jr      L8208                           ; 18 0c
+  jr      L2448                           ; 18 0c
   exx                                     ; d9
   push    bc                              ; c5
   push    de                              ; d5
@@ -6932,13 +6932,13 @@ L81c1:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   ld      sp,hl                           ; f9
-L8208:
+L2448:
   ld      hl,0xc084                       ; 21 84 c0
   jp      0xc0b0                          ; c3 b0 c0
-L820e:
+L244E:
   and     a                               ; a7
   dec     a                               ; 3d
-  jr      z,L8231                         ; 28 1f
+  jr      z,L2471                         ; 28 1f
   ex      af,af'                          ; 08
   xor     a                               ; af
   ld      h,d                             ; 62
@@ -6948,20 +6948,20 @@ L820e:
   adc     a,0x00                          ; ce 00
   pop     hl                              ; e1
   sbc     hl,de                           ; ed 52
-  jr      z,L8223                         ; 28 03
+  jr      z,L2463                         ; 28 03
   ccf                                     ; 3f
   adc     a,0x00                          ; ce 00
-L8223:
+L2463:
   pop     hl                              ; e1
   and     a                               ; a7
   sbc     hl,bc                           ; ed 42
   adc     a,0x00                          ; ce 00
   cp      0x02                            ; fe 02
   scf                                     ; 37
-  jr      nz,L8231                        ; 20 03
+  jr      nz,L2471                        ; 20 03
   ex      af,af'                          ; 08
-  jr      L820e                           ; 18 dd
-L8231:
+  jr      L244E                           ; 18 dd
+L2471:
   ld      sp,0x0000                       ; 31 00 00
   exx                                     ; d9
   pop     hl                              ; e1
@@ -6979,48 +6979,48 @@ L8231:
   ld      bc,0xabe0                       ; 01 e0 ab
   ld      a,(0xb1c2)                      ; 3a c2 b1
   and     0x07                            ; e6 07
-  jr      z,L82a1                         ; 28 53
+  jr      z,L24E1                         ; 28 53
   cp      0x07                            ; fe 07
-  jr      nz,L825c                        ; 20 0a
+  jr      nz,L249C                        ; 20 0a
   ld      a,d                             ; 7a
   cp      0xc0                            ; fe c0
-  jr      c,L82a1                         ; 38 4a
+  jr      c,L24E1                         ; 38 4a
   ld      de,0xbfff                       ; 11 ff bf
-  jr      L82a1                           ; 18 45
-L825c:
+  jr      L24E1                           ; 18 45
+L249C:
   push    de                              ; d5
   push    bc                              ; c5
   ld      hl,0x3f00                       ; 21 00 3f
   dec     a                               ; 3d
-  jr      z,L8274                         ; 28 10
+  jr      z,L24B4                         ; 28 10
   ld      hl,0x7f40                       ; 21 40 7f
   sub     0x02                            ; d6 02
-  jr      z,L8274                         ; 28 09
+  jr      z,L24B4                         ; 28 09
   ld      hl,0xbf80                       ; 21 80 bf
   dec     a                               ; 3d
-  jr      z,L8274                         ; 28 03
+  jr      z,L24B4                         ; 28 03
   ld      hl,0xffc0                       ; 21 c0 ff
-L8274:
+L24B4:
   ld      bc,(0xc712)                     ; ed 4b 12 c7
   ld      de,(0xe037)                     ; ed 5b 37 e0
   ld      a,d                             ; 7a
   cp      l                               ; bd
-  jr      c,L82a3                         ; 38 23
+  jr      c,L24E3                         ; 38 23
   ld      a,h                             ; 7c
   cp      b                               ; b8
-  jr      c,L82a3                         ; 38 1f
+  jr      c,L24E3                         ; 38 1f
   ld      a,b                             ; 78
   xor     l                               ; ad
   and     0xc0                            ; e6 c0
-  jr      z,L828d                         ; 28 03
+  jr      z,L24CD                         ; 28 03
   ld      bc,0xc000                       ; 01 00 c0
-L828d:
+L24CD:
   ld      a,d                             ; 7a
   xor     h                               ; ac
   and     0xc0                            ; e6 c0
-  jr      z,L8296                         ; 28 03
+  jr      z,L24D6                         ; 28 03
   ld      de,0xffff                       ; 11 ff ff
-L8296:
+L24D6:
   set     6,b                             ; cb f0
   set     7,b                             ; cb f8
   set     6,d                             ; cb f2
@@ -7028,10 +7028,10 @@ L8296:
   ex      af,af'                          ; 08
   inc     a                               ; 3c
   ex      af,af'                          ; 08
-L82a1:
+L24E1:
   push    de                              ; d5
   push    bc                              ; c5
-L82a3:
+L24E3:
   ex      af,af'                          ; 08
   exx                                     ; d9
   jp      (hl)                            ; e9
@@ -7046,21 +7046,21 @@ L82a3:
   ld      sp,hl                           ; f9
   ld      hl,0xc12e                       ; 21 2e c1
   jp      0xc0b0                          ; c3 b0 c0
-L82b8:
+L24F8:
   dec     a                               ; 3d
-  jr      z,L82ca                         ; 28 0f
+  jr      z,L250A                         ; 28 0f
   pop     hl                              ; e1
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
   pop     hl                              ; e1
-  jr      z,L82c4                         ; 28 02
-  jr      nc,L82b8                        ; 30 f4
-L82c4:
+  jr      z,L2504                         ; 28 02
+  jr      nc,L24F8                        ; 30 f4
+L2504:
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
   ccf                                     ; 3f
-  jr      nc,L82b8                        ; 30 ee
-L82ca:
+  jr      nc,L24F8                        ; 30 ee
+L250A:
   jp      0xc0a7                          ; c3 a7 c0
   call    0xbeb4                          ; cd b4 be
   push    hl                              ; e5
@@ -7071,72 +7071,72 @@ L82ca:
   ld      a,(0xb254)                      ; 3a 54 b2
   and     0x1f                            ; e6 1f
   jp      z,0xb412                        ; ca 12 b4
-L82e0:
+L2520:
   dec     a                               ; 3d
-  jr      z,L82ef                         ; 28 0c
+  jr      z,L252F                         ; 28 0c
   ld      d,h                             ; 54
   ld      e,l                             ; 5d
   ex      af,af'                          ; 08
   call    0xc4b2                          ; cd b2 c4
   call    0xd3da                          ; cd da d3
   ex      af,af'                          ; 08
-  jr      L82e0                           ; 18 f1
-L82ef:
+  jr      L2520                           ; 18 f1
+L252F:
   ld      (0xdf57),hl                     ; 22 57 df
   pop     hl                              ; e1
   push    hl                              ; e5
   ld      b,0x20                          ; 06 20
   ld      hl,0xabe3                       ; 21 e3 ab
-L82f9:
+L2539:
   call    0xdd77                          ; cd 77 dd
   cp      0x20                            ; fe 20
-  jr      nc,L8302                        ; 30 02
+  jr      nc,L2542                        ; 30 02
   ld      a,0x20                          ; 3e 20
-L8302:
+L2542:
   call    0xdf38                          ; cd 38 df
-  djnz    L82f9                           ; 10 f2
+  djnz    L2539                           ; 10 f2
   pop     hl                              ; e1
   ret                                     ; c9
   ld      hl,0x5800                       ; 21 00 58
   ld      bc,0x0003                       ; 01 03 00
   push    hl                              ; e5
   push    bc                              ; c5
-L8311:
+L2551:
   ld      (hl),0x39                       ; 36 39
   inc     hl                              ; 23
-  djnz    L8311                           ; 10 fb
+  djnz    L2551                           ; 10 fb
   dec     c                               ; 0d
-  jr      nz,L8311                        ; 20 f8
+  jr      nz,L2551                        ; 20 f8
   call    0xc280                          ; cd 80 c2
   pop     bc                              ; c1
   pop     hl                              ; e1
-L831e:
+L255E:
   ld      a,(hl)                          ; 7e
   cp      0x39                            ; fe 39
-  jr      nz,L8339                        ; 20 16
+  jr      nz,L2579                        ; 20 16
   push    hl                              ; e5
   ld      a,h                             ; 7c
   sub     0x0a                            ; d6 0a
-L8327:
+L2567:
   ld      h,a                             ; 67
   and     0x07                            ; e6 07
-  jr      z,L8331                         ; 28 05
+  jr      z,L2571                         ; 28 05
   ld      a,h                             ; 7c
   sub     0x07                            ; d6 07
-  jr      L8327                           ; 18 f6
-L8331:
+  jr      L2567                           ; 18 f6
+L2571:
   ld      e,0x08                          ; 1e 08
-L8333:
+L2573:
   ld      (hl),a                          ; 77
   inc     h                               ; 24
   dec     e                               ; 1d
-  jr      nz,L8333                        ; 20 fb
+  jr      nz,L2573                        ; 20 fb
   pop     hl                              ; e1
-L8339:
+L2579:
   inc     hl                              ; 23
-  djnz    L831e                           ; 10 e2
+  djnz    L255E                           ; 10 e2
   dec     c                               ; 0d
-  jr      nz,L831e                        ; 20 df
+  jr      nz,L255E                        ; 20 df
   ld      bc,0x0000                       ; 01 00 00
   ld      ix,0xb249                       ; dd 21 49 b2
   add     ix,bc                           ; dd 09
@@ -7154,58 +7154,58 @@ L8339:
   push    hl                              ; e5
   ld      b,0x07                          ; 06 07
   cp      0x34                            ; fe 34
-  jr      z,L836d                         ; 28 06
+  jr      z,L25AD                         ; 28 06
   ld      b,0xf9                          ; 06 f9
   cp      0x33                            ; fe 33
-  jr      nz,L837e                        ; 20 11
-L836d:
+  jr      nz,L25BE                        ; 20 11
+L25AD:
   ld      a,c                             ; 79
   add     a,b                             ; 80
   cp      0xf9                            ; fe f9
-  jr      nz,L8375                        ; 20 02
+  jr      nz,L25B5                        ; 20 02
   ld      a,0xe7                          ; 3e e7
-L8375:
+L25B5:
   cp      0xee                            ; fe ee
-  jr      c,L837a                         ; 38 01
+  jr      c,L25BA                         ; 38 01
   xor     a                               ; af
-L837a:
+L25BA:
   ld      (0xc1b6),a                      ; 32 b6 c1
   ret                                     ; c9
-L837e:
+L25BE:
   ld      h,(ix+1)                        ; dd 66 01
   ld      l,(ix+0)                        ; dd 6e 00
   ld      b,0x01                          ; 06 01
   cp      0x38                            ; fe 38
-  jr      z,L83a8                         ; 28 1e
+  jr      z,L25E8                         ; 28 1e
   cp      0x36                            ; fe 36
-  jr      z,L8394                         ; 28 06
+  jr      z,L25D4                         ; 28 06
   cp      0x37                            ; fe 37
-  jr      nz,L839b                        ; 20 09
-L8392:
+  jr      nz,L25DB                        ; 20 09
+L25D2:
   ld      b,0x17                          ; 06 17
-L8394:
+L25D4:
   call    0xc4b2                          ; cd b2 c4
-  djnz    L8394                           ; 10 fb
-  jr      L83ab                           ; 18 10
-L839b:
+  djnz    L25D4                           ; 10 fb
+  jr      L25EB                           ; 18 10
+L25DB:
   cp      0x35                            ; fe 35
-  jr      nz,L83b2                        ; 20 13
+  jr      nz,L25F2                        ; 20 13
   ld      b,0x1f                          ; 06 1f
-L83a1:
+L25E1:
   call    0xc4a6                          ; cd a6 c4
-  djnz    L83a1                           ; 10 fb
-  jr      L8392                           ; 18 ea
-L83a8:
+  djnz    L25E1                           ; 10 fb
+  jr      L25D2                           ; 18 ea
+L25E8:
   call    0xc4a6                          ; cd a6 c4
-L83ab:
+L25EB:
   ld      (ix+1),h                        ; dd 74 01
   ld      (ix+0),l                        ; dd 75 00
   ret                                     ; c9
-L83b2:
+L25F2:
   cp      0x61                            ; fe 61
-  jr      c,L83cf                         ; 38 19
+  jr      c,L260F                         ; 38 19
   cp      0x7b                            ; fe 7b
-  jr      nc,L83cf                        ; 30 15
+  jr      nc,L260F                        ; 30 15
   sub     0x61                            ; d6 61
   ld      b,a                             ; 47
   ld      a,(ix+4)                        ; dd 7e 04
@@ -7214,25 +7214,25 @@ L83b2:
   xor     b                               ; a8
   xor     c                               ; a9
   bit     7,c                             ; cb 79
-  jr      nz,L83cb                        ; 20 02
+  jr      nz,L260B                        ; 20 02
   and     0xe1                            ; e6 e1
-L83cb:
+L260B:
   ld      (ix+4),a                        ; dd 77 04
   ret                                     ; c9
-L83cf:
+L260F:
   ld      d,(ix+3)                        ; dd 56 03
   ld      e,(ix+4)                        ; dd 5e 04
   ld      hl,0xc263                       ; 21 63 c2
   ld      b,0x06                          ; 06 06
-L83da:
+L261A:
   cp      (hl)                            ; be
   inc     hl                              ; 23
-  jr      z,L83e3                         ; 28 05
+  jr      z,L2623                         ; 28 05
   inc     hl                              ; 23
   inc     hl                              ; 23
-  djnz    L83da                           ; 10 f8
+  djnz    L261A                           ; 10 f8
   ret                                     ; c9
-L83e3:
+L2623:
   ld      a,(hl)                          ; 7e
   and     e                               ; a3
   ret     z                               ; c8
@@ -7250,7 +7250,7 @@ L83e3:
   ld      hl,(0x20ff)                     ; 2a ff 20
   ccf                                     ; 3f
   rst     0x38                            ; ff
-  djnz    L8438                           ; 10 3e
+  djnz    L2678                           ; 10 3e
   ld      b,b                             ; 40
   ex      af,af'                          ; 08
   ld      a,h                             ; 7c
@@ -7258,34 +7258,34 @@ L83e3:
   ld      hl,(0xb4ed)                     ; 2a ed b4
   ld      ix,0xb257                       ; dd 21 57 b2
   ld      b,0x20                          ; 06 20
-  jr      L8410                           ; 18 06
+  jr      L2650                           ; 18 06
   ld      ix,0xb249                       ; dd 21 49 b2
   ld      b,0x22                          ; 06 22
-L8410:
+L2650:
   ld      (0xc37b),hl                     ; 22 7b c3
-L8413:
+L2653:
   push    bc                              ; c5
   call    0xc2a7                          ; cd a7 c2
   ld      bc,0x0007                       ; 01 07 00
   add     ix,bc                           ; dd 09
   pop     bc                              ; c1
-  djnz    L8413                           ; 10 f4
+  djnz    L2653                           ; 10 f4
   ret                                     ; c9
-L8420:
+L2660:
   ld      a,0x28                          ; 3e 28
   call    0xdf38                          ; cd 38 df
   pop     hl                              ; e1
   push    hl                              ; e5
   call    0xc47b                          ; cd 7b c4
   ld      a,0x29                          ; 3e 29
-L842c:
+L266C:
   call    0xdf36                          ; cd 36 df
-  jr      L845f                           ; 18 2e
+  jr      L269F                           ; 18 2e
   ld      a,(ix+4)                        ; dd 7e 04
   and     0x1f                            ; e6 1f
   ret     z                               ; c8
   xor     a                               ; af
-L8438:
+L2678:
   ld      (0xc3f7),a                      ; 32 f7 c3
   call    0xc38c                          ; cd 8c c3
   ld      l,(ix+5)                        ; dd 6e 05
@@ -7293,27 +7293,27 @@ L8438:
   ld      a,(ix+3)                        ; dd 7e 03
   and     0x03                            ; e6 03
   dec     a                               ; 3d
-  jr      nz,L8450                        ; 20 04
+  jr      nz,L2690                        ; 20 04
   ld      e,(hl)                          ; 5e
   inc     hl                              ; 23
   ld      d,(hl)                          ; 56
   ex      de,hl                           ; eb
-L8450:
+L2690:
   push    hl                              ; e5
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0xd8                            ; fe d8
-  jr      nc,L8420                        ; 30 c8
+  jr      nc,L2660                        ; 30 c8
   cp      0x80                            ; fe 80
-  jr      nc,L842c                        ; 30 d0
+  jr      nc,L266C                        ; 30 d0
   call    0xc48d                          ; cd 8d c4
-L845f:
+L269F:
   ld      a,0x3a                          ; 3e 3a
   call    0xdf38                          ; cd 38 df
   pop     de                              ; d1
   ld      a,(ix+4)                        ; dd 7e 04
   and     0x1f                            ; e6 1f
   ld      hl,(0xdf57)                     ; 2a 57 df
-L846d:
+L26AD:
   ld      bc,0xc3ee                       ; 01 ee c3
   or      a                               ; b7
   ret     z                               ; c8
@@ -7328,22 +7328,22 @@ L846d:
   ex      de,hl                           ; eb
   ld      a,(ix+3)                        ; dd 7e 03
   bit     3,a                             ; cb 5f
-  jr      z,L8487                         ; 28 01
+  jr      z,L26C7                         ; 28 01
   inc     de                              ; 13
-L8487:
+L26C7:
   push    de                              ; d5
   ld      e,a                             ; 5f
   and     0x03                            ; e6 03
   jp      z,0xc39e                        ; ca 9e c3
   cp      0x03                            ; fe 03
-  jr      nc,L84cf                        ; 30 3d
+  jr      nc,L270F                        ; 30 3d
   ld      d,0x04                          ; 16 04
-L8494:
+L26D4:
   bit     3,(ix+3)                        ; dd cb 03 5e
   push    bc                              ; c5
-  jr      z,L849c                         ; 28 01
+  jr      z,L26DC                         ; 28 01
   inc     bc                              ; 03
-L849c:
+L26DC:
   push    ix                              ; dd e5
   ld      ix,0xc433                       ; dd 21 33 c4
   ld      a,(bc)                          ; 0a
@@ -7361,20 +7361,20 @@ L849c:
   inc     bc                              ; 03
   inc     bc                              ; 03
   dec     d                               ; 15
-  jr      nz,L8494                        ; 20 db
+  jr      nz,L26D4                        ; 20 db
   pop     de                              ; d1
   pop     hl                              ; e1
   bit     2,(ix+3)                        ; dd cb 03 56
-  jr      z,L84cb                         ; 28 0a
+  jr      z,L270B                         ; 28 0a
   call    0xc4b2                          ; cd b2 c4
   ld      (0xdf57),hl                     ; 22 57 df
   xor     a                               ; af
   ld      (0xc3f7),a                      ; 32 f7 c3
-L84cb:
+L270B:
   pop     af                              ; f1
   dec     a                               ; 3d
-  jr      L846d                           ; 18 9e
-L84cf:
+  jr      L26AD                           ; 18 9e
+L270F:
   pop     de                              ; d1
   pop     hl                              ; e1
   pop     af                              ; f1
@@ -7386,36 +7386,36 @@ L84cf:
   ld      h,0x00                          ; 26 00
   add     hl,hl                           ; 29
   add     hl,hl                           ; 29
-L84dd:
+L271D:
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0xc4                            ; fe c4
-  jr      z,L84fb                         ; 28 17
+  jr      z,L273B                         ; 28 17
   cp      0xa3                            ; fe a3
-  jr      z,L84f1                         ; 28 09
+  jr      z,L2731                         ; 28 09
   call    0xdf36                          ; cd 36 df
   dec     hl                              ; 2b
   ld      a,h                             ; 7c
   or      l                               ; b5
-  jr      nz,L84dd                        ; 20 ed
+  jr      nz,L271D                        ; 20 ed
   ret                                     ; c9
-L84f1:
+L2731:
   ld      a,0x00                          ; 3e 00
   add     a,0x03                          ; c6 03
   ld      de,0xe4b2                       ; 11 b2 e4
   jp      0xc490                          ; c3 90 c4
-L84fb:
+L273B:
   ld      a,(ix+4)                        ; dd 7e 04
   and     0x1f                            ; e6 1f
   ld      b,a                             ; 47
   call    0xbebe                          ; cd be be
   ld      hl,0x0000                       ; 21 00 00
   push    ix                              ; dd e5
-L8509:
+L2749:
   push    bc                              ; c5
   call    0xbeaf                          ; cd af be
   call    0xc169                          ; cd 69 c1
   pop     bc                              ; c1
-  djnz    L8509                           ; 10 f6
+  djnz    L2749                           ; 10 f6
   pop     ix                              ; dd e1
   ret                                     ; c9
   ld      l,(ix+0)                        ; dd 6e 00
@@ -7440,7 +7440,7 @@ L8509:
   call    0xc38c                          ; cd 8c c3
   push    hl                              ; e5
   ld      hl,0xc3e2                       ; 21 e2 c3
-  jr      z,L8550                         ; 28 16
+  jr      z,L2790                         ; 28 16
   ld      de,0xc396                       ; 11 96 c3
   call    0xc493                          ; cd 93 c4
   pop     hl                              ; e1
@@ -7450,20 +7450,20 @@ L8509:
   call    0xc454                          ; cd 54 c4
   pop     hl                              ; e1
   ret                                     ; c9
-L854d:
+L278D:
   call    0xdf34                          ; cd 34 df
-L8550:
+L2790:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   and     c                               ; a1
-  jr      nz,L8559                        ; 20 04
+  jr      nz,L2799                        ; 20 04
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
-  jr      L855b                           ; 18 02
-L8559:
+  jr      L279B                           ; 18 02
+L2799:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
-L855b:
+L279B:
   inc     hl                              ; 23
   push    af                              ; f5
   rlca                                    ; 07
@@ -7471,15 +7471,15 @@ L855b:
   pop     af                              ; f1
   and     0x7f                            ; e6 7f
   call    0xc48d                          ; cd 8d c4
-  djnz    L854d                           ; 10 e4
+  djnz    L278D                           ; 10 e4
   pop     de                              ; d1
   pop     hl                              ; e1
   ret                                     ; c9
   ld      b,b                             ; 40
   sub     h                               ; 94
-  jr      nz,L8571                        ; 20 01
+  jr      nz,L27B1                        ; 20 01
   adc     a,e                             ; 8b
-L8571:
+L27B1:
   rra                                     ; 1f
   inc     b                               ; 04
   ld      hl,0x8022                       ; 21 22 80
@@ -7495,55 +7495,55 @@ L8571:
   ld      a,0x01                          ; 3e 01
   ld      (0xc3f7),a                      ; 32 f7 c3
   jp      (ix)                            ; dd e9
-L858d:
+L27CD:
   call    0xc484                          ; cd 84 c4
   call    0xe100                          ; cd 00 e1
-  jr      L85b1                           ; 18 1c
-L8595:
+  jr      L27F1                           ; 18 1c
+L27D5:
   call    0xc486                          ; cd 86 c4
   call    0xe0f4                          ; cd f4 e0
-  jr      L85b1                           ; 18 14
-L859d:
+  jr      L27F1                           ; 18 14
+L27DD:
   call    0xc484                          ; cd 84 c4
   ld      (ix+0),0x23                     ; dd 36 00 23
   inc     ix                              ; dd 23
   call    0xe0ec                          ; cd ec e0
-  jr      L85b1                           ; 18 06
-L85ab:
+  jr      L27F1                           ; 18 06
+L27EB:
   call    0xc486                          ; cd 86 c4
   call    0xe0db                          ; cd db e0
-L85b1:
+L27F1:
   ld      hl,0xac06                       ; 21 06 ac
-L85b4:
+L27F4:
   ld      a,(hl)                          ; 7e
   or      a                               ; b7
   ret     z                               ; c8
   call    0xdf38                          ; cd 38 df
   inc     hl                              ; 23
-  jr      L85b4                           ; 18 f7
+  jr      L27F4                           ; 18 f7
   call    0xe0cc                          ; cd cc e0
-  jr      z,L858d                         ; 28 cb
-  jr      L859d                           ; 18 d9
+  jr      z,L27CD                         ; 28 cb
+  jr      L27DD                           ; 18 d9
   call    0xe0cc                          ; cd cc e0
-  jr      z,L8595                         ; 28 cc
-  jr      L85ab                           ; 18 e0
+  jr      z,L27D5                         ; 28 cc
+  jr      L27EB                           ; 18 e0
   call    0xe0cc                          ; cd cc e0
-  jr      nz,L858d                        ; 20 bd
-  jr      L859d                           ; 18 cb
+  jr      nz,L27CD                        ; 20 bd
+  jr      L27DD                           ; 18 cb
   call    0xe0cc                          ; cd cc e0
-  jr      nz,L8595                        ; 20 be
-  jr      L85ab                           ; 18 d2
+  jr      nz,L27D5                        ; 20 be
+  jr      L27EB                           ; 18 d2
   ld      a,h                             ; 7c
   call    0xc454                          ; cd 54 c4
   ld      a,l                             ; 7d
   ld      c,a                             ; 4f
   ld      b,0x08                          ; 06 08
-L85e1:
+L2821:
   xor     a                               ; af
   rl      c                               ; cb 11
   adc     a,0x30                          ; ce 30
   call    0xdf38                          ; cd 38 df
-  djnz    L85e1                           ; 10 f6
+  djnz    L2821                           ; 10 f6
   ret                                     ; c9
   ld      a,h                             ; 7c
   call    0xc46c                          ; cd 6c c4
@@ -7555,37 +7555,37 @@ L85e1:
   and     0x7f                            ; e6 7f
   cp      0x20                            ; fe 20
   ld      a,l                             ; 7d
-  jr      nc,L8602                        ; 30 04
+  jr      nc,L2842                        ; 30 04
   and     0x80                            ; e6 80
   or      0x2e                            ; f6 2e
-L8602:
+L2842:
   jp      0xdf38                          ; c3 38 df
   push    ix                              ; dd e5
   call    0xe0d0                          ; cd d0 e0
   pop     ix                              ; dd e1
-  jr      L85b1                           ; 18 a3
+  jr      L27F1                           ; 18 a3
   ld      h,0x00                          ; 26 00
   ld      ix,0xac06                       ; dd 21 06 ac
   ld      c,0x00                          ; 0e 00
   ret                                     ; c9
   ld      de,0xe5f0                       ; 11 f0 e5
   call    0xda73                          ; cd 73 da
-L861d:
+L285D:
   ld      a,(de)                          ; 1a
   res     7,a                             ; cb bf
   call    0xdef9                          ; cd f9 de
-  jr      nz,L8627                        ; 20 02
+  jr      nz,L2867                        ; 20 02
   sub     0x20                            ; d6 20
-L8627:
+L2867:
   call    0xdf36                          ; cd 36 df
   ld      a,(de)                          ; 1a
   inc     de                              ; 13
   rla                                     ; 17
-  jr      nc,L861d                        ; 30 ee
+  jr      nc,L285D                        ; 30 ee
   ret                                     ; c9
   inc     l                               ; 2c
   ret     nz                              ; c0
-L8632:
+L2872:
   ld      a,h                             ; 7c
   add     a,0x08                          ; c6 08
   cp      0x58                            ; fe 58
@@ -7597,7 +7597,7 @@ L8632:
   add     a,0x20                          ; c6 20
   ld      l,a                             ; 6f
   ret     nc                              ; d0
-  jr      L8632                           ; 18 ef
+  jr      L2872                           ; 18 ef
   dec     de                              ; 1b
   rst     0x38                            ; ff
   ex      (sp),hl                         ; e3
@@ -7756,14 +7756,14 @@ L8632:
   ld      b,l                             ; 45
   ld      b,a                             ; 47
   rst     0x20                            ; e7
-  jr      nz,L8715                        ; 20 00
-L8715:
+  jr      nz,L2955                        ; 20 00
+L2955:
   rst     0x38                            ; ff
-  jr      L8718                           ; 18 00
-L8718:
+  jr      L2958                           ; 18 00
+L2958:
   rst     0x38                            ; ff
-  djnz    L871b                           ; 10 00
-L871b:
+  djnz    L295B                           ; 10 00
+L295B:
   inc     e                               ; 1c
   ld      hl,0x2825                       ; 21 25 28
   dec     l                               ; 2d
@@ -7901,15 +7901,15 @@ L871b:
   set     6,b                             ; cb f0
   add     a,0x10                          ; c6 10
   ret     z                               ; c8
-L8804:
+L2A44:
   call    0xc770                          ; cd 70 c7
   ex      de,hl                           ; eb
   ld      hl,(0xe037)                     ; 2a 37 e0
   ld      bc,(0xc712)                     ; ed 4b 12 c7
-L880f:
+L2A4F:
   or      a                               ; b7
   sbc     hl,bc                           ; ed 42
-L8812:
+L2A52:
   ld      b,h                             ; 44
   ld      c,l                             ; 4d
   add     hl,de                           ; 19
@@ -7938,14 +7938,14 @@ L8812:
   jp      0xe19b                          ; c3 9b e1
   ld      b,0x00                          ; 06 00
   call    0xd37f                          ; cd 7f d3
-  jr      z,L8859                         ; 28 11
+  jr      z,L2A99                         ; 28 11
   call    0xc770                          ; cd 70 c7
   ld      de,(0xe037)                     ; ed 5b 37 e0
   call    0xad77                          ; cd 77 ad
   jp      c,0xd7ee                        ; da ee d7
   ld      (0xce95),hl                     ; 22 95 ce
   ret                                     ; c9
-L8859:
+L2A99:
   ld      hl,0x4000                       ; 21 00 40
   call    0xddbf                          ; cd bf dd
   ld      hl,0xe495                       ; 21 95 e4
@@ -7955,7 +7955,7 @@ L8859:
   ld      hl,0xe4a2                       ; 21 a2 e4
   call    0xd868                          ; cd 68 d8
   ld      hl,(0xce95)                     ; 2a 95 ce
-L8874:
+L2AB4:
   call    0xe216                          ; cd 16 e2
   jp      0xd44e                          ; c3 4e d4
   call    0xc770                          ; cd 70 c7
@@ -7971,7 +7971,7 @@ L8874:
   call    0xdf08                          ; cd 08 df
   call    0xd38c                          ; cd 8c d3
   pop     hl                              ; e1
-  jr      L8874                           ; 18 d9
+  jr      L2AB4                           ; 18 d9
   ld      hl,0xc000                       ; 21 00 c0
   ld      b,0x0d                          ; 06 0d
   call    0xc744                          ; cd 44 c7
@@ -7993,22 +7993,22 @@ L8874:
   ld      (0xda17),hl                     ; 22 17 da
   ld      (0xc8c0),hl                     ; 22 c0 c8
   ret                                     ; c9
-L88ce:
+L2B0E:
   xor     a                               ; af
   call    0xae29                          ; cd 29 ae
   inc     hl                              ; 23
   ld      a,0x30                          ; 3e 30
   call    0xae29                          ; cd 29 ae
   inc     hl                              ; 23
-  djnz    L88ce                           ; 10 f3
+  djnz    L2B0E                           ; 10 f3
   ret                                     ; c9
   ld      hl,(0xe227)                     ; 2a 27 e2
-L88df:
+L2B1F:
   ld      (0xda17),hl                     ; 22 17 da
   ret                                     ; c9
   call    0xc761                          ; cd 61 c7
   call    0xd9d9                          ; cd d9 d9
-  jr      L88df                           ; 18 f4
+  jr      L2B1F                           ; 18 f4
   ld      hl,(0xdfa6)                     ; 2a a6 df
   ld      de,0xfff4                       ; 11 f4 ff
   add     hl,de                           ; 19
@@ -8025,24 +8025,24 @@ L88df:
   ld      hl,0x0000                       ; 21 00 00
   ld      a,0x2b                          ; 3e 2b
   ld      ix,0xabe4                       ; dd 21 e4 ab
-L8910:
+L2B50:
   push    hl                              ; e5
   push    af                              ; f5
   call    0xdc5c                          ; cd 5c dc
   jp      c,0xd802                        ; da 02 d8
   cp      0x2b                            ; fe 2b
-  jr      z,L8923                         ; 28 07
+  jr      z,L2B63                         ; 28 07
   ld      (0xc7e4),a                      ; 32 e4 c7
   cp      0x2d                            ; fe 2d
-  jr      nz,L8926                        ; 20 03
-L8923:
+  jr      nz,L2B66                        ; 20 03
+L2B63:
   call    0xdc5c                          ; cd 5c dc
-L8926:
+L2B66:
   cp      0x24                            ; fe 24
   ld      hl,(0xaf3b)                     ; 2a 3b af
-  jr      z,L8962                         ; 28 35
+  jr      z,L2BA2                         ; 28 35
   call    0xdef9                          ; cd f9 de
-  jr      nz,L8967                        ; 20 35
+  jr      nz,L2BA7                        ; 20 35
   dec     de                              ; 1b
   push    de                              ; d5
   push    ix                              ; dd e5
@@ -8069,12 +8069,12 @@ L8926:
   ld      h,0x00                          ; 26 00
   add     hl,bc                           ; 09
   ex      de,hl                           ; eb
-L8962:
+L2BA2:
   call    0xdc5c                          ; cd 5c dc
-  jr      L896a                           ; 18 03
-L8967:
+  jr      L2BAA                           ; 18 03
+L2BA7:
   call    0xdbe3                          ; cd e3 db
-L896a:
+L2BAA:
   push    af                              ; f5
   push    de                              ; d5
   ex      de,hl                           ; eb
@@ -8086,23 +8086,23 @@ L896a:
   ex      (sp),hl                         ; e3
   push    bc                              ; c5
   call    0xd277                          ; cd 77 d2
-L897a:
+L2BBA:
   pop     af                              ; f1
   pop     de                              ; d1
   ret     c                               ; d8
-  jr      L8910                           ; 18 91
+  jr      L2B50                           ; 18 91
   push    hl                              ; e5
   call    0xe160                          ; cd 60 e1
-L8983:
+L2BC3:
   ld      hl,(0xe227)                     ; 2a 27 e2
   call    0xe22e                          ; cd 2e e2
   defb    0x38, 0x0d
   ld      de,0xc80c                       ; 11 0c c8
   ld      bc,0x0002                       ; 01 02 00
   call    0xe28d                          ; cd 8d e2
-  jr      L8983                           ; 18 ed
+  jr      L2BC3                           ; 18 ed
   nop                                     ; 00
-  jr      nc,L897a                        ; 30 e1
+  jr      nc,L2BBA                        ; 30 e1
   ret                                     ; c9
   ld      b,0x3a                          ; 06 3a
   call    0xd37f                          ; cd 7f d3
@@ -8117,46 +8117,46 @@ L8983:
   ld      (de),a                          ; 12
   inc     de                              ; 13
   ld      c,0x1f                          ; 0e 1f
-L89bc:
+L2BFC:
   push    hl                              ; e5
   push    de                              ; d5
   ex      de,hl                           ; eb
   call    0xc965                          ; cd 65 c9
   pop     de                              ; d1
-  jr      nc,L89dd                        ; 30 18
+  jr      nc,L2C1D                        ; 30 18
   ld      hl,0xc994                       ; 21 94 c9
   ld      b,(hl)                          ; 46
-L89c9:
+L2C09:
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   call    0xd3f2                          ; cd f2 d3
-  djnz    L89c9                           ; 10 f9
+  djnz    L2C09                           ; 10 f9
   pop     hl                              ; e1
   ld      a,(0xc979)                      ; 3a 79 c9
   ld      b,a                             ; 47
-L89d5:
+L2C15:
   call    0xdd78                          ; cd 78 dd
   inc     hl                              ; 23
-  djnz    L89d5                           ; 10 fa
-  jr      L89bc                           ; 18 df
-L89dd:
+  djnz    L2C15                           ; 10 fa
+  jr      L2BFC                           ; 18 df
+L2C1D:
   pop     hl                              ; e1
   call    0xdd78                          ; cd 78 dd
   inc     hl                              ; 23
   or      a                               ; b7
-  jr      z,L89ea                         ; 28 05
+  jr      z,L2C2A                         ; 28 05
   call    0xd3f2                          ; cd f2 d3
-  jr      L89bc                           ; 18 d2
-L89ea:
+  jr      L2BFC                           ; 18 d2
+L2C2A:
   inc     a                               ; 3c
   ld      (de),a                          ; 12
   ld      (0xd594),a                      ; 32 94 d5
   dec     a                               ; 3d
   inc     c                               ; 0c
-L89f1:
+L2C31:
   ld      (de),a                          ; 12
   dec     c                               ; 0d
-  jr      nz,L89f1                        ; 20 fc
+  jr      nz,L2C31                        ; 20 fc
   ld      hl,0xc874                       ; 21 74 c8
   ld      (0xd5ae),hl                     ; 22 ae d5
   jp      0xd552                          ; c3 52 d5
@@ -8168,32 +8168,32 @@ L89f1:
   ld      (0xc8c0),hl                     ; 22 c0 c8
   ld      b,0x53                          ; 06 53
   call    0xd37f                          ; cd 7f d3
-  jr      nz,L8a2a                        ; 20 13
+  jr      nz,L2C6A                        ; 20 13
   xor     a                               ; af
-L8a18:
+L2C58:
   ld      de,(0xe227)                     ; ed 5b 27 e2
   dec     de                              ; 1b
   dec     de                              ; 1b
   ld      (0xc8c0),de                     ; ed 53 c0 c8
   ld      (0xc8d6),a                      ; 32 d6 c8
   call    0xd382                          ; cd 82 d3
-  jr      L8a35                           ; 18 0b
-L8a2a:
+  jr      L2C75                           ; 18 0b
+L2C6A:
   ld      b,0x42                          ; 06 42
   call    0xd386                          ; cd 86 d3
-  jr      nz,L8a35                        ; 20 04
+  jr      nz,L2C75                        ; 20 04
   ld      a,0x01                          ; 3e 01
-  jr      L8a18                           ; 18 e3
-L8a35:
+  jr      L2C58                           ; 18 e3
+L2C75:
   ld      b,0x3a                          ; 06 3a
   call    0xd386                          ; cd 86 d3
   ld      de,0xc97a                       ; 11 7a c9
   call    z,0xc8ec                        ; cc ec c8
   call    0xe1f3                          ; cd f3 e1
   ld      hl,0xc958                       ; 21 58 c9
-L8a46:
+L2C86:
   ld      (0xc8e3),hl                     ; 22 e3 c8
-L8a49:
+L2C89:
   ld      hl,0x0000                       ; 21 00 00
   call    0xd9ee                          ; cd ee d9
   ld      (0xc8c0),hl                     ; 22 c0 c8
@@ -8205,45 +8205,45 @@ L8a49:
   pop     ix                              ; dd e1
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
-  jr      z,L8a69                         ; 28 05
+  jr      z,L2CA9                         ; 28 05
   call    0xd884                          ; cd 84 d8
-  jr      c,L8a74                         ; 38 0b
-L8a69:
+  jr      c,L2CB4                         ; 38 0b
+L2CA9:
   call    0xd8cf                          ; cd cf d8
   call    0xc958                          ; cd 58 c9
   ld      hl,(0xc8c0)                     ; 2a c0 c8
-  jr      c,L8ac3                         ; 38 4f
-L8a74:
-  jr      L8a49                           ; 18 d3
+  jr      c,L2D03                         ; 38 4f
+L2CB4:
+  jr      L2C89                           ; 18 d3
   ld      b,0x00                          ; 06 00
   push    de                              ; d5
-L8a79:
+L2CB9:
   call    0xdd78                          ; cd 78 dd
   inc     hl                              ; 23
   or      a                               ; b7
-  jr      z,L8a87                         ; 28 07
+  jr      z,L2CC7                         ; 28 07
   or      0x20                            ; f6 20
   ld      (de),a                          ; 12
   inc     de                              ; 13
   inc     b                               ; 04
-  jr      L8a79                           ; 18 f2
-L8a87:
+  jr      L2CB9                           ; 18 f2
+L2CC7:
   pop     hl                              ; e1
   dec     hl                              ; 2b
   ld      (hl),b                          ; 70
   ret                                     ; c9
   call    0xd37d                          ; cd 7d d3
   ld      a,0x00                          ; 3e 00
-  jr      nz,L8a93                        ; 20 01
+  jr      nz,L2CD3                        ; 20 01
   inc     a                               ; 3c
-L8a93:
+L2CD3:
   ld      (0xc8d6),a                      ; 32 d6 c8
   ld      hl,(0xe227)                     ; 2a 27 e2
   dec     hl                              ; 2b
   dec     hl                              ; 2b
   ld      (0xc8c0),hl                     ; 22 c0 c8
   ld      hl,0xc919                       ; 21 19 c9
-  jr      L8a46                           ; 18 a3
+  jr      L2C86                           ; 18 a3
   call    0xb0a2                          ; cd a2 b0
   ld      a,0x03                          ; 3e 03
   call    0x1601                          ; cd 01 16
@@ -8258,46 +8258,46 @@ L8a93:
   call    0xc93d                          ; cd 3d c9
   ld      (0xd879),hl                     ; 22 79 d8
   ld      (0xd87c),hl                     ; 22 7c d8
-L8ac3:
+L2D03:
   ld      (0xda17),hl                     ; 22 17 da
   ret                                     ; c9
   ld      bc,0x0001                       ; 01 01 00
-L8aca:
+L2D0A:
   call    0xad77                          ; cd 77 ad
-  jr      nc,L8ad5                        ; 30 06
+  jr      nc,L2D15                        ; 30 06
   inc     bc                              ; 03
   call    0xd9ee                          ; cd ee d9
-  jr      L8aca                           ; 18 f5
-L8ad5:
+  jr      L2D0A                           ; 18 f5
+L2D15:
   call    0xd878                          ; cd 78 d8
   call    0xc7f5                          ; cd f5 c7
   call    0xe22e                          ; cd 2e e2
   call    z,0xd9d9                        ; cc d9 d9
   ret                                     ; c9
   ld      de,0xabe4                       ; 11 e4 ab
-L8ae5:
+L2D25:
   push    de                              ; d5
   call    0xc965                          ; cd 65 c9
   pop     de                              ; d1
   ret     c                               ; d8
   inc     de                              ; 13
-  jr      nz,L8ae5                        ; 20 f7
+  jr      nz,L2D25                        ; 20 f7
   ret                                     ; c9
   ld      hl,0xc979                       ; 21 79 c9
   ld      b,(hl)                          ; 46
-L8af3:
+L2D33:
   inc     hl                              ; 23
-L8af4:
+L2D34:
   ld      a,(de)                          ; 1a
   inc     de                              ; 13
   dec     a                               ; 3d
-  jr      z,L8af4                         ; 28 fb
+  jr      z,L2D34                         ; 28 fb
   inc     a                               ; 3c
   ret     z                               ; c8
   xor     (hl)                            ; ae
   and     0xdf                            ; e6 df
   ret     nz                              ; c0
-  djnz    L8af3                           ; 10 f2
+  djnz    L2D33                           ; 10 f2
   scf                                     ; 37
   ret                                     ; c9
   nop                                     ; 00
@@ -8374,7 +8374,7 @@ L8af4:
   ex      de,hl                           ; eb
   call    0xca48                          ; cd 48 ca
   dec     hl                              ; 2b
-L8b5c:
+L2D9C:
   inc     hl                              ; 23
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
@@ -8389,14 +8389,14 @@ L8b5c:
   ld      h,a                             ; 67
   sbc     hl,de                           ; ed 52
   pop     hl                              ; e1
-  jr      z,L8b7c                         ; 28 0a
+  jr      z,L2DBC                         ; 28 0a
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,L8b5c                        ; 20 e5
+  jr      nz,L2D9C                        ; 20 e5
   ld      a,0x10                          ; 3e 10
   jp      0xd813                          ; c3 13 d8
-L8b7c:
+L2DBC:
   call    0xade9                          ; cd e9 ad
   ld      c,a                             ; 4f
   pop     hl                              ; e1
@@ -8411,9 +8411,9 @@ L8b7c:
   ld      hl,0xabe4                       ; 21 e4 ab
   ld      (hl),0x20                       ; 36 20
   bit     7,c                             ; cb 79
-  jr      z,L8b98                         ; 28 02
+  jr      z,L2DD8                         ; 28 02
   ld      (hl),0x2a                       ; 36 2a
-L8b98:
+L2DD8:
   inc     hl                              ; 23
   push    bc                              ; c5
   ld      b,0x09                          ; 06 09
@@ -8424,18 +8424,18 @@ L8b98:
   ex      de,hl                           ; eb
   ld      a,c                             ; 79
   and     0xc0                            ; e6 c0
-  jr      nz,L8bb1                        ; 20 09
+  jr      nz,L2DF1                        ; 20 09
   ld      bc,0x052e                       ; 01 2e 05
   call    0xdaab                          ; cd ab da
   ld      (hl),b                          ; 70
-  jr      L8bba                           ; 18 09
-L8bb1:
+  jr      L2DFA                           ; 18 09
+L2DF1:
   push    hl                              ; e5
   pop     ix                              ; dd e1
   ex      de,hl                           ; eb
   ld      c,0x00                          ; 0e 00
   call    0xe0d6                          ; cd d6 e0
-L8bba:
+L2DFA:
   ld      hl,0xabe4                       ; 21 e4 ab
   call    0xe21c                          ; cd 1c e2
   ld      a,0x00                          ; 3e 00
@@ -8461,9 +8461,9 @@ L8bba:
   call    0xd386                          ; cd 86 d3
   push    af                              ; f5
   ld      a,0x01                          ; 3e 01
-  jr      z,L8beb                         ; 28 01
+  jr      z,L2E2B                         ; 28 01
   dec     a                               ; 3d
-L8beb:
+L2E2B:
   ld      (0xca37),a                      ; 32 37 ca
   ld      de,0xac07                       ; 11 07 ac
   ld      a,0x20                          ; 3e 20
@@ -8473,33 +8473,33 @@ L8beb:
   ld      b,0x3a                          ; 06 3a
   cp      b                               ; b8
   call    nz,0xd382                       ; c4 82 d3
-  jr      nz,L8c13                        ; 20 13
+  jr      nz,L2E53                        ; 20 13
   ld      bc,0x08df                       ; 01 df 08
   call    0xcd62                          ; cd 62 cd
   ld      hl,0xac07                       ; 21 07 ac
-L8c09:
+L2E49:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   cp      0x20                            ; fe 20
-  jr      nz,L8c09                        ; 20 fa
+  jr      nz,L2E49                        ; 20 fa
   dec     hl                              ; 2b
   dec     hl                              ; 2b
   set     7,(hl)                          ; cb fe
-L8c13:
+L2E53:
   ld      hl,0x5840                       ; 21 40 58
   ld      a,0x38                          ; 3e 38
   ex      af,af'                          ; 08
   ld      a,0x30                          ; 3e 30
   ld      c,0x14                          ; 0e 14
-L8c1d:
+L2E5D:
   ld      b,0x20                          ; 06 20
-L8c1f:
+L2E5F:
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
-  djnz    L8c1f                           ; 10 fc
+  djnz    L2E5F                           ; 10 fc
   ex      af,af'                          ; 08
   dec     c                               ; 0d
-  jr      nz,L8c1d                        ; 20 f6
+  jr      nz,L2E5D                        ; 20 f6
   call    0xca48                          ; cd 48 ca
   add     hl,bc                           ; 09
   add     hl,bc                           ; 09
@@ -8511,19 +8511,19 @@ L8c1f:
   call    0xe1f5                          ; cd f5 e1
   pop     hl                              ; e1
   pop     bc                              ; c1
-L8c3b:
+L2E7B:
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      z,L8c5d                         ; 28 1e
+  jr      z,L2E9D                         ; 28 1e
   exx                                     ; d9
   ld      a,0x10                          ; 3e 10
-L8c42:
+L2E82:
   push    af                              ; f5
   call    0xddba                          ; cd ba dd
   pop     af                              ; f1
   add     a,0x08                          ; c6 08
   cp      0xa9                            ; fe a9
-  jr      c,L8c42                         ; 38 f5
+  jr      c,L2E82                         ; 38 f5
   exx                                     ; d9
   xor     a                               ; af
   call    0xc9ae                          ; cd ae c9
@@ -8532,26 +8532,26 @@ L8c42:
   exx                                     ; d9
   call    0xde03                          ; cd 03 de
   cp      0x20                            ; fe 20
-L8c5d:
+L2E9D:
   jp      z,0xd43a                        ; ca 3a d4
   exx                                     ; d9
-  jr      L8c3b                           ; 18 d8
+  jr      L2E7B                           ; 18 d8
   ld      b,0x43                          ; 06 43
   call    0xd37f                          ; cd 7f d3
-  jr      z,L8cb3                         ; 28 49
+  jr      z,L2EF3                         ; 28 49
   ld      b,0x4c                          ; 06 4c
   call    0xd386                          ; cd 86 d3
   ld      c,0xff                          ; 0e ff
-  jr      z,L8c7d                         ; 28 0a
+  jr      z,L2EBD                         ; 28 0a
   ld      b,0x55                          ; 06 55
   call    0xd386                          ; cd 86 d3
   jp      nz,0xca56                       ; c2 56 ca
   ld      c,0xbf                          ; 0e bf
-L8c7d:
+L2EBD:
   ld      a,c                             ; 79
   ld      (0xcb02),a                      ; 32 02 cb
   call    0xca48                          ; cd 48 ca
-L8c84:
+L2EC4:
   ld      a,b                             ; 78
   or      c                               ; b1
   ret     z                               ; c8
@@ -8561,27 +8561,27 @@ L8c84:
   call    0xae29                          ; cd 29 ae
   inc     hl                              ; 23
   dec     bc                              ; 0b
-  jr      L8c84                           ; 18 f0
+  jr      L2EC4                           ; 18 f0
   ld      b,0x79                          ; 06 79
   call    0xd37f                          ; cd 7f d3
-  jr      z,L8ca4                         ; 28 09
+  jr      z,L2EE4                         ; 28 09
   ld      b,0x66                          ; 06 66
   call    0xd386                          ; cd 86 d3
   jp      z,0xd41c                        ; ca 1c d4
   ret                                     ; c9
-L8ca4:
+L2EE4:
   ld      hl,(0xe227)                     ; 2a 27 e2
   ld      (0xd879),hl                     ; 22 79 d8
   call    0xc761                          ; cd 61 c7
   ld      (0xd87c),hl                     ; 22 7c d8
   call    0xc92d                          ; cd 2d c9
-L8cb3:
+L2EF3:
   call    0xe1f3                          ; cd f3 e1
   call    0xcb67                          ; cd 67 cb
   ld      hl,(0xe227)                     ; 2a 27 e2
   call    0xcc43                          ; cd 43 cc
-L8cbf:
-  jr      nc,L8ce3                        ; 30 22
+L2EFF:
+  jr      nc,L2F23                        ; 30 22
   push    hl                              ; e5
   push    af                              ; f5
   call    0xade9                          ; cd e9 ad
@@ -8601,21 +8601,21 @@ L8cbf:
   pop     hl                              ; e1
   inc     hl                              ; 23
   call    0xcc54                          ; cd 54 cc
-  jr      L8cbf                           ; 18 dc
-L8ce3:
+  jr      L2EFF                           ; 18 dc
+L2F23:
   call    0xca48                          ; cd 48 ca
   push    hl                              ; e5
   add     hl,bc                           ; 09
   add     hl,bc                           ; 09
   ld      (0xcb85),hl                     ; 22 85 cb
   pop     hl                              ; e1
-L8ced:
+L2F2D:
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,L8cf6                        ; 20 05
+  jr      nz,L2F36                        ; 20 05
   ld      c,0xb7                          ; 0e b7
   jp      0xcaf3                          ; c3 f3 ca
-L8cf6:
+L2F36:
   dec     bc                              ; 0b
   ld      (0xcc28),hl                     ; 22 28 cc
   call    0xade9                          ; cd e9 ad
@@ -8626,7 +8626,7 @@ L8cf6:
   and     0xc0                            ; e6 c0
   ld      a,d                             ; 7a
   inc     hl                              ; 23
-  jr      nz,L8ced                        ; 20 e4
+  jr      nz,L2F2D                        ; 20 e4
   and     0x3f                            ; e6 3f
   ld      d,a                             ; 57
   push    bc                              ; c5
@@ -8639,11 +8639,11 @@ L8cf6:
   inc     de                              ; 13
   inc     de                              ; 13
   ex      de,hl                           ; eb
-L8d1b:
+L2F5B:
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
   rlca                                    ; 07
-  jr      nc,L8d1b                        ; 30 f9
+  jr      nc,L2F5B                        ; 30 f9
   ex      de,hl                           ; eb
   call    0xe314                          ; cd 14 e3
   call    0xbd66                          ; cd 66 bd
@@ -8672,24 +8672,24 @@ L8d1b:
   call    0xe137                          ; cd 37 e1
   pop     ix                              ; dd e1
   pop     bc                              ; c1
-L8d59:
+L2F99:
   ld      a,d                             ; 7a
   or      e                               ; b3
-  jr      z,L8d73                         ; 28 16
+  jr      z,L2FB3                         ; 28 16
   push    de                              ; d5
   call    0xcc2e                          ; cd 2e cc
   ld      de,0x0000                       ; 11 00 00
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
-  jr      c,L8d6f                         ; 38 06
+  jr      c,L2FAF                         ; 38 06
   push    ix                              ; dd e5
   pop     hl                              ; e1
   call    0xe137                          ; cd 37 e1
-L8d6f:
+L2FAF:
   pop     de                              ; d1
   dec     de                              ; 1b
-  jr      L8d59                           ; 18 e6
-L8d73:
+  jr      L2F99                           ; 18 e6
+L2FB3:
   ld      hl,(0xcc28)                     ; 2a 28 cc
   ld      de,(0xdfa6)                     ; ed 5b a6 df
   sbc     hl,de                           ; ed 52
@@ -8698,8 +8698,8 @@ L8d73:
   rr      e                               ; cb 1b
   ld      hl,(0xe227)                     ; 2a 27 e2
   call    0xcc43                          ; cd 43 cc
-L8d87:
-  jr      nc,L8db1                        ; 30 28
+L2FC7:
+  jr      nc,L2FF1                        ; 30 28
   push    hl                              ; e5
   push    af                              ; f5
   call    0xade9                          ; cd e9 ad
@@ -8711,13 +8711,13 @@ L8d87:
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
   pop     hl                              ; e1
-  jr      nc,L8da1                        ; 30 07
+  jr      nc,L2FE1                        ; 30 07
   pop     hl                              ; e1
-L8d9b:
+L2FDB:
   inc     hl                              ; 23
   call    0xcc54                          ; cd 54 cc
-  jr      L8d87                           ; 18 e6
-L8da1:
+  jr      L2FC7                           ; 18 e6
+L2FE1:
   dec     hl                              ; 2b
   ld      b,h                             ; 44
   ld      c,l                             ; 4d
@@ -8728,8 +8728,8 @@ L8da1:
   ld      a,b                             ; 78
   call    0xae29                          ; cd 29 ae
   inc     hl                              ; 23
-  jr      L8d9b                           ; 18 ea
-L8db1:
+  jr      L2FDB                           ; 18 ea
+L2FF1:
   ld      hl,0x0000                       ; 21 00 00
   pop     bc                              ; c1
   jp      0xcb63                          ; c3 63 cb
@@ -8746,36 +8746,36 @@ L8db1:
   pop     af                              ; f1
   ld      l,a                             ; 6f
   ret                                     ; c9
-L8dcd:
+L300D:
   call    0xe22e                          ; cd 2e e2
   ret     nc                              ; d0
   inc     hl                              ; 23
   call    0xade9                          ; cd e9 ad
   and     0x0f                            ; e6 0f
   inc     hl                              ; 23
-  jr      z,L8dcd                         ; 28 f3
+  jr      z,L300D                         ; 28 f3
   and     0x08                            ; e6 08
-  jr      nz,L8deb                        ; 20 0d
-L8dde:
+  jr      nz,L302B                        ; 20 0d
+L301E:
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
   cp      0xc0                            ; fe c0
-  jr      nc,L8dcd                        ; 30 e7
+  jr      nc,L300D                        ; 30 e7
   cp      0x80                            ; fe 80
-  jr      c,L8dde                         ; 38 f4
+  jr      c,L301E                         ; 38 f4
   dec     hl                              ; 2b
-L8deb:
+L302B:
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
   scf                                     ; 37
   ret                                     ; c9
-L8df1:
+L3031:
   ld      a,0x61                          ; 3e 61
   xor     0x03                            ; ee 03
   ld      (0xcc68),a                      ; 32 68 cc
   ld      (0xf3f5),a                      ; 32 f5 f3
   jp      0xf44f                          ; c3 4f f4
-L8dfe:
+L303E:
   ld      hl,0xcea7                       ; 21 a7 ce
   ld      (hl),c                          ; 71
   pop     af                              ; f1
@@ -8786,40 +8786,40 @@ L8dfe:
   push    af                              ; f5
   ld      b,0x41                          ; 06 41
   call    0xd386                          ; cd 86 d3
-  jr      z,L8df1                         ; 28 da
+  jr      z,L3031                         ; 28 da
   ld      c,0x01                          ; 0e 01
   ld      b,0x44                          ; 06 44
   call    0xd386                          ; cd 86 d3
-  jr      z,L8dfe                         ; 28 de
+  jr      z,L303E                         ; 28 de
   dec     c                               ; 0d
   ld      b,0x54                          ; 06 54
   call    0xd386                          ; cd 86 d3
-  jr      z,L8dfe                         ; 28 d6
+  jr      z,L303E                         ; 28 d6
   dec     c                               ; 0d
   ld      b,0x3a                          ; 06 3a
   cp      b                               ; b8
-  jr      z,L8e31                         ; 28 03
+  jr      z,L3071                         ; 28 03
   call    0xd382                          ; cd 82 d3
-L8e31:
-  jr      nz,L8e36                        ; 20 03
+L3071:
+  jr      nz,L3076                        ; 20 03
   call    0xcd5c                          ; cd 5c cd
-L8e36:
+L3076:
   ld      hl,0xcd7b                       ; 21 7b cd
   ld      de,0xac83                       ; 11 83 ac
   ld      bc,0x000a                       ; 01 0a 00
   ldir                                    ; ed b0
   pop     af                              ; f1
-  jr      z,L8e51                         ; 28 0d
+  jr      z,L3091                         ; 28 0d
   ld      hl,(0xdfa6)                     ; 2a a6 df
   ld      de,0xfff4                       ; 11 f4 ff
   add     hl,de                           ; 19
   ld      de,(0xe227)                     ; ed 5b 27 e2
-  jr      L8e58                           ; 18 07
-L8e51:
+  jr      L3098                           ; 18 07
+L3091:
   call    0xd878                          ; cd 78 d8
   ex      de,hl                           ; eb
   call    0xd9ee                          ; cd ee d9
-L8e58:
+L3098:
   push    de                              ; d5
   ld      (0xcd91),de                     ; ed 53 91 cd
   or      a                               ; b7
@@ -8872,51 +8872,51 @@ L8e58:
   call    0xafc3                          ; cd c3 af
   jp      0xb0a2                          ; c3 a2 b0
   ld      h,0x01                          ; 26 01
-L8ec6:
+L3106:
   inc     hl                              ; 23
   inc     h                               ; 24
   dec     h                               ; 25
-  jr      nz,L8ec6                        ; 20 fb
-L8ecb:
+  jr      nz,L3106                        ; 20 fb
+L310B:
   xor     a                               ; af
   in      a,(0xfe)                        ; db fe
   cpl                                     ; 2f
   and     0x1f                            ; e6 1f
-  jr      z,L8ecb                         ; 28 f8
+  jr      z,L310B                         ; 28 f8
   ld      de,0x0011                       ; 11 11 00
   xor     a                               ; af
   call    0x04c6                          ; cd c6 04
-L8eda:
+L311A:
   dec     de                              ; 1b
   dec     d                               ; 15
   inc     d                               ; 14
-  jr      nz,L8eda                        ; 20 fb
+  jr      nz,L311A                        ; 20 fb
   ret                                     ; c9
   ld      b,0x3a                          ; 06 3a
   call    0xd37f                          ; cd 7f d3
   ret     nz                              ; c0
   ld      de,0xcd7b                       ; 11 7b cd
   ld      bc,0x0aff                       ; 01 ff 0a
-L8eec:
+L312C:
   call    0xdd78                          ; cd 78 dd
   inc     hl                              ; 23
   or      a                               ; b7
-  jr      z,L8efe                         ; 28 0b
+  jr      z,L313E                         ; 28 0b
   cp      0x40                            ; fe 40
-  jr      c,L8ef8                         ; 38 01
+  jr      c,L3138                         ; 38 01
   and     c                               ; a1
-L8ef8:
+L3138:
   ld      (de),a                          ; 12
   inc     de                              ; 13
   dec     b                               ; 05
-  jr      nz,L8eec                        ; 20 ef
+  jr      nz,L312C                        ; 20 ef
   ret                                     ; c9
-L8efe:
+L313E:
   ld      a,0x20                          ; 3e 20
-L8f00:
+L3140:
   ld      (de),a                          ; 12
   inc     de                              ; 13
-  djnz    L8f00                           ; 10 fc
+  djnz    L3140                           ; 10 fc
   ret                                     ; c9
   ld      (hl),b                          ; 70
   ld      (hl),d                          ; 72
@@ -8928,10 +8928,10 @@ L8f00:
   ld      h,l                             ; 65
   ld      (hl),l                          ; 75
   ld      (hl),e                          ; 73
-L8f0f:
+L314F:
   call    0xd32f                          ; cd 2f d3
   call    0xd36d                          ; cd 6d d3
-  jr      nz,L8f0f                        ; 20 f8
+  jr      nz,L314F                        ; 20 f8
   xor     a                               ; af
   dec     a                               ; 3d
   ld      ix,0x0000                       ; dd 21 00 00
@@ -8939,22 +8939,22 @@ L8f0f:
   call    0xcda1                          ; cd a1 cd
   call    0xaed7                          ; cd d7 ae
   call    0xb0a2                          ; cd a2 b0
-  jr      L8f2e                           ; 18 03
+  jr      L316E                           ; 18 03
   call    0xb08f                          ; cd 8f b0
-L8f2e:
+L316E:
   ret     c                               ; d8
   ld      a,0x0d                          ; 3e 0d
-L8f31:
+L3171:
   call    0xe1f5                          ; cd f5 e1
   jp      0xd81e                          ; c3 1e d8
   call    0xe1e9                          ; cd e9 e1
   call    0xca48                          ; cd 48 ca
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      z,L8fa3                         ; 28 62
+  jr      z,L31E3                         ; 28 62
   ld      hl,0xcdfe                       ; 21 fe cd
   ld      (0xd5ae),hl                     ; 22 ae d5
-L8f47:
+L3187:
   ld      hl,0x0000                       ; 21 00 00
   push    hl                              ; e5
   push    hl                              ; e5
@@ -8965,7 +8965,7 @@ L8f47:
   ld      de,0x0000                       ; 11 00 00
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
-  jr      nc,L8f9c                        ; 30 3f
+  jr      nc,L31DC                        ; 30 3f
   ld      a,0x21                          ; 3e 21
   ld      hl,0x0000                       ; 21 00 00
   call    0xce9f                          ; cd 9f ce
@@ -8975,7 +8975,7 @@ L8f47:
   call    0xce9f                          ; cd 9f ce
   ld      a,(0xd473)                      ; 3a 73 d4
   cp      0x10                            ; fe 10
-  jr      z,L8f31                         ; 28 ba
+  jr      z,L3171                         ; 28 ba
   ld      hl,0xabe4                       ; 21 e4 ab
   ld      de,0xac3e                       ; 11 3e ac
   ld      bc,0x0020                       ; 01 20 00
@@ -8987,14 +8987,14 @@ L8f47:
   ld      hl,(0xe037)                     ; 2a 37 e0
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
-  jr      c,L8f47                         ; 38 b0
+  jr      c,L3187                         ; 38 b0
   ld      a,0x07                          ; 3e 07
   jp      0xd813                          ; c3 13 d8
-L8f9c:
+L31DC:
   ld      hl,0xd440                       ; 21 40 d4
   ld      (0xd5ae),hl                     ; 22 ae d5
   jp      (hl)                            ; e9
-L8fa3:
+L31E3:
   ld      de,(0xcdbe)                     ; ed 5b be cd
   ld      hl,(0xcdd6)                     ; 2a d6 cd
   dec     hl                              ; 2b
@@ -9023,39 +9023,39 @@ L8fa3:
   call    0xe1e9                          ; cd e9 e1
   ld      hl,0xce8e                       ; 21 8e ce
   ld      (0xd5ae),hl                     ; 22 ae d5
-L8fe3:
+L3223:
   ld      b,0x01                          ; 06 01
   ld      de,0xac3e                       ; 11 3e ac
   ld      hl,(0xcdbe)                     ; 2a be cd
   inc     hl                              ; 23
   inc     hl                              ; 23
-L8fed:
+L322D:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   cp      0x0d                            ; fe 0d
-  jr      z,L9004                         ; 28 11
+  jr      z,L3244                         ; 28 11
   bit     5,b                             ; cb 68
-  jr      nz,L8fed                        ; 20 f6
+  jr      nz,L322D                        ; 20 f6
   cp      0x20                            ; fe 20
-  jr      nc,L8ffd                        ; 30 02
+  jr      nc,L323D                        ; 30 02
   ld      a,0x20                          ; 3e 20
-L8ffd:
+L323D:
   and     0x7f                            ; e6 7f
   ld      (de),a                          ; 12
   inc     de                              ; 13
   inc     b                               ; 04
-  jr      L8fed                           ; 18 e9
-L9004:
+  jr      L322D                           ; 18 e9
+L3244:
   ld      (0xcdbe),hl                     ; 22 be cd
   ld      a,0x01                          ; 3e 01
   ld      (de),a                          ; 12
-L900a:
+L324A:
   inc     de                              ; 13
   xor     a                               ; af
   ld      (de),a                          ; 12
   inc     b                               ; 04
   bit     5,b                             ; cb 68
-  jr      z,L900a                         ; 28 f8
+  jr      z,L324A                         ; 28 f8
   call    0xdaa5                          ; cd a5 da
   jp      0xd552                          ; c3 52 d5
   call    0xda0c                          ; cd 0c da
@@ -9063,7 +9063,7 @@ L900a:
   ld      de,0xffff                       ; 11 ff ff
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
-  jr      c,L8fe3                         ; 38 bd
+  jr      c,L3223                         ; 38 bd
   jp      0xce12                          ; c3 12 ce
   ld      (0xd8a5),a                      ; 32 a5 d8
   ld      (0xd8a6),hl                     ; 22 a6 d8
@@ -9071,12 +9071,12 @@ L900a:
   ld      a,0x01                          ; 3e 01
   or      a                               ; b7
   ret                                     ; c9
-L9034:
+L3274:
   call    0xcea6                          ; cd a6 ce
   jp      nz,0xf461                       ; c2 61 f4
   call    0xd32f                          ; cd 2f d3
   call    0xd360                          ; cd 60 d3
-  jr      nz,L9034                        ; 20 f2
+  jr      nz,L3274                        ; 20 f2
   ld      ix,0xac82                       ; dd 21 82 ac
   call    0xcec7                          ; cd c7 ce
   call    0xcda1                          ; cd a1 cd
@@ -9108,9 +9108,9 @@ L9034:
   call    0xe1f3                          ; cd f3 e1
   call    0xd37d                          ; cd 7d d3
   ld      a,0x00                          ; 3e 00
-  jr      z,L9086                         ; 28 01
+  jr      z,L32C6                         ; 28 01
   inc     a                               ; 3c
-L9086:
+L32C6:
   ld      (0xcf35),a                      ; 32 35 cf
   call    0xcb67                          ; cd 67 cb
   ld      a,0x01                          ; 3e 01
@@ -9119,15 +9119,15 @@ L9086:
   ld      (0xaf63),a                      ; 32 63 af
   ld      hl,0xd0f9                       ; 21 f9 d0
   ld      (0xcf3f),hl                     ; 22 3f cf
-L909c:
+L32DC:
   ld      hl,(0xd098)                     ; 2a 98 d0
   inc     hl                              ; 23
   ld      (0xaf3b),hl                     ; 22 3b af
   ld      (0xaf47),hl                     ; 22 47 af
   ld      hl,(0xe227)                     ; 2a 27 e2
-L90a9:
+L32E9:
   call    0xe22e                          ; cd 2e e2
-  jr      nc,L90ce                        ; 30 20
+  jr      nc,L330E                        ; 30 20
   ld      (0xd115),hl                     ; 22 15 d1
   call    0x1f54                          ; cd 54 1f
   jp      nc,0xd45f                       ; d2 5f d4
@@ -9137,21 +9137,21 @@ L90a9:
   push    hl                              ; e5
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
-  jr      nz,L90c8                        ; 20 05
+  jr      nz,L3308                        ; 20 05
   call    0xd884                          ; cd 84 d8
-  jr      c,L90cb                         ; 38 03
-L90c8:
+  jr      c,L330B                         ; 38 03
+L3308:
   call    0xd0f9                          ; cd f9 d0
-L90cb:
+L330B:
   pop     hl                              ; e1
-  jr      L90a9                           ; 18 db
-L90ce:
+  jr      L32E9                           ; 18 db
+L330E:
   ld      a,0x00                          ; 3e 00
   dec     a                               ; 3d
   ld      (0xcf45),a                      ; 32 45 cf
   ld      hl,0xcfee                       ; 21 ee cf
   ld      (0xcf3f),hl                     ; 22 3f cf
-  jr      z,L909c                         ; 28 c0
+  jr      z,L32DC                         ; 28 c0
   ret                                     ; c9
   call    0xcef1                          ; cd f1 ce
   ld      a,0x0b                          ; 3e 0b
@@ -9160,7 +9160,7 @@ L90ce:
   call    0xd15d                          ; cd 5d d1
   sub     0x02                            ; d6 02
   ret     c                               ; d8
-  jr      nz,L9101                        ; 20 11
+  jr      nz,L3341                        ; 20 11
   call    0xd1f8                          ; cd f8 d1
   ld      (0xaf71),hl                     ; 22 71 af
   ld      a,(0xaf63)                      ; 3a 63 af
@@ -9168,20 +9168,20 @@ L90ce:
   ld      hl,0xd42a                       ; 21 2a d4
   dec     (hl)                            ; 35
   ret                                     ; c9
-L9101:
+L3341:
   dec     a                               ; 3d
   ret     z                               ; c8
   dec     a                               ; 3d
   jp      z,0xd185                        ; ca 85 d1
   dec     a                               ; 3d
-  jr      nz,L9129                        ; 20 1f
+  jr      nz,L3369                        ; 20 1f
   call    0xd1f8                          ; cd f8 d1
   ld      a,b                             ; 78
   or      a                               ; b7
-  jr      nz,L9126                        ; 20 15
+  jr      nz,L3366                        ; 20 15
   ld      a,c                             ; 79
   cp      0x08                            ; fe 08
-  jr      nc,L9126                        ; 30 10
+  jr      nc,L3366                        ; 30 10
   cp      0x02                            ; fe 02
   jp      z,0xd7fa                        ; ca fa d7
   cp      0x05                            ; fe 05
@@ -9189,31 +9189,31 @@ L9101:
   add     a,0x10                          ; c6 10
   ld      (0xaf63),a                      ; 32 63 af
   ret                                     ; c9
-L9126:
+L3366:
   jp      0xd18c                          ; c3 8c d1
-L9129:
+L3369:
   dec     a                               ; 3d
-  jr      nz,L9139                        ; 20 0d
-L912c:
+  jr      nz,L3379                        ; 20 0d
+L336C:
   call    0xd1f8                          ; cd f8 d1
   jp      c,0xd03b                        ; da 3b d0
   call    0xd03b                          ; cd 3b d0
   inc     ix                              ; dd 23
-  jr      L912c                           ; 18 f3
-L9139:
+  jr      L336C                           ; 18 f3
+L3379:
   dec     a                               ; 3d
-  jr      nz,L9167                        ; 20 2b
-L913c:
+  jr      nz,L33A7                        ; 20 2b
+L337C:
   call    0xcfc7                          ; cd c7 cf
-  jr      nz,L9146                        ; 20 05
+  jr      nz,L3386                        ; 20 05
   call    0xd043                          ; cd 43 d0
-  jr      L913c                           ; 18 f6
-L9146:
+  jr      L337C                           ; 18 f6
+L3386:
   ld      a,e                             ; 7b
   cp      0x27                            ; fe 27
-  jr      nz,L914d                        ; 20 02
+  jr      nz,L338D                        ; 20 02
   set     7,d                             ; cb fa
-L914d:
+L338D:
   ld      a,d                             ; 7a
   jp      0xd043                          ; c3 43 d0
   call    0xd899                          ; cd 99 d8
@@ -9221,21 +9221,21 @@ L914d:
   ret     nz                              ; c0
   ld      a,d                             ; 7a
   cp      0x22                            ; fe 22
-  jr      nz,L9162                        ; 20 04
+  jr      nz,L33A2                        ; 20 04
   cp      e                               ; bb
   call    z,0xd899                        ; cc 99 d8
-L9162:
+L33A2:
   bit     7,(ix+4)                        ; dd cb 04 7e
   ret                                     ; c9
-L9167:
+L33A7:
   dec     a                               ; 3d
   jp      z,0xd1ac                        ; ca ac d1
-L916b:
+L33AB:
   call    0xd1f8                          ; cd f8 d1
   jp      c,0xd0ae                        ; da ae d0
   call    0xd0ae                          ; cd ae d0
   inc     ix                              ; dd 23
-  jr      L916b                           ; 18 f3
+  jr      L33AB                           ; 18 f3
   ld      ix,0xac82                       ; dd 21 82 ac
   ld      b,(ix+1)                        ; dd 46 01
   ld      a,b                             ; 78
@@ -9245,10 +9245,10 @@ L916b:
   ld      a,b                             ; 78
   and     0xb0                            ; e6 b0
   cp      0x90                            ; fe 90
-  jr      c,L9194                         ; 38 06
+  jr      c,L33D4                         ; 38 06
   call    0xd00a                          ; cd 0a d0
   jp      0xaf43                          ; c3 43 af
-L9194:
+L33D4:
   ld      a,0xdd                          ; 3e dd
   bit     5,b                             ; cb 68
   call    nz,0xd043                       ; c4 43 d0
@@ -9271,75 +9271,75 @@ L9194:
   push    af                              ; f5
   call    0xd1f8                          ; cd f8 d1
   pop     af                              ; f1
-  jr      nz,L9235                        ; 20 70
+  jr      nz,L3475                        ; 20 70
   ld      a,b                             ; 78
   inc     a                               ; 3c
   and     0xfe                            ; e6 fe
   jp      nz,0xd0d4                       ; c2 d4 d0
   ld      a,c                             ; 79
-L91cd:
+L340D:
   push    af                              ; f5
   ld      a,(0xaf48)                      ; 3a 48 af
   cp      0xc0                            ; fe c0
-  jr      c,L9214                         ; 38 3f
+  jr      c,L3454                         ; 38 3f
   ld      a,(0xaf63)                      ; 3a 63 af
   and     0x07                            ; e6 07
-  jr      z,L9214                         ; 28 38
+  jr      z,L3454                         ; 28 38
   cp      0x07                            ; fe 07
-  jr      z,L920c                         ; 28 2c
+  jr      z,L344C                         ; 28 2c
   ld      hl,(0xaf47)                     ; 2a 47 af
   ld      d,0xc0                          ; 16 c0
   dec     a                               ; 3d
-  jr      z,L91f5                         ; 28 0d
+  jr      z,L3435                         ; 28 0d
   sub     0x02                            ; d6 02
   ld      d,0x80                          ; 16 80
-  jr      z,L91f5                         ; 28 07
+  jr      z,L3435                         ; 28 07
   dec     a                               ; 3d
   ld      d,0x40                          ; 16 40
-  jr      z,L91f5                         ; 28 02
+  jr      z,L3435                         ; 28 02
   ld      d,0x00                          ; 16 00
-L91f5:
+L3435:
   ld      e,0x00                          ; 1e 00
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
   ld      de,(0xc712)                     ; ed 5b 12 c7
   call    0xad77                          ; cd 77 ad
-  jr      c,L920c                         ; 38 09
+  jr      c,L344C                         ; 38 09
   ld      de,(0xe037)                     ; ed 5b 37 e0
   call    0xad77                          ; cd 77 ad
-  jr      c,L9231                         ; 38 25
-L920c:
+  jr      c,L3471                         ; 38 25
+L344C:
   pop     af                              ; f1
   ld      de,(0xaf47)                     ; ed 5b 47 af
   jp      0xaf31                          ; c3 31 af
-L9214:
+L3454:
   pop     af                              ; f1
   ld      de,0xabe0                       ; 11 e0 ab
   ld      hl,(0xaf47)                     ; 2a 47 af
   call    0xad77                          ; cd 77 ad
   ex      de,hl                           ; eb
-  jr      c,L9228                         ; 38 07
+  jr      c,L3468                         ; 38 07
   ld      hl,0xf698                       ; 21 98 f6
   sbc     hl,de                           ; ed 52
-  jr      nc,L9231                        ; 30 09
-L9228:
+  jr      nc,L3471                        ; 30 09
+L3468:
   ld      hl,0xffff                       ; 21 ff ff
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
   jp      nc,0xaf31                       ; d2 31 af
-L9231:
+L3471:
   ld      a,0x08                          ; 3e 08
-  jr      L929e                           ; 18 69
-L9235:
+  jr      L34DE                           ; 18 69
+L3475:
   dec     a                               ; 3d
-  jr      nz,L923f                        ; 20 07
+  jr      nz,L347F                        ; 20 07
   ld      a,c                             ; 79
   call    0xd043                          ; cd 43 d0
   ld      a,b                             ; 78
-  jr      L91cd                           ; 18 8e
-L923f:
+  jr      L340D                           ; 18 8e
+L347F:
   dec     a                               ; 3d
-  jr      nz,L9262                        ; 20 20
+  jr      nz,L34A2                        ; 20 20
   ld      hl,(0xaf3b)                     ; 2a 3b af
   inc     hl                              ; 23
   push    bc                              ; c5
@@ -9347,58 +9347,58 @@ L923f:
   pop     bc                              ; c1
   and     a                               ; a7
   sbc     hl,bc                           ; ed 42
-L924c:
+L348C:
   ld      a,l                             ; 7d
   inc     h                               ; 24
-  jr      z,L925a                         ; 28 0a
+  jr      z,L349A                         ; 28 0a
   dec     h                               ; 25
-  jr      nz,L925e                        ; 20 0b
+  jr      nz,L349E                        ; 20 0b
   cp      0x80                            ; fe 80
-  jr      nc,L925e                        ; 30 07
-L9257:
+  jr      nc,L349E                        ; 30 07
+L3497:
   jp      0xd043                          ; c3 43 d0
-L925a:
+L349A:
   cp      0x80                            ; fe 80
-  jr      nc,L9257                        ; 30 f9
-L925e:
+  jr      nc,L3497                        ; 30 f9
+L349E:
   ld      a,0x03                          ; 3e 03
-  jr      L929e                           ; 18 3c
-L9262:
+  jr      L34DE                           ; 18 3c
+L34A2:
   dec     a                               ; 3d
-  jr      nz,L9269                        ; 20 04
+  jr      nz,L34A9                        ; 20 04
   ld      h,b                             ; 60
   ld      l,c                             ; 69
-  jr      L924c                           ; 18 e3
-L9269:
+  jr      L348C                           ; 18 e3
+L34A9:
   dec     a                               ; 3d
-  jr      nz,L9277                        ; 20 0b
+  jr      nz,L34B7                        ; 20 0b
   call    0xd0db                          ; cd db d0
   inc     ix                              ; dd 23
   call    0xd1f8                          ; cd f8 d1
   jp      0xd03b                          ; c3 3b d0
-L9277:
+L34B7:
   ld      a,c                             ; 79
   and     0xc7                            ; e6 c7
   or      b                               ; b0
   ld      a,0x06                          ; 3e 06
-  jr      nz,L929e                        ; 20 1f
+  jr      nz,L34DE                        ; 20 1f
   ld      a,c                             ; 79
   jp      0xaf52                          ; c3 52 af
   ld      ix,0xac82                       ; dd 21 82 ac
   bit     3,(ix+1)                        ; dd cb 01 5e
-  jr      z,L92bb                         ; 28 2e
+  jr      z,L34FB                         ; 28 2e
   call    0xd8a2                          ; cd a2 d8
   ld      (0xd176),de                     ; ed 53 76 d1
   call    0xade9                          ; cd e9 ad
   ld      c,a                             ; 4f
   and     0xc0                            ; e6 c0
-  jr      z,L92a7                         ; 28 0b
+  jr      z,L34E7                         ; 28 0b
   ld      a,0x12                          ; 3e 12
-L929e:
+L34DE:
   ld      hl,0x0000                       ; 21 00 00
   ld      (0xda17),hl                     ; 22 17 da
   jp      0xd813                          ; c3 13 d8
-L92a7:
+L34E7:
   ld      a,c                             ; 79
   set     6,a                             ; cb f7
   call    0xae29                          ; cd 29 ae
@@ -9410,11 +9410,11 @@ L92a7:
   dec     hl                              ; 2b
   ld      a,e                             ; 7b
   call    0xae29                          ; cd 29 ae
-L92bb:
+L34FB:
   ld      a,(ix+1)                        ; dd 7e 01
   and     0x30                            ; e6 30
   cp      0x30                            ; fe 30
-  jr      z,L92f1                         ; 28 2d
+  jr      z,L3531                         ; 28 2d
   ld      a,(ix+1)                        ; dd 7e 01
   and     0x07                            ; e6 07
   ld      c,a                             ; 4f
@@ -9425,11 +9425,11 @@ L92bb:
   inc     a                               ; 3c
   ld      bc,0x0400                       ; 01 00 04
   ld      d,(ix+1)                        ; dd 56 01
-L92d8:
+L3518:
   rl      d                               ; cb 12
   adc     a,c                             ; 89
-  djnz    L92d8                           ; 10 fb
-  jr      L9351                           ; 18 72
+  djnz    L3518                           ; 10 fb
+  jr      L3591                           ; 18 72
   nop                                     ; 00
   ld      bc,0x0102                       ; 01 02 01
   ld      bc,0x0002                       ; 01 02 00
@@ -9439,12 +9439,12 @@ L92d8:
   inc     ix                              ; dd 23
   inc     ix                              ; dd 23
   ret                                     ; c9
-L92f1:
+L3531:
   ld      a,(ix+0)                        ; dd 7e 00
   call    0xd15d                          ; cd 5d d1
   sub     0x03                            ; d6 03
   ret     c                               ; d8
-  jr      nz,L930c                        ; 20 10
+  jr      nz,L354C                        ; 20 10
   call    0xd1f8                          ; cd f8 d1
   ld      hl,0x0000                       ; 21 00 00
   dec     hl                              ; 2b
@@ -9453,35 +9453,35 @@ L92f1:
   dec     hl                              ; 2b
   ld      a,c                             ; 79
   jp      0xae29                          ; c3 29 ae
-L930c:
+L354C:
   dec     a                               ; 3d
-  jr      nz,L931b                        ; 20 0c
+  jr      nz,L355B                        ; 20 0c
   call    0xd1f8                          ; cd f8 d1
   ld      (0xaf3b),bc                     ; ed 43 3b af
   ld      (0xaf47),bc                     ; ed 43 47 af
   ret                                     ; c9
-L931b:
+L355B:
   dec     a                               ; 3d
   ret     z                               ; c8
   dec     a                               ; 3d
-  jr      nz,L9326                        ; 20 06
+  jr      nz,L3566                        ; 20 06
   call    0xd1d0                          ; cd d0 d1
   ld      a,c                             ; 79
-  jr      L9351                           ; 18 2b
-L9326:
+  jr      L3591                           ; 18 2b
+L3566:
   dec     a                               ; 3d
-  jr      nz,L9333                        ; 20 0a
+  jr      nz,L3573                        ; 20 0a
   ld      c,a                             ; 4f
-L932a:
+L356A:
   inc     c                               ; 0c
   call    0xcfc7                          ; cd c7 cf
-  jr      z,L932a                         ; 28 fa
+  jr      z,L356A                         ; 28 fa
   ld      a,c                             ; 79
-  jr      L9351                           ; 18 1e
-L9333:
+  jr      L3591                           ; 18 1e
+L3573:
   dec     a                               ; 3d
-  jr      nz,L934c                        ; 20 16
-L9336:
+  jr      nz,L358C                        ; 20 16
+L3576:
   call    0xd1f8                          ; cd f8 d1
   push    af                              ; f5
   ld      hl,0xaf3b                       ; 21 3b af
@@ -9490,42 +9490,42 @@ L9336:
   call    0xe1c4                          ; cd c4 e1
   pop     af                              ; f1
   inc     ix                              ; dd 23
-  jr      nc,L9336                        ; 30 eb
+  jr      nc,L3576                        ; 30 eb
   ret                                     ; c9
-L934c:
+L358C:
   call    0xd1d0                          ; cd d0 d1
   ld      a,c                             ; 79
   add     a,c                             ; 81
-L9351:
+L3591:
   ld      b,0x00                          ; 06 00
   ld      c,a                             ; 4f
   ld      hl,0xaf3b                       ; 21 3b af
   jp      0xe1c4                          ; c3 c4 e1
   ld      c,0x01                          ; 0e 01
-L935c:
+L359C:
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x2c                            ; fe 2c
-  jr      nz,L9366                        ; 20 03
+  jr      nz,L35A6                        ; 20 03
   inc     c                               ; 0c
-  jr      L9373                           ; 18 0d
-L9366:
+  jr      L35B3                           ; 18 0d
+L35A6:
   cp      0x22                            ; fe 22
-  jr      nz,L9377                        ; 20 0d
-L936a:
+  jr      nz,L35B7                        ; 20 0d
+L35AA:
   inc     ix                              ; dd 23
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x22                            ; fe 22
-  jr      nz,L936a                        ; 20 f7
-L9373:
+  jr      nz,L35AA                        ; 20 f7
+L35B3:
   inc     ix                              ; dd 23
-  jr      L935c                           ; 18 e5
-L9377:
+  jr      L359C                           ; 18 e5
+L35B7:
   cp      0xc0                            ; fe c0
   ret     nc                              ; d0
   cp      0x80                            ; fe 80
-  jr      c,L9373                         ; 38 f5
+  jr      c,L35B3                         ; 38 f5
   inc     ix                              ; dd 23
-  jr      L9373                           ; 18 f1
+  jr      L35B3                           ; 18 f1
   ld      hl,0x0000                       ; 21 00 00
   ld      a,0x2b                          ; 3e 2b
   push    hl                              ; e5
@@ -9533,13 +9533,13 @@ L9377:
   ld      a,(ix+2)                        ; dd 7e 02
   push    af                              ; f5
   cp      0x2d                            ; fe 2d
-  jr      nz,L9393                        ; 20 02
+  jr      nz,L35D3                        ; 20 02
   inc     ix                              ; dd 23
-L9393:
+L35D3:
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x24                            ; fe 24
   ld      de,(0xaf3b)                     ; ed 5b 3b af
-  jr      z,L93c7                         ; 28 29
+  jr      z,L3607                         ; 28 29
   cp      0x80                            ; fe 80
   jp      c,0xd2c3                        ; da c3 d2
   ld      d,a                             ; 57
@@ -9548,11 +9548,11 @@ L9393:
   call    0xd8a5                          ; cd a5 d8
   call    0xade9                          ; cd e9 ad
   and     0xc0                            ; e6 c0
-  jr      nz,L93bc                        ; 20 09
+  jr      nz,L35FC                        ; 20 09
   ld      (0xd83c),de                     ; ed 53 3c d8
   ld      a,0x09                          ; 3e 09
   jp      0xd114                          ; c3 14 d1
-L93bc:
+L35FC:
   dec     de                              ; 1b
   ex      de,hl                           ; eb
   call    0xade9                          ; cd e9 ad
@@ -9560,9 +9560,9 @@ L93bc:
   dec     hl                              ; 2b
   call    0xade9                          ; cd e9 ad
   ld      e,a                             ; 5f
-L93c7:
+L3607:
   inc     ix                              ; dd 23
-  jr      L93f7                           ; 18 2c
+  jr      L3637                           ; 18 2c
   ld      a,(ix+2)                        ; dd 7e 02
   xor     0x2c                            ; ee 2c
   ld      b,h                             ; 44
@@ -9576,21 +9576,21 @@ L93c7:
   xor     0x1f                            ; ee 1f
   inc     ix                              ; dd 23
   jp      0xd1fd                          ; c3 fd d1
-L93e1:
+L3621:
   ld      de,0x0000                       ; 11 00 00
   inc     ix                              ; dd 23
   call    0xd305                          ; cd 05 d3
-  jr      c,L93f5                         ; 38 0a
+  jr      c,L3635                         ; 38 0a
   ld      e,a                             ; 5f
   call    0xd305                          ; cd 05 d3
-  jr      c,L93f5                         ; 38 04
+  jr      c,L3635                         ; 38 04
   ld      d,e                             ; 53
   ld      e,a                             ; 5f
   inc     ix                              ; dd 23
-L93f5:
+L3635:
   ex      de,hl                           ; eb
   ex      de,hl                           ; eb
-L93f7:
+L3637:
   pop     af                              ; f1
   call    0xd2b8                          ; cd b8 d2
   pop     af                              ; f1
@@ -9598,51 +9598,51 @@ L93f7:
   ld      bc,0xd241                       ; 01 41 d2
   push    bc                              ; c5
   cp      0x2b                            ; fe 2b
-  jr      z,L943d                         ; 28 38
+  jr      z,L367D                         ; 28 38
   cp      0x2d                            ; fe 2d
-  jr      z,L943f                         ; 28 36
+  jr      z,L367F                         ; 28 36
   cp      0x2a                            ; fe 2a
-  jr      z,L942c                         ; 28 1f
+  jr      z,L366C                         ; 28 1f
   cp      0x2f                            ; fe 2f
-  jr      z,L9426                         ; 28 15
+  jr      z,L3666                         ; 28 15
   ld      a,h                             ; 7c
   ld      c,l                             ; 4d
   ld      hl,0x0000                       ; 21 00 00
   ld      b,0x10                          ; 06 10
-L9418:
+L3658:
   defb    0xcb, 0x31
   rla                                     ; 17
   adc     hl,hl                           ; ed 6a
   sbc     hl,de                           ; ed 52
-  jr      nc,L9423                        ; 30 02
+  jr      nc,L3663                        ; 30 02
   add     hl,de                           ; 19
   dec     c                               ; 0d
-L9423:
-  djnz    L9418                           ; 10 f3
+L3663:
+  djnz    L3658                           ; 10 f3
   ret                                     ; c9
-L9426:
+L3666:
   call    0xd287                          ; cd 87 d2
   ld      h,a                             ; 67
   ld      l,c                             ; 69
   ret                                     ; c9
-L942c:
+L366C:
   ld      b,0x10                          ; 06 10
   ld      a,h                             ; 7c
   ld      c,l                             ; 4d
   ld      hl,0x0000                       ; 21 00 00
-L9433:
+L3673:
   add     hl,hl                           ; 29
   rl      c                               ; cb 11
   rla                                     ; 17
-  jr      nc,L943a                        ; 30 01
+  jr      nc,L367A                        ; 30 01
   add     hl,de                           ; 19
-L943a:
-  djnz    L9433                           ; 10 f7
+L367A:
+  djnz    L3673                           ; 10 f7
   ret                                     ; c9
-L943d:
+L367D:
   add     hl,de                           ; 19
   ret                                     ; c9
-L943f:
+L367F:
   or      a                               ; b7
   sbc     hl,de                           ; ed 52
   cp      0x2d                            ; fe 2d
@@ -9657,28 +9657,28 @@ L943f:
   ret                                     ; c9
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x22                            ; fe 22
-  jr      z,L93e1                         ; 28 8d
+  jr      z,L3621                         ; 28 8d
   ld      c,0x0a                          ; 0e 0a
   cp      0x25                            ; fe 25
-  jr      nz,L945e                        ; 20 04
+  jr      nz,L369E                        ; 20 04
   inc     ix                              ; dd 23
   ld      c,0x02                          ; 0e 02
-L945e:
+L369E:
   cp      0x23                            ; fe 23
-  jr      nz,L9466                        ; 20 04
+  jr      nz,L36A6                        ; 20 04
   inc     ix                              ; dd 23
   ld      c,0x10                          ; 0e 10
-L9466:
+L36A6:
   ld      hl,0x0000                       ; 21 00 00
-L9469:
+L36A9:
   ld      a,(ix+2)                        ; dd 7e 02
   sub     0x30                            ; d6 30
   cp      0x0a                            ; fe 0a
-  jr      c,L9479                         ; 38 07
+  jr      c,L36B9                         ; 38 07
   sub     0x07                            ; d6 07
   cp      0x0a                            ; fe 0a
   jp      c,0xd26c                        ; da 6c d2
-L9479:
+L36B9:
   cp      c                               ; b9
   jp      nc,0xd26c                       ; d2 6c d2
   push    af                              ; f5
@@ -9686,25 +9686,25 @@ L9479:
   dec     a                               ; 3d
   ld      d,h                             ; 54
   ld      e,l                             ; 5d
-L9482:
+L36C2:
   add     hl,de                           ; 19
   dec     a                               ; 3d
-  jr      nz,L9482                        ; 20 fc
+  jr      nz,L36C2                        ; 20 fc
   pop     af                              ; f1
   ld      d,0x00                          ; 16 00
   ld      e,a                             ; 5f
   add     hl,de                           ; 19
   inc     ix                              ; dd 23
-  jr      L9469                           ; 18 da
+  jr      L36A9                           ; 18 da
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x22                            ; fe 22
-  jr      nz,L949f                        ; 20 09
+  jr      nz,L36DF                        ; 20 09
   cp      (ix+3)                          ; dd be 03
   inc     ix                              ; dd 23
-  jr      z,L949f                         ; 28 02
+  jr      z,L36DF                         ; 28 02
   scf                                     ; 37
   ret                                     ; c9
-L949f:
+L36DF:
   inc     ix                              ; dd 23
   or      a                               ; b7
   ret                                     ; c9
@@ -9718,52 +9718,52 @@ L949f:
   ret     nz                              ; c0
   rst     0x00                            ; c7
   rst     0x00                            ; c7
-L94b9:
+L36F9:
   ld      ix,0xac82                       ; dd 21 82 ac
   ld      de,0x0011                       ; 11 11 00
   xor     a                               ; af
   scf                                     ; 37
   call    0xb094                          ; cd 94 b0
-  jr      nc,L94b9                        ; 30 f2
+  jr      nc,L36F9                        ; 30 f2
   ld      a,0x11                          ; 3e 11
   call    0xd830                          ; cd 30 d8
   ld      hl,0xac83                       ; 21 83 ac
   ld      b,0x0a                          ; 06 0a
-L94d1:
+L3711:
   ld      a,(hl)                          ; 7e
   cp      0x20                            ; fe 20
-  jr      c,L94da                         ; 38 04
+  jr      c,L371A                         ; 38 04
   cp      0x80                            ; fe 80
-  jr      c,L94dc                         ; 38 02
-L94da:
+  jr      c,L371C                         ; 38 02
+L371A:
   ld      a,0x3f                          ; 3e 3f
-L94dc:
+L371C:
   call    0xdf0f                          ; cd 0f df
   inc     hl                              ; 23
-  djnz    L94d1                           ; 10 ef
+  djnz    L3711                           ; 10 ef
   ld      a,(0xac82)                      ; 3a 82 ac
   cp      0x03                            ; fe 03
-  jr      nz,L94b9                        ; 20 d0
+  jr      nz,L36F9                        ; 20 d0
   ret                                     ; c9
   ld      b,0x0a                          ; 06 0a
   ld      hl,0xcd7b                       ; 21 7b cd
-L94ef:
+L372F:
   ld      a,(hl)                          ; 7e
   cp      0x20                            ; fe 20
-  jr      nz,L94f7                        ; 20 03
-  djnz    L94ef                           ; 10 f9
+  jr      nz,L3737                        ; 20 03
+  djnz    L372F                           ; 10 f9
   ret                                     ; c9
-L94f7:
+L3737:
   ld      b,0x0a                          ; 06 0a
   ld      hl,0xcd7b                       ; 21 7b cd
   ld      de,0xac83                       ; 11 83 ac
-L94ff:
+L373F:
   ld      a,(de)                          ; 1a
   cp      (hl)                            ; be
   inc     hl                              ; 23
   inc     de                              ; 13
   ret     nz                              ; c0
-  djnz    L94ff                           ; 10 f9
+  djnz    L373F                           ; 10 f9
   ret                                     ; c9
   ld      b,0x42                          ; 06 42
   ld      hl,0xac3f                       ; 21 3f ac
@@ -9775,9 +9775,9 @@ L94ff:
   cp      b                               ; b8
   ret                                     ; c9
   ld      hl,0xe0cd                       ; 21 cd e0
-  jr      L951e                           ; 18 03
+  jr      L375E                           ; 18 03
   ld      hl,0xd594                       ; 21 94 d5
-L951e:
+L375E:
   ld      a,(hl)                          ; 7e
   xor     0x01                            ; ee 01
   ld      (hl),a                          ; 77
@@ -9805,10 +9805,10 @@ L951e:
   call    0xd9d6                          ; cd d6 d9
   call    0xe225                          ; cd 25 e2
   ccf                                     ; 3f
-  jr      L955b                           ; 18 06
+  jr      L379B                           ; 18 06
   call    0xd9eb                          ; cd eb d9
   call    0xe22e                          ; cd 2e e2
-L955b:
+L379B:
   pop     de                              ; d1
   jp      nc,0xd45f                       ; d2 5f d4
   push    de                              ; d5
@@ -9817,22 +9817,22 @@ L955b:
   push    hl                              ; e5
   push    de                              ; d5
   ld      b,0x08                          ; 06 08
-L9568:
+L37A8:
   push    hl                              ; e5
   push    de                              ; d5
   ld      c,0x20                          ; 0e 20
-L956c:
+L37AC:
   ld      a,(hl)                          ; 7e
   ld      (de),a                          ; 12
   inc     l                               ; 2c
   inc     e                               ; 1c
   dec     c                               ; 0d
-  jr      nz,L956c                        ; 20 f9
+  jr      nz,L37AC                        ; 20 f9
   pop     de                              ; d1
   pop     hl                              ; e1
   inc     h                               ; 24
   inc     d                               ; 14
-  djnz    L9568                           ; 10 ef
+  djnz    L37A8                           ; 10 ef
   pop     de                              ; d1
   pop     hl                              ; e1
   ret                                     ; c9
@@ -9840,7 +9840,7 @@ L956c:
   inc     de                              ; 13
   dec     c                               ; 0d
   ret     nz                              ; c0
-  jr      L95ca                           ; 18 48
+  jr      L380A                           ; 18 48
   ld      hl,0x50c0                       ; 21 c0 50
   ld      (0xdf57),hl                     ; 22 57 df
   ld      bc,0x2001                       ; 01 01 20
@@ -9848,18 +9848,18 @@ L956c:
   call    0xd412                          ; cd 12 d4
   ld      bc,0x2001                       ; 01 01 20
   ld      e,0x20                          ; 1e 20
-  jr      L959c                           ; 18 05
+  jr      L37DC                           ; 18 05
   ld      e,0x20                          ; 1e 20
   ld      bc,0x0003                       ; 01 03 00
-L959c:
+L37DC:
   ld      a,e                             ; 7b
   call    0xdf38                          ; cd 38 df
-  djnz    L959c                           ; 10 fa
+  djnz    L37DC                           ; 10 fa
   dec     c                               ; 0d
-  jr      nz,L959c                        ; 20 f7
+  jr      nz,L37DC                        ; 20 f7
   ret                                     ; c9
   call    0xc711                          ; cd 11 c7
-  jr      L95c4                           ; 18 19
+  jr      L3804                           ; 18 19
   ld      a,0x01                          ; 3e 01
   ld      (0xd42a),a                      ; 32 2a d4
   call    0xcef1                          ; cd f1 ce
@@ -9870,11 +9870,11 @@ L959c:
   call    0xd40d                          ; cd 0d d4
   call    0xaf69                          ; cd 69 af
   call    0xde03                          ; cd 03 de
-L95c4:
+L3804:
   di                                      ; f3
   ld      e,0x7e                          ; 1e 7e
   call    0xd40f                          ; cd 0f d4
-L95ca:
+L380A:
   ld      hl,0x59e0                       ; 21 e0 59
   ld      bc,0x2030                       ; 01 30 20
   call    0xdaab                          ; cd ab da
@@ -9887,7 +9887,7 @@ L95ca:
   ld      (hl),0x01                       ; 36 01
   dec     hl                              ; 2b
   ld      (hl),0x80                       ; 36 80
-L95e9:
+L3829:
   ld      sp,0xad04                       ; 31 04 ad
   call    0xda16                          ; cd 16 da
   call    0xdd88                          ; cd 88 dd
@@ -9901,9 +9901,9 @@ L95e9:
   ld      (0xd473),a                      ; 32 73 d4
   pop     af                              ; f1
   cp      0x15                            ; fe 15
-  jr      z,L95ca                         ; 28 bf
+  jr      z,L380A                         ; 28 bf
   cp      0x04                            ; fe 04
-  jr      nz,L9628                        ; 20 19
+  jr      nz,L3868                        ; 20 19
   ld      ix,(0xda17)                     ; dd 2a 17 da
   ld      hl,0xac3e                       ; 21 3e ac
   push    hl                              ; e5
@@ -9913,103 +9913,103 @@ L95e9:
   call    0xd8d2                          ; cd d2 d8
   ld      a,0x01                          ; 3e 01
   ld      (0xd594),a                      ; 32 94 d5
-  jr      L962f                           ; 18 07
-L9628:
+  jr      L386F                           ; 18 07
+L3868:
   cp      0x14                            ; fe 14
-  jr      nz,L9636                        ; 20 0a
+  jr      nz,L3876                        ; 20 0a
   call    0xd391                          ; cd 91 d3
-L962f:
+L386F:
   ld      a,0x0f                          ; 3e 0f
   call    0xe1f5                          ; cd f5 e1
-  jr      L95e9                           ; 18 b3
-L9636:
+  jr      L3829                           ; 18 b3
+L3876:
   ld      b,0x14                          ; 06 14
   cp      0x06                            ; fe 06
-  jr      nz,L9643                        ; 20 07
-L963c:
+  jr      nz,L3883                        ; 20 07
+L387C:
   call    0xd3cb                          ; cd cb d3
-  djnz    L963c                           ; 10 fb
-L9641:
-  jr      L95e9                           ; 18 a6
-L9643:
+  djnz    L387C                           ; 10 fb
+L3881:
+  jr      L3829                           ; 18 a6
+L3883:
   cp      0x09                            ; fe 09
-  jr      nz,L9672                        ; 20 2b
-L9647:
+  jr      nz,L38B2                        ; 20 2b
+L3887:
   call    0xd3cb                          ; cd cb d3
   ld      de,0x4040                       ; 11 40 40
   ld      a,0x18                          ; 3e 18
-L964f:
+L388F:
   call    0xd3aa                          ; cd aa d3
   add     a,0x08                          ; c6 08
   cp      0xa9                            ; fe a9
-  jr      c,L964f                         ; 38 f7
+  jr      c,L388F                         ; 38 f7
   ld      hl,0x50a0                       ; 21 a0 50
   call    0xddbf                          ; cd bf dd
   ld      b,0x06                          ; 06 06
   ld      hl,(0xda17)                     ; 2a 17 da
-L9663:
+L38A3:
   call    0xd9ee                          ; cd ee d9
-  djnz    L9663                           ; 10 fb
+  djnz    L38A3                           ; 10 fb
   call    0xd3b7                          ; cd b7 d3
   bit     4,a                             ; cb 67
-  jr      z,L9647                         ; 28 d8
-L966f:
+  jr      z,L3887                         ; 28 d8
+L38AF:
   jp      0xd465                          ; c3 65 d4
-L9672:
+L38B2:
   cp      0x07                            ; fe 07
-  jr      nz,L967d                        ; 20 07
-L9676:
+  jr      nz,L38BD                        ; 20 07
+L38B6:
   call    0xd3c2                          ; cd c2 d3
-  djnz    L9676                           ; 10 fb
-L967b:
-  jr      L9641                           ; 18 c4
-L967d:
+  djnz    L38B6                           ; 10 fb
+L38BB:
+  jr      L3881                           ; 18 c4
+L38BD:
   cp      0x0a                            ; fe 0a
-  jr      nz,L96ab                        ; 20 2a
-L9681:
+  jr      nz,L38EB                        ; 20 2a
+L38C1:
   call    0xd3c2                          ; cd c2 d3
   ld      de,0x50a0                       ; 11 a0 50
   ld      a,0xa0                          ; 3e a0
-L9689:
+L38C9:
   call    0xd3aa                          ; cd aa d3
   sub     0x08                            ; d6 08
   cp      0x10                            ; fe 10
-  jr      nc,L9689                        ; 30 f7
+  jr      nc,L38C9                        ; 30 f7
   ld      hl,0x4040                       ; 21 40 40
   call    0xddbf                          ; cd bf dd
   ld      b,0x0d                          ; 06 0d
   ld      hl,(0xda17)                     ; 2a 17 da
-L969d:
+L38DD:
   call    0xd9d9                          ; cd d9 d9
-  djnz    L969d                           ; 10 fb
+  djnz    L38DD                           ; 10 fb
   call    0xd3b7                          ; cd b7 d3
   bit     3,a                             ; cb 5f
-  jr      z,L9681                         ; 28 d8
-L96a9:
-  jr      L966f                           ; 18 c4
-L96ab:
+  jr      z,L38C1                         ; 28 d8
+L38E9:
+  jr      L38AF                           ; 18 c4
+L38EB:
   cp      0x0c                            ; fe 0c
-  jr      nz,L96c5                        ; 20 16
+  jr      nz,L3905                        ; 20 16
   ld      bc,0x0001                       ; 01 01 00
   ld      hl,(0xda17)                     ; 2a 17 da
   call    0xc7f5                          ; cd f5 c7
   call    0xe225                          ; cd 25 e2
-  jr      z,L967b                         ; 28 be
+  jr      z,L38BB                         ; 28 be
   call    nc,0xd9d9                       ; d4 d9 d9
   ld      (0xda17),hl                     ; 22 17 da
-L96c3:
-  jr      L967b                           ; 18 b6
-L96c5:
+L3903:
+  jr      L38BB                           ; 18 b6
+L3905:
   cp      0x0e                            ; fe 0e
-  jr      nz,L96d7                        ; 20 0e
+  jr      nz,L3917                        ; 20 0e
   ld      hl,(0xd87c)                     ; 2a 7c d8
   ld      (0xd879),hl                     ; 22 79 d8
   ld      hl,(0xda17)                     ; 2a 17 da
   ld      (0xd87c),hl                     ; 22 7c d8
-  jr      L96c3                           ; 18 ec
-L96d7:
+  jr      L3903                           ; 18 ec
+L3917:
   call    0xd5b0                          ; cd b0 d5
-  jr      nz,L96a9                        ; 20 cd
+  jr      nz,L38E9                        ; 20 cd
   ld      hl,0x5ae0                       ; 21 e0 5a
   ld      bc,0x203f                       ; 01 3f 20
   call    0xdaab                          ; cd ab da
@@ -10018,7 +10018,7 @@ L96d7:
   ld      d,0x00                          ; 16 00
   ld      c,0x09                          ; 0e 09
   cp      0x80                            ; fe 80
-  jr      c,L9706                         ; 38 13
+  jr      c,L3946                         ; 38 13
   ld      hl,0xd440                       ; 21 40 d4
   ld      (0xd5ae),hl                     ; 22 ae d5
   push    hl                              ; e5
@@ -10032,7 +10032,7 @@ L96d7:
   ld      h,(hl)                          ; 66
   ld      l,a                             ; 6f
   jp      (hl)                            ; e9
-L9706:
+L3946:
   call    0xd65c                          ; cd 5c d6
   call    0xd9eb                          ; cd eb d9
   push    hl                              ; e5
@@ -10046,12 +10046,12 @@ L9706:
   ld      (0xda17),hl                     ; 22 17 da
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
-  jr      z,L972e                         ; 28 0c
+  jr      z,L396E                         ; 28 0c
   call    0xd9d6                          ; cd d6 d9
   ld      (0xda17),hl                     ; 22 17 da
   ld      bc,0x0001                       ; 01 01 00
   call    0xe160                          ; cd 60 e1
-L972e:
+L396E:
   ld      a,0x0f                          ; 3e 0f
   ld      (0xd473),a                      ; 32 73 d4
   xor     a                               ; af
@@ -10061,89 +10061,89 @@ L972e:
   cp      0x0d                            ; fe 0d
   ret     z                               ; c8
   cp      0x08                            ; fe 08
-  jr      nz,L9750                        ; 20 0c
+  jr      nz,L3990                        ; 20 0c
   ld      b,(hl)                          ; 46
   dec     hl                              ; 2b
   ld      a,(hl)                          ; 7e
   rlca                                    ; 07
-  jr      c,L9771                         ; 38 27
+  jr      c,L39B1                         ; 38 27
   ld      c,(hl)                          ; 4e
   ld      (hl),b                          ; 70
   inc     hl                              ; 23
   ld      (hl),c                          ; 71
-  jr      L9771                           ; 18 21
-L9750:
+  jr      L39B1                           ; 18 21
+L3990:
   cp      0x0b                            ; fe 0b
-  jr      nz,L975e                        ; 20 0a
+  jr      nz,L399E                        ; 20 0a
   ld      b,(hl)                          ; 46
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   and     a                               ; a7
-  jr      z,L9771                         ; 28 17
+  jr      z,L39B1                         ; 28 17
   ld      (hl),b                          ; 70
   dec     hl                              ; 2b
   ld      (hl),a                          ; 77
   ret                                     ; c9
-L975e:
+L399E:
   cp      0x03                            ; fe 03
-  jr      nz,L9773                        ; 20 11
+  jr      nz,L39B3                        ; 20 11
   ld      d,h                             ; 54
   ld      e,l                             ; 5d
   dec     hl                              ; 2b
   ld      a,(hl)                          ; 7e
   cp      0x80                            ; fe 80
-  jr      z,L9771                         ; 28 07
-L976a:
+  jr      z,L39B1                         ; 28 07
+L39AA:
   ld      a,(de)                          ; 1a
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
   inc     de                              ; 13
   or      a                               ; b7
-  jr      nz,L976a                        ; 20 f9
-L9771:
+  jr      nz,L39AA                        ; 20 f9
+L39B1:
   inc     a                               ; 3c
   ret                                     ; c9
-L9773:
+L39B3:
   cp      0x05                            ; fe 05
-  jr      nz,L9780                        ; 20 09
+  jr      nz,L39C0                        ; 20 09
   ld      hl,0xde39                       ; 21 39 de
   ld      a,0xf7                          ; 3e f7
   sub     (hl)                            ; 96
   ld      (hl),a                          ; 77
-  jr      L9771                           ; 18 f1
-L9780:
+  jr      L39B1                           ; 18 f1
+L39C0:
   cp      0x20                            ; fe 20
   ret     c                               ; d8
   ld      b,a                             ; 47
-  jr      nz,L97ab                        ; 20 25
+  jr      nz,L39EB                        ; 20 25
   ld      de,0xac3e                       ; 11 3e ac
   ld      a,(de)                          ; 1a
   cp      0x3b                            ; fe 3b
-  jr      z,L97ab                         ; 28 1d
+  jr      z,L39EB                         ; 28 1d
   rlca                                    ; 07
-  jr      c,L97ab                         ; 38 1a
+  jr      c,L39EB                         ; 38 1a
   push    hl                              ; e5
   sbc     hl,de                           ; ed 52
   ld      a,0x0d                          ; 3e 0d
   sub     l                               ; 95
   pop     hl                              ; e1
-  jr      c,L97ab                         ; 38 11
+  jr      c,L39EB                         ; 38 11
   cp      0x05                            ; fe 05
-  jr      c,L97a0                         ; 38 02
+  jr      c,L39E0                         ; 38 02
   sub     0x05                            ; d6 05
-L97a0:
+L39E0:
   ld      b,a                             ; 47
   inc     b                               ; 04
   ld      c,0x20                          ; 0e 20
   call    0xdaab                          ; cd ab da
   ld      (hl),0x01                       ; 36 01
-  jr      L9771                           ; 18 c6
-L97ab:
+  jr      L39B1                           ; 18 c6
+L39EB:
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
-  jr      z,L9771                         ; 28 c1
+  jr      z,L39B1                         ; 28 c1
   ld      a,b                             ; 78
-L97b1:
+L39F1:
   ex      af,af'                          ; 08
   ld      a,(hl)                          ; 7e
   ex      af,af'                          ; 08
@@ -10159,24 +10159,24 @@ L97b1:
   inc     hl                              ; 23
   ex      af,af'                          ; 08
   or      a                               ; b7
-  jr      nz,L97b1                        ; 20 eb
-  jr      L9771                           ; 18 a9
-L97c8:
+  jr      nz,L39F1                        ; 20 eb
+  jr      L39B1                           ; 18 a9
+L3A08:
   ld      ix,0xac63                       ; dd 21 63 ac
   ld      (ix-2),0x01                     ; dd 36 fe 01
   ld      (ix-1),0x37                     ; dd 36 ff 37
   ld      b,0xff                          ; 06 ff
-  jr      L97db                           ; 18 03
-L97d8:
+  jr      L3A1B                           ; 18 03
+L3A18:
   call    0xdd77                          ; cd 77 dd
-L97db:
+L3A1B:
   call    0xe130                          ; cd 30 e1
   or      a                               ; b7
-  jr      nz,L97d8                        ; 20 f7
+  jr      nz,L3A18                        ; 20 f7
   dec     ix                              ; dd 2b
   jp      0xd764                          ; c3 64 d7
   cp      0x3b                            ; fe 3b
-  jr      z,L97c8                         ; 28 de
+  jr      z,L3A08                         ; 28 de
   cp      0x20                            ; fe 20
   call    nz,0xdd39                       ; c4 39 dd
   call    0xdd7f                          ; cd 7f dd
@@ -10187,10 +10187,10 @@ L97db:
   ld      de,0xac24                       ; 11 24 ac
   ld      c,0x12                          ; 0e 12
   call    0xdd3d                          ; cd 3d dd
-  jr      nz,L980b                        ; 20 04
+  jr      nz,L3A4B                        ; 20 04
   inc     hl                              ; 23
   ld      (0xac37),a                      ; 32 37 ac
-L980b:
+L3A4B:
   ld      de,0xac10                       ; 11 10 ac
   ld      c,0x12                          ; 0e 12
   call    0xdd41                          ; cd 41 dd
@@ -10198,7 +10198,7 @@ L980b:
   ld      hl,0xac38                       ; 21 38 ac
   ld      a,(hl)                          ; 7e
   or      a                               ; b7
-  jr      z,L982e                         ; 28 11
+  jr      z,L3A6E                         ; 28 11
   push    hl                              ; e5
   call    0xdce9                          ; cd e9 dc
   ld      hl,0xdd0f                       ; 21 0f dd
@@ -10206,46 +10206,46 @@ L980b:
   pop     hl                              ; e1
   call    0xdcf1                          ; cd f1 dc
   jp      c,0xd7f6                        ; da f6 d7
-L982e:
+L3A6E:
   ld      (0xd70e),a                      ; 32 0e d7
   cp      0x3a                            ; fe 3a
-  jr      c,L983a                         ; 38 05
+  jr      c,L3A7A                         ; 38 05
   cp      0x3e                            ; fe 3e
   jp      c,0xd776                        ; da 76 d7
-L983a:
+L3A7A:
   ld      hl,0xac24                       ; 21 24 ac
   push    hl                              ; e5
   call    0xdce9                          ; cd e9 dc
   pop     hl                              ; e1
   ld      a,b                             ; 78
   dec     a                               ; 3d
-  jr      nz,L986e                        ; 20 28
+  jr      nz,L3AAE                        ; 20 28
   ld      a,(0xd70e)                      ; 3a 0e d7
   cp      0x06                            ; fe 06
-  jr      nz,L985b                        ; 20 0e
+  jr      nz,L3A9B                        ; 20 0e
   ld      a,(hl)                          ; 7e
   sub     0x2f                            ; d6 2f
   cp      0x04                            ; fe 04
-L9852:
+L3A92:
   jp      nc,0xd7fa                       ; d2 fa d7
   or      a                               ; b7
   jp      z,0xd7fa                        ; ca fa d7
-  jr      L9871                           ; 18 16
-L985b:
+  jr      L3AB1                           ; 18 16
+L3A9B:
   cp      0x11                            ; fe 11
-  jr      z,L9867                         ; 28 08
+  jr      z,L3AA7                         ; 28 08
   cp      0x26                            ; fe 26
-  jr      z,L9867                         ; 28 04
+  jr      z,L3AA7                         ; 28 04
   cp      0x31                            ; fe 31
-  jr      nz,L986e                        ; 20 07
-L9867:
+  jr      nz,L3AAE                        ; 20 07
+L3AA7:
   ld      a,(hl)                          ; 7e
   sub     0x2f                            ; d6 2f
   cp      0x09                            ; fe 09
-  jr      L9852                           ; 18 e4
-L986e:
+  jr      L3A92                           ; 18 e4
+L3AAE:
   call    0xdcaa                          ; cd aa dc
-L9871:
+L3AB1:
   ld      (0xd700),a                      ; 32 00 d7
   ld      hl,0xac10                       ; 21 10 ac
   call    0xdcaa                          ; cd aa dc
@@ -10261,34 +10261,34 @@ L9871:
   call    0xdc8d                          ; cd 8d dc
   ld      d,a                             ; 57
   ld      b,0x03                          ; 06 03
-L9891:
+L3AD1:
   sla     e                               ; cb 23
   rl      d                               ; cb 12
-  djnz    L9891                           ; 10 fa
+  djnz    L3AD1                           ; 10 fa
   ld      a,0x00                          ; 3e 00
   rla                                     ; 17
   ld      hl,0xe66a                       ; 21 6a e6
   ld      bc,0x02af                       ; 01 af 02
-L98a0:
+L3AE0:
   inc     hl                              ; 23
   ex      af,af'                          ; 08
-L98a2:
+L3AE2:
   inc     hl                              ; 23
   ex      af,af'                          ; 08
   inc     hl                              ; 23
   inc     hl                              ; 23
   cpi                                     ; ed a1
   jp      po,0xd811                       ; e2 11 d8
-  jr      nz,L98a0                        ; 20 f3
+  jr      nz,L3AE0                        ; 20 f3
   ex      af,af'                          ; 08
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   cp      d                               ; ba
-  jr      nz,L98a2                        ; 20 ef
+  jr      nz,L3AE2                        ; 20 ef
   ld      a,(hl)                          ; 7e
   and     0xe0                            ; e6 e0
   cp      e                               ; bb
-  jr      nz,L98a2                        ; 20 e9
+  jr      nz,L3AE2                        ; 20 e9
   dec     hl                              ; 2b
   dec     hl                              ; 2b
   dec     hl                              ; 2b
@@ -10297,35 +10297,35 @@ L98a2:
   ld      e,(hl)                          ; 5e
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
-  jr      z,L98c8                         ; 28 04
+  jr      z,L3B08                         ; 28 04
   res     5,d                             ; cb aa
   set     4,d                             ; cb e2
-L98c8:
+L3B08:
   call    0xdab0                          ; cd b0 da
   ld      a,(0xd700)                      ; 3a 00 d7
   cp      0x2c                            ; fe 2c
   ld      de,0xac24                       ; 11 24 ac
   call    nc,0xdb6a                       ; d4 6a db
   ld      a,(0xd6f8)                      ; 3a f8 d6
-  jr      c,L98e6                         ; 38 0b
+  jr      c,L3B26                         ; 38 0b
   cp      0x2c                            ; fe 2c
-  jr      c,L98ee                         ; 38 0f
+  jr      c,L3B2E                         ; 38 0f
   ld      (ix+0),0x1f                     ; dd 36 00 1f
   inc     ix                              ; dd 23
   inc     b                               ; 04
-L98e6:
+L3B26:
   ld      de,0xac10                       ; 11 10 ac
   cp      0x2c                            ; fe 2c
   call    nc,0xdb6a                       ; d4 6a db
-L98ee:
+L3B2E:
   ld      a,b                             ; 78
   or      a                               ; b7
-  jr      z,L98fa                         ; 28 08
+  jr      z,L3B3A                         ; 28 08
   set     7,b                             ; cb f8
   set     6,b                             ; cb f0
   ld      (ix+0),b                        ; dd 70 00
   inc     a                               ; 3c
-L98fa:
+L3B3A:
   add     a,0x02                          ; c6 02
   ld      (0xac60),a                      ; 32 60 ac
   ret                                     ; c9
@@ -10338,48 +10338,48 @@ L98fa:
   ld      hl,0xac23                       ; 21 23 ac
   xor     a                               ; af
   ld      c,a                             ; 4f
-L990f:
+L3B4F:
   inc     hl                              ; 23
   inc     c                               ; 0c
   cp      (hl)                            ; be
-  jr      nz,L990f                        ; 20 fb
+  jr      nz,L3B4F                        ; 20 fb
   ld      de,0xac10                       ; 11 10 ac
   ld      a,(de)                          ; 1a
   or      a                               ; b7
-  jr      z,L991f                         ; 28 04
+  jr      z,L3B5F                         ; 28 04
   ld      (hl),0x2c                       ; 36 2c
   inc     hl                              ; 23
   xor     a                               ; af
-L991f:
+L3B5F:
   ex      de,hl                           ; eb
-L9920:
+L3B60:
   cp      (hl)                            ; be
-  jr      z,L9929                         ; 28 06
+  jr      z,L3B69                         ; 28 06
   ldi                                     ; ed a0
   inc     c                               ; 0c
   inc     c                               ; 0c
-  jr      L9920                           ; 18 f7
-L9929:
+  jr      L3B60                           ; 18 f7
+L3B69:
   ld      a,0x12                          ; 3e 12
   cp      c                               ; b9
-  jr      c,L998c                         ; 38 5e
+  jr      c,L3BCC                         ; 38 5e
   pop     bc                              ; c1
   pop     af                              ; f1
   cp      0x3b                            ; fe 3b
-  jr      z,L9949                         ; 28 15
+  jr      z,L3B89                         ; 28 15
   ld      de,0xac24                       ; 11 24 ac
-L9937:
+L3B77:
   ld      a,0x2c                          ; 3e 2c
   call    0xdb6a                          ; cd 6a db
   ld      a,(de)                          ; 1a
   or      a                               ; b7
-L993e:
-  jr      z,L98ee                         ; 28 ae
+L3B7E:
+  jr      z,L3B2E                         ; 28 ae
   ld      (ix+0),0x2c                     ; dd 36 00 2c
   inc     ix                              ; dd 23
   inc     b                               ; 04
-  jr      L9937                           ; 18 ee
-L9949:
+  jr      L3B77                           ; 18 ee
+L3B89:
   ld      hl,0xac24                       ; 21 24 ac
   call    0xd806                          ; cd 06 d8
   call    0xe130                          ; cd 30 e1
@@ -10388,48 +10388,48 @@ L9949:
   call    0xe130                          ; cd 30 e1
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
-L9959:
+L3B99:
   call    0xe130                          ; cd 30 e1
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   or      a                               ; b7
-  jr      nz,L9959                        ; 20 f8
+  jr      nz,L3B99                        ; 20 f8
   dec     hl                              ; 2b
   call    0xd806                          ; cd 06 d8
-  jr      L993e                           ; 18 d7
+  jr      L3B7E                           ; 18 d7
   push    hl                              ; e5
   push    de                              ; d5
   ld      hl,(0xe037)                     ; 2a 37 e0
   add     hl,bc                           ; 09
-  jr      c,L9978                         ; 38 09
+  jr      c,L3BB8                         ; 38 09
   ld      de,(0xce95)                     ; ed 5b 95 ce
   sbc     hl,de                           ; ed 52
   pop     de                              ; d1
   pop     hl                              ; e1
   ret     c                               ; d8
-L9978:
+L3BB8:
   xor     a                               ; af
   ld      (0xe2c3),a                      ; 32 c3 e2
   ld      a,0x07                          ; 3e 07
-  jr      L999d                           ; 18 1d
+  jr      L3BDD                           ; 18 1d
   ld      a,0x01                          ; 3e 01
-  jr      L999d                           ; 18 19
+  jr      L3BDD                           ; 18 19
   ld      a,0x02                          ; 3e 02
-  jr      L999d                           ; 18 15
+  jr      L3BDD                           ; 18 15
   ld      a,0x03                          ; 3e 03
-  jr      L999d                           ; 18 11
-L998c:
+  jr      L3BDD                           ; 18 11
+L3BCC:
   ld      a,0x04                          ; 3e 04
-  jr      L999d                           ; 18 0d
+  jr      L3BDD                           ; 18 0d
   ld      a,(hl)                          ; 7e
   cp      0x27                            ; fe 27
   ret     z                               ; c8
   cp      0x22                            ; fe 22
   ret     z                               ; c8
   ld      a,0x05                          ; 3e 05
-  jr      L999d                           ; 18 02
+  jr      L3BDD                           ; 18 02
   ld      a,0x06                          ; 3e 06
-L999d:
+L3BDD:
   ex      af,af'                          ; 08
   call    0xf4df                          ; cd df f4
   call    0xdede                          ; cd de de
@@ -10444,39 +10444,39 @@ L999d:
   ld      hl,0x4000                       ; 21 00 40
   call    0xddbf                          ; cd bf dd
   cp      0x09                            ; fe 09
-  jr      nz,L99e7                        ; 20 23
+  jr      nz,L3C27                        ; 20 23
   push    af                              ; f5
   ld      hl,0xd872                       ; 21 72 d8
   ld      de,0xd872                       ; 11 72 d8
   call    0xad77                          ; cd 77 ad
-  jr      z,L99dd                         ; 28 0d
-L99d0:
+  jr      z,L3C1D                         ; 28 0d
+L3C10:
   call    0xade9                          ; cd e9 ad
   push    af                              ; f5
   call    0xdf36                          ; cd 36 df
   pop     af                              ; f1
   bit     7,a                             ; cb 7f
   inc     hl                              ; 23
-  jr      z,L99d0                         ; 28 f3
-L99dd:
+  jr      z,L3C10                         ; 28 f3
+L3C1D:
   call    z,0xd868                        ; cc 68 d8
   ld      hl,0xd872                       ; 21 72 d8
   ld      (0xd83c),hl                     ; 22 3c d8
   pop     af                              ; f1
-L99e7:
+L3C27:
   ld      hl,0xe320                       ; 21 20 e3
-L99ea:
+L3C2A:
   bit     7,(hl)                          ; cb 7e
   inc     hl                              ; 23
-  jr      z,L99ea                         ; 28 fb
+  jr      z,L3C2A                         ; 28 fb
   dec     a                               ; 3d
-  jr      nz,L99ea                        ; 20 f8
-L99f2:
+  jr      nz,L3C2A                        ; 20 f8
+L3C32:
   ld      a,(hl)                          ; 7e
   call    0xdf36                          ; cd 36 df
   bit     7,(hl)                          ; cb 7e
   inc     hl                              ; 23
-  jr      z,L99f2                         ; 28 f7
+  jr      z,L3C32                         ; 28 f7
   ret                                     ; c9
   ld      d,e                             ; 53
   ld      a,c                             ; 79
@@ -10500,10 +10500,10 @@ L99f2:
   xor     a                               ; af
   sbc     hl,bc                           ; ed 42
   pop     hl                              ; e1
-  jr      c,L9a21                         ; 38 03
+  jr      c,L3C61                         ; 38 03
   ex      de,hl                           ; eb
   sbc     hl,de                           ; ed 52
-L9a21:
+L3C61:
   exx                                     ; d9
   ret                                     ; c9
   inc     ix                              ; dd 23
@@ -10552,11 +10552,11 @@ L9a21:
   pop     hl                              ; e1
   ld      a,(ix+0)                        ; dd 7e 00
   dec     a                               ; 3d
-  jr      nz,L9a89                        ; 20 15
+  jr      nz,L3CC9                        ; 20 15
   ld      a,(ix+1)                        ; dd 7e 01
   cp      0x37                            ; fe 37
-  jr      nz,L9a89                        ; 20 0e
-L9a7b:
+  jr      nz,L3CC9                        ; 20 0e
+L3CBB:
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0xc0                            ; fe c0
   ld      (hl),0x01                       ; 36 01
@@ -10564,18 +10564,18 @@ L9a7b:
   inc     ix                              ; dd 23
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
-  jr      L9a7b                           ; 18 f2
-L9a89:
+  jr      L3CBB                           ; 18 f2
+L3CC9:
   ld      b,0x09                          ; 06 09
   bit     3,(ix+1)                        ; dd cb 01 5e
   call    z,0xdaa1                        ; cc a1 da
-  jr      z,L9a9e                         ; 28 0a
+  jr      z,L3CDE                         ; 28 0a
   push    hl                              ; e5
   call    0xd8a2                          ; cd a2 d8
   pop     hl                              ; e1
   ld      b,0x09                          ; 06 09
   call    0xda99                          ; cd 99 da
-L9a9e:
+L3CDE:
   push    hl                              ; e5
   ld      b,(ix+0)                        ; dd 46 00
   ld      a,(ix+1)                        ; dd 7e 01
@@ -10583,20 +10583,20 @@ L9a9e:
   ld      c,a                             ; 4f
   call    0xdae6                          ; cd e6 da
   pop     hl                              ; e1
-  jr      z,L9ab4                         ; 28 06
+  jr      z,L3CF4                         ; 28 06
   ld      a,0x10                          ; 3e 10
   ld      (0xd473),a                      ; 32 73 d4
   ret                                     ; c9
-L9ab4:
+L3CF4:
   ld      (hl),0x01                       ; 36 01
   or      a                               ; b7
   ret     z                               ; c8
   cp      0x3a                            ; fe 3a
-  jr      c,L9ac2                         ; 38 06
+  jr      c,L3D02                         ; 38 06
   cp      0x3e                            ; fe 3e
-  jr      nc,L9ac2                        ; 30 02
+  jr      nc,L3D02                        ; 30 02
   ld      d,0x2c                          ; 16 2c
-L9ac2:
+L3D02:
   push    de                              ; d5
   ld      de,0xe4b2                       ; 11 b2 e4
   call    0xda73                          ; cd 73 da
@@ -10606,10 +10606,10 @@ L9ac2:
   ld      (hl),0x01                       ; 36 01
   inc     hl                              ; 23
   bit     3,(ix+1)                        ; dd cb 01 5e
-  jr      z,L9adc                         ; 28 04
+  jr      z,L3D1C                         ; 28 04
   inc     ix                              ; dd 23
   inc     ix                              ; dd 23
-L9adc:
+L3D1C:
   push    de                              ; d5
   ld      a,d                             ; 7a
   call    0xd95e                          ; cd 5e d9
@@ -10622,62 +10622,62 @@ L9adc:
   or      a                               ; b7
   ret     z                               ; c8
   cp      0x2c                            ; fe 2c
-  jr      nc,L9b0c                        ; 30 1e
+  jr      nc,L3D4C                        ; 30 1e
   ld      de,0xe5f0                       ; 11 f0 e5
   call    0xda73                          ; cd 73 da
   ld      b,0x09                          ; 06 09
-L9af6:
+L3D36:
   ld      a,(de)                          ; 1a
   and     0x7f                            ; e6 7f
   ld      (hl),a                          ; 77
   dec     b                               ; 05
-  jr      nz,L9b04                        ; 20 07
+  jr      nz,L3D44                        ; 20 07
   ld      a,0x10                          ; 3e 10
   ld      (0xd473),a                      ; 32 73 d4
   pop     af                              ; f1
   ret                                     ; c9
-L9b04:
+L3D44:
   ld      a,(de)                          ; 1a
   and     0x80                            ; e6 80
   inc     hl                              ; 23
   inc     de                              ; 13
-  jr      z,L9af6                         ; 28 eb
+  jr      z,L3D36                         ; 28 eb
   ret                                     ; c9
-L9b0c:
+L3D4C:
   push    af                              ; f5
   cp      0x2d                            ; fe 2d
-  jr      c,L9b2f                         ; 38 1e
+  jr      c,L3D6F                         ; 38 1e
   ld      (hl),0x28                       ; 36 28
   inc     hl                              ; 23
   cp      0x2e                            ; fe 2e
-  jr      c,L9b2f                         ; 38 17
+  jr      c,L3D6F                         ; 38 17
   ld      (hl),0x69                       ; 36 69
   inc     hl                              ; 23
   ld      b,0x78                          ; 06 78
   cp      0x2f                            ; fe 2f
-  jr      c,L9b23                         ; 38 02
+  jr      c,L3D63                         ; 38 02
   ld      b,0x79                          ; 06 79
-L9b23:
+L3D63:
   ld      (hl),b                          ; 70
   inc     hl                              ; 23
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x2d                            ; fe 2d
-  jr      z,L9b2f                         ; 28 03
+  jr      z,L3D6F                         ; 28 03
   ld      (hl),0x2b                       ; 36 2b
   inc     hl                              ; 23
-L9b2f:
+L3D6F:
   ld      a,(ix+2)                        ; dd 7e 02
   cp      0x1f                            ; fe 1f
-  jr      z,L9b56                         ; 28 20
+  jr      z,L3D96                         ; 28 20
   cp      0xc0                            ; fe c0
-  jr      nc,L9b56                        ; 30 1c
+  jr      nc,L3D96                        ; 30 1c
   cp      0x80                            ; fe 80
-  jr      nc,L9b44                        ; 30 06
+  jr      nc,L3D84                        ; 30 06
   ld      (hl),a                          ; 77
   inc     hl                              ; 23
   inc     ix                              ; dd 23
-  jr      L9b2f                           ; 18 eb
-L9b44:
+  jr      L3D6F                           ; 18 eb
+L3D84:
   ld      d,a                             ; 57
   ld      e,(ix+3)                        ; dd 5e 03
   inc     ix                              ; dd 23
@@ -10686,8 +10686,8 @@ L9b44:
   call    0xd8a5                          ; cd a5 d8
   pop     hl                              ; e1
   call    0xda7e                          ; cd 7e da
-  jr      L9b2f                           ; 18 d9
-L9b56:
+  jr      L3D6F                           ; 18 d9
+L3D96:
   pop     af                              ; f1
   inc     ix                              ; dd 23
   cp      0x2d                            ; fe 2d
@@ -10699,13 +10699,13 @@ L9b56:
   dec     hl                              ; 2b
   call    0xade9                          ; cd e9 ad
   cp      0xc0                            ; fe c0
-  jr      c,L9b73                         ; 38 08
+  jr      c,L3DB3                         ; 38 08
   and     0x3f                            ; e6 3f
   ld      e,a                             ; 5f
   ld      d,0x00                          ; 16 00
   sbc     hl,de                           ; ed 52
   dec     hl                              ; 2b
-L9b73:
+L3DB3:
   dec     hl                              ; 2b
   ret                                     ; c9
   ld      hl,(0xda17)                     ; 2a 17 da
@@ -10713,22 +10713,22 @@ L9b73:
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
   bit     3,a                             ; cb 5f
-  jr      z,L9b85                         ; 28 04
+  jr      z,L3DC5                         ; 28 04
   inc     hl                              ; 23
   inc     hl                              ; 23
-  jr      L9b88                           ; 18 03
-L9b85:
+  jr      L3DC8                           ; 18 03
+L3DC5:
   and     0x07                            ; e6 07
   ret     z                               ; c8
-L9b88:
+L3DC8:
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
   cp      0xc0                            ; fe c0
   ret     nc                              ; d0
   cp      0x80                            ; fe 80
-  jr      c,L9b88                         ; 38 f5
+  jr      c,L3DC8                         ; 38 f5
   inc     hl                              ; 23
-  jr      L9b88                           ; 18 f2
+  jr      L3DC8                           ; 18 f2
   xor     a                               ; af
   in      a,(0xfe)                        ; db fe
   cpl                                     ; 2f
@@ -10737,11 +10737,11 @@ L9b88:
   call    0xb0a2                          ; cd a2 b0
   ld      hl,0x0000                       ; 21 00 00
   ld      b,0x0d                          ; 06 0d
-L9ba5:
+L3DE5:
   call    0xd9d9                          ; cd d9 d9
-  djnz    L9ba5                           ; 10 fb
+  djnz    L3DE5                           ; 10 fb
   ld      a,0x10                          ; 3e 10
-L9bac:
+L3DEC:
   push    af                              ; f5
   push    hl                              ; e5
   push    hl                              ; e5
@@ -10753,40 +10753,40 @@ L9bac:
   pop     af                              ; f1
   add     a,0x08                          ; c6 08
   cp      0xa9                            ; fe a9
-  jr      c,L9bac                         ; 38 ea
+  jr      c,L3DEC                         ; 38 ea
   ret                                     ; c9
   push    ix                              ; dd e5
   call    0xd8cf                          ; cd cf d8
   pop     ix                              ; dd e1
   call    0xd884                          ; cd 84 d8
-  jr      c,L9bd4                         ; 38 05
+  jr      c,L3E14                         ; 38 05
   ld      hl,0xabec                       ; 21 ec ab
   ld      (hl),0xa0                       ; 36 a0
-L9bd4:
+L3E14:
   ld      hl,0xdf0f                       ; 21 0f df
   ld      (0xda6f),hl                     ; 22 6f da
   ld      hl,0xabe4                       ; 21 e4 ab
   ld      c,0x00                          ; 0e 00
-L9bdf:
+L3E1F:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   dec     a                               ; 3d
-  jr      z,L9bdf                         ; 28 fb
+  jr      z,L3E1F                         ; 28 fb
   inc     a                               ; 3c
   ret     z                               ; c8
   cp      0x22                            ; fe 22
-  jr      nz,L9bed                        ; 20 03
+  jr      nz,L3E2D                        ; 20 03
   inc     c                               ; 0c
   ld      a,0x22                          ; 3e 22
-L9bed:
+L3E2D:
   bit     0,c                             ; cb 41
-  jr      nz,L9bf8                        ; 20 07
+  jr      nz,L3E38                        ; 20 07
   call    0xdef9                          ; cd f9 de
-  jr      nz,L9bf8                        ; 20 02
+  jr      nz,L3E38                        ; 20 02
   and     0xff                            ; e6 ff
-L9bf8:
+L3E38:
   call    0xdf0f                          ; cd 0f df
-  jr      L9bdf                           ; 18 e2
+  jr      L3E1F                           ; 18 e2
   push    hl                              ; e5
   ex      de,hl                           ; eb
   ld      d,0x00                          ; 16 00
@@ -10798,53 +10798,53 @@ L9bf8:
   pop     hl                              ; e1
   ret                                     ; c9
   ld      b,0x09                          ; 06 09
-L9c0a:
+L3E4A:
   ex      de,hl                           ; eb
   call    0xade9                          ; cd e9 ad
   ex      de,hl                           ; eb
   ld      (hl),a                          ; 77
   dec     b                               ; 05
-  jr      nz,L9c1a                        ; 20 07
+  jr      nz,L3E5A                        ; 20 07
   ld      a,0x10                          ; 3e 10
   ld      (0xd473),a                      ; 32 73 d4
   pop     af                              ; f1
   ret                                     ; c9
-L9c1a:
+L3E5A:
   res     7,(hl)                          ; cb be
   and     0x80                            ; e6 80
   inc     hl                              ; 23
   inc     de                              ; 13
-  jr      z,L9c0a                         ; 28 e8
+  jr      z,L3E4A                         ; 28 e8
   ret                                     ; c9
   call    0xda80                          ; cd 80 da
-  jr      L9c2b                           ; 18 03
+  jr      L3E6B                           ; 18 03
   call    0xd96c                          ; cd 6c d9
-L9c2b:
+L3E6B:
   ld      c,0x20                          ; 0e 20
-  jr      L9c35                           ; 18 06
+  jr      L3E75                           ; 18 06
   ld      bc,0x3700                       ; 01 00 37
   ld      hl,0xac06                       ; 21 06 ac
-L9c35:
+L3E75:
   ld      (hl),c                          ; 71
   inc     hl                              ; 23
-  djnz    L9c35                           ; 10 fc
+  djnz    L3E75                           ; 10 fc
   ret                                     ; c9
   ld      b,0x00                          ; 06 00
   ld      hl,0xac3e                       ; 21 3e ac
   call    0xdd78                          ; cd 78 dd
   cp      0x41                            ; fe 41
-  jr      c,L9c48                         ; 38 02
+  jr      c,L3E88                         ; 38 02
   set     3,d                             ; cb da
-L9c48:
+L3E88:
   ld      (0xac61),de                     ; ed 53 61 ac
   push    af                              ; f5
   ld      a,e                             ; 7b
   cp      0x03                            ; fe 03
-  jr      nz,L9c58                        ; 20 06
+  jr      nz,L3E98                        ; 20 06
   ld      a,d                             ; 7a
   cp      0x37                            ; fe 37
   jp      z,0xd811                        ; ca 11 d8
-L9c58:
+L3E98:
   pop     af                              ; f1
   ld      ix,0xac63                       ; dd 21 63 ac
   ret     c                               ; d8
@@ -10858,48 +10858,48 @@ L9c58:
   ld      de,0x0352                       ; 11 52 03
   ld      a,0x01                          ; 3e 01
   bit     5,c                             ; cb 69
-  jr      nz,L9c82                        ; 20 09
+  jr      nz,L3EC2                        ; 20 09
   bit     4,c                             ; cb 61
-  jr      z,L9c82                         ; 28 05
+  jr      z,L3EC2                         ; 28 05
   dec     a                               ; 3d
   res     4,c                             ; cb a1
   set     5,c                             ; cb e9
-L9c82:
+L3EC2:
   ld      (0xdb3e),a                      ; 32 3e db
   ld      hl,0xed1f                       ; 21 1f ed
   exx                                     ; d9
   ld      b,0x0b                          ; 06 0b
-L9c8b:
+L3ECB:
   exx                                     ; d9
   ld      a,(hl)                          ; 7e
   cp      b                               ; b8
-  jr      nz,L9c98                        ; 20 08
+  jr      nz,L3ED8                        ; 20 08
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   dec     hl                              ; 2b
   and     0xf0                            ; e6 f0
   cp      c                               ; b9
-  jr      z,L9cae                         ; 28 16
-L9c98:
-  jr      c,L9c9e                         ; 38 04
+  jr      z,L3EEE                         ; 28 16
+L3ED8:
+  jr      c,L3EDE                         ; 38 04
   sbc     hl,de                           ; ed 52
-  jr      L9c9f                           ; 18 01
-L9c9e:
+  jr      L3EDF                           ; 18 01
+L3EDE:
   add     hl,de                           ; 19
-L9c9f:
+L3EDF:
   srl     d                               ; cb 3a
   rr      e                               ; cb 1b
-  jr      nc,L9ca8                        ; 30 03
+  jr      nc,L3EE8                        ; 30 03
   inc     de                              ; 13
   inc     de                              ; 13
   inc     de                              ; 13
-L9ca8:
+L3EE8:
   exx                                     ; d9
-  djnz    L9c8b                           ; 10 e0
+  djnz    L3ECB                           ; 10 e0
   inc     b                               ; 04
   exx                                     ; d9
   ret                                     ; c9
-L9cae:
+L3EEE:
   inc     hl                              ; 23
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
@@ -10910,12 +10910,12 @@ L9cae:
   srl     a                               ; cb 3f
   ld      b,0x03                          ; 06 03
   rr      d                               ; cb 1a
-  jr      L9cbf                           ; 18 02
-L9cbd:
+  jr      L3EFF                           ; 18 02
+L3EFD:
   srl     d                               ; cb 3a
-L9cbf:
+L3EFF:
   rr      e                               ; cb 1b
-  djnz    L9cbd                           ; 10 fa
+  djnz    L3EFD                           ; 10 fa
   srl     e                               ; cb 3b
   srl     e                               ; cb 3b
   ld      b,0x01                          ; 06 01
@@ -10925,15 +10925,15 @@ L9cbf:
   ld      a,e                             ; 7b
   inc     a                               ; 3c
   call    0xdc8d                          ; cd 8d dc
-  jr      nz,L9cd4                        ; 20 01
+  jr      nz,L3F14                        ; 20 01
   inc     e                               ; 1c
-L9cd4:
+L3F14:
   ld      a,d                             ; 7a
   inc     a                               ; 3c
   call    0xdc8d                          ; cd 8d dc
-  jr      nz,L9cdc                        ; 20 01
+  jr      nz,L3F1C                        ; 20 01
   inc     d                               ; 14
-L9cdc:
+L3F1C:
   pop     af                              ; f1
   cp      a                               ; bf
   ret                                     ; c9
@@ -10941,46 +10941,46 @@ L9cdc:
   ld      b,0x28                          ; 06 28
   ld      c,0x01                          ; 0e 01
   xor     a                               ; af
-L9ce7:
+L3F27:
   cp      (hl)                            ; be
   inc     hl                              ; 23
-  jr      z,L9cec                         ; 28 01
+  jr      z,L3F2C                         ; 28 01
   inc     c                               ; 0c
-L9cec:
-  djnz    L9ce7                           ; 10 f9
+L3F2C:
+  djnz    L3F27                           ; 10 f9
   ld      a,0x12                          ; 3e 12
   cp      c                               ; b9
-  jr      c,L9d02                         ; 38 0f
+  jr      c,L3F42                         ; 38 0f
   ret                                     ; c9
   cp      0x2c                            ; fe 2c
-  jr      z,L9cff                         ; 28 07
+  jr      z,L3F3F                         ; 28 07
   inc     de                              ; 13
   cp      0x2d                            ; fe 2d
-  jr      z,L9cff                         ; 28 02
+  jr      z,L3F3F                         ; 28 02
   inc     de                              ; 13
   inc     de                              ; 13
-L9cff:
+L3F3F:
   call    0xdc5c                          ; cd 5c dc
-L9d02:
+L3F42:
   jp      c,0xd802                        ; da 02 d8
   cp      0x2b                            ; fe 2b
-  jr      z,L9d10                         ; 28 07
+  jr      z,L3F50                         ; 28 07
   cp      0x2d                            ; fe 2d
-  jr      nz,L9d15                        ; 20 08
+  jr      nz,L3F55                        ; 20 08
   call    0xe130                          ; cd 30 e1
-L9d10:
+L3F50:
   call    0xdc5c                          ; cd 5c dc
-  jr      c,L9d02                         ; 38 ed
-L9d15:
+  jr      c,L3F42                         ; 38 ed
+L3F55:
   cp      0x24                            ; fe 24
-  jr      nz,L9d1e                        ; 20 05
+  jr      nz,L3F5E                        ; 20 05
   call    0xdc59                          ; cd 59 dc
-  jr      L9d51                           ; 18 33
-L9d1e:
+  jr      L3F91                           ; 18 33
+L3F5E:
   ld      c,a                             ; 4f
   or      0x20                            ; f6 20
   call    0xdef9                          ; cd f9 de
-  jr      nz,L9d4d                        ; 20 27
+  jr      nz,L3F8D                        ; 20 27
   push    bc                              ; c5
   dec     de                              ; 1b
   push    de                              ; d5
@@ -11002,46 +11002,46 @@ L9d1e:
   inc     b                               ; 04
   inc     b                               ; 04
   call    0xdc5c                          ; cd 5c dc
-  jr      L9d51                           ; 18 04
-L9d4d:
+  jr      L3F91                           ; 18 04
+L3F8D:
   ld      a,c                             ; 79
   call    0xdbe3                          ; cd e3 db
-L9d51:
+L3F91:
   ccf                                     ; 3f
   ret     nc                              ; d0
   cp      0x2b                            ; fe 2b
-  jr      z,L9d68                         ; 28 11
+  jr      z,L3FA8                         ; 28 11
   cp      0x2d                            ; fe 2d
-  jr      z,L9d68                         ; 28 0d
+  jr      z,L3FA8                         ; 28 0d
   cp      0x2a                            ; fe 2a
-  jr      z,L9d68                         ; 28 09
+  jr      z,L3FA8                         ; 28 09
   cp      0x2f                            ; fe 2f
-  jr      z,L9d68                         ; 28 05
+  jr      z,L3FA8                         ; 28 05
   cp      0x3f                            ; fe 3f
-L9d65:
+L3FA5:
   jp      nz,0xd802                       ; c2 02 d8
-L9d68:
+L3FA8:
   call    0xdc59                          ; cd 59 dc
-  jr      L9d02                           ; 18 95
+  jr      L3F42                           ; 18 95
   cp      0x22                            ; fe 22
-  jr      z,L9db3                         ; 28 42
+  jr      z,L3FF3                         ; 28 42
   ld      c,0x0a                          ; 0e 0a
   call    0xdef1                          ; cd f1 de
-  jr      z,L9d8c                         ; 28 14
+  jr      z,L3FCC                         ; 28 14
   cp      0x25                            ; fe 25
-  jr      nz,L9d80                        ; 20 04
+  jr      nz,L3FC0                        ; 20 04
   ld      c,0x02                          ; 0e 02
-  jr      L9d86                           ; 18 06
-L9d80:
+  jr      L3FC6                           ; 18 06
+L3FC0:
   cp      0x23                            ; fe 23
-  jr      nz,L9d65                        ; 20 e1
+  jr      nz,L3FA5                        ; 20 e1
   ld      c,0x10                          ; 0e 10
-L9d86:
+L3FC6:
   call    0xdc59                          ; cd 59 dc
   jp      c,0xd802                        ; da 02 d8
-L9d8c:
+L3FCC:
   ld      hl,0x0000                       ; 21 00 00
-L9d8f:
+L3FCF:
   call    0xdc6a                          ; cd 6a dc
   ret     nc                              ; d0
   push    de                              ; d5
@@ -11050,64 +11050,64 @@ L9d8f:
   dec     a                               ; 3d
   ld      d,h                             ; 54
   ld      e,l                             ; 5d
-L9d99:
+L3FD9:
   add     hl,de                           ; 19
-L9d9a:
+L3FDA:
   jp      c,0xd7fe                        ; da fe d7
   dec     a                               ; 3d
-  jr      nz,L9d99                        ; 20 f9
+  jr      nz,L3FD9                        ; 20 f9
   pop     af                              ; f1
   cp      c                               ; b9
   jp      nc,0xd7fe                       ; d2 fe d7
   ld      d,0x00                          ; 16 00
   ld      e,a                             ; 5f
   add     hl,de                           ; 19
-  jr      c,L9d9a                         ; 38 ef
+  jr      c,L3FDA                         ; 38 ef
   pop     de                              ; d1
   ex      af,af'                          ; 08
   call    0xdc59                          ; cd 59 dc
   ret     c                               ; d8
-  jr      L9d8f                           ; 18 dc
-L9db3:
+  jr      L3FCF                           ; 18 dc
+L3FF3:
   ld      hl,0x0000                       ; 21 00 00
   call    0xdc44                          ; cd 44 dc
   or      a                               ; b7
-  jr      z,L9dcc                         ; 28 10
+  jr      z,L400C                         ; 28 10
   ld      l,a                             ; 6f
   call    0xdc44                          ; cd 44 dc
   or      a                               ; b7
-  jr      z,L9dcc                         ; 28 09
+  jr      z,L400C                         ; 28 09
   ld      h,l                             ; 65
   ld      l,a                             ; 6f
   call    0xdc44                          ; cd 44 dc
   or      a                               ; b7
   jp      nz,0xd80d                       ; c2 0d d8
-L9dcc:
-  jr      L9de1                           ; 18 13
+L400C:
+  jr      L4021                           ; 18 13
   call    0xdc59                          ; cd 59 dc
   or      a                               ; b7
   jp      z,0xd80d                        ; ca 0d d8
   cp      0x22                            ; fe 22
-  jr      z,L9ddb                         ; 28 02
+  jr      z,L401B                         ; 28 02
   and     a                               ; a7
   ret                                     ; c9
-L9ddb:
+L401B:
   ld      a,(de)                          ; 1a
   cp      0x22                            ; fe 22
   ld      a,0x00                          ; 3e 00
   ret     nz                              ; c0
-L9de1:
+L4021:
   ld      a,0x22                          ; 3e 22
   call    0xe130                          ; cd 30 e1
   ld      a,(de)                          ; 1a
   inc     de                              ; 13
   cp      0x29                            ; fe 29
-  jr      z,L9df2                         ; 28 06
+  jr      z,L4032                         ; 28 06
   cp      0x2c                            ; fe 2c
-  jr      z,L9df2                         ; 28 02
+  jr      z,L4032                         ; 28 02
   or      a                               ; b7
   ret     nz                              ; c0
-L9df2:
+L4032:
   scf                                     ; 37
   ret                                     ; c9
   push    af                              ; f5
@@ -11118,33 +11118,33 @@ L9df2:
   ret     c                               ; d8
   sub     0x07                            ; d6 07
   cp      0x0a                            ; fe 0a
-  jr      c,L9e14                         ; 38 12
+  jr      c,L4054                         ; 38 12
   cp      0x10                            ; fe 10
   ret     c                               ; d8
   sub     0x20                            ; d6 20
   cp      0x0a                            ; fe 0a
-  jr      c,L9e14                         ; 38 09
+  jr      c,L4054                         ; 38 09
   cp      0x10                            ; fe 10
-  jr      nc,L9e14                        ; 30 05
+  jr      nc,L4054                        ; 30 05
   ex      af,af'                          ; 08
   sub     0x20                            ; d6 20
   ex      af,af'                          ; 08
   ret     c                               ; d8
-L9e14:
+L4054:
   ex      af,af'                          ; 08
   and     a                               ; a7
   ret                                     ; c9
   cp      0x1a                            ; fe 1a
-  jr      z,L9e2a                         ; 28 0f
+  jr      z,L406A                         ; 28 0f
   cp      0x1c                            ; fe 1c
-  jr      z,L9e2a                         ; 28 0b
+  jr      z,L406A                         ; 28 0b
   cp      0x1e                            ; fe 1e
-  jr      z,L9e2a                         ; 28 07
+  jr      z,L406A                         ; 28 07
   cp      0x2a                            ; fe 2a
-  jr      z,L9e2a                         ; 28 03
+  jr      z,L406A                         ; 28 03
   cp      0x2f                            ; fe 2f
   ret     nz                              ; c0
-L9e2a:
+L406A:
   dec     a                               ; 3d
   push    hl                              ; e5
   ld      hl,0xd736                       ; 21 36 d7
@@ -11159,14 +11159,14 @@ L9e2a:
   or      a                               ; b7
   ret     z                               ; c8
   cp      0x05                            ; fe 05
-  jr      nc,L9e4c                        ; 30 0c
+  jr      nc,L408C                        ; 30 0c
   push    hl                              ; e5
   ld      hl,0xdd19                       ; 21 19 dd
   call    0xdd23                          ; cd 23 dd
   pop     hl                              ; e1
   call    0xdcf1                          ; cd f1 dc
   ret     nc                              ; d0
-L9e4c:
+L408C:
   ld      a,(hl)                          ; 7e
   cp      0x28                            ; fe 28
   ld      a,0x2c                          ; 3e 2c
@@ -11174,60 +11174,60 @@ L9e4c:
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   cp      0x69                            ; fe 69
-  jr      nz,L9e6e                        ; 20 16
+  jr      nz,L40AE                        ; 20 16
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   cp      0x78                            ; fe 78
   ld      b,0x2e                          ; 06 2e
-  jr      z,L9e66                         ; 28 06
+  jr      z,L40A6                         ; 28 06
   cp      0x79                            ; fe 79
   ld      b,0x2f                          ; 06 2f
-  jr      nz,L9e6e                        ; 20 08
-L9e66:
+  jr      nz,L40AE                        ; 20 08
+L40A6:
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   cp      0x2b                            ; fe 2b
-  jr      z,L9e71                         ; 28 05
+  jr      z,L40B1                         ; 28 05
   cp      0x2d                            ; fe 2d
-L9e6e:
+L40AE:
   ld      a,0x2d                          ; 3e 2d
   ret     nz                              ; c0
-L9e71:
+L40B1:
   ld      a,b                             ; 78
   ret                                     ; c9
   xor     a                               ; af
   ld      b,a                             ; 47
-L9e75:
+L40B5:
   cp      (hl)                            ; be
   ret     z                               ; c8
   inc     hl                              ; 23
   inc     b                               ; 04
-  jr      L9e75                           ; 18 fa
-L9e7b:
+  jr      L40B5                           ; 18 fa
+L40BB:
   push    hl                              ; e5
-L9e7c:
+L40BC:
   ld      a,(de)                          ; 1a
   and     0x7f                            ; e6 7f
   cp      (hl)                            ; be
-  jr      nz,L9e8d                        ; 20 0b
+  jr      nz,L40CD                        ; 20 0b
   ld      a,(de)                          ; 1a
   inc     hl                              ; 23
   inc     de                              ; 13
   and     0x80                            ; e6 80
-  jr      z,L9e7c                         ; 28 f3
+  jr      z,L40BC                         ; 28 f3
   pop     hl                              ; e1
   xor     a                               ; af
   ld      a,c                             ; 79
   ret                                     ; c9
-L9e8d:
+L40CD:
   pop     hl                              ; e1
-L9e8e:
+L40CE:
   ld      a,(de)                          ; 1a
   and     0x80                            ; e6 80
   inc     de                              ; 13
-  jr      z,L9e8e                         ; 28 fa
+  jr      z,L40CE                         ; 28 fa
   inc     c                               ; 0c
-  djnz    L9e7b                           ; 10 e4
+  djnz    L40BB                           ; 10 e4
   scf                                     ; 37
   ret                                     ; c9
   or      d                               ; b2
@@ -11269,47 +11269,47 @@ L9e8e:
   ex      de,hl                           ; eb
   ret                                     ; c9
   ld      b,0x20                          ; 06 20
-  jr      L9ecd                           ; 18 06
+  jr      L410D                           ; 18 06
   ld      b,0x2c                          ; 06 2c
-  jr      L9ecd                           ; 18 02
+  jr      L410D                           ; 18 02
   ld      b,0x00                          ; 06 00
-L9ecd:
+L410D:
   call    0xdd78                          ; cd 78 dd
   cp      0x22                            ; fe 22
-  jr      z,L9ef9                         ; 28 25
+  jr      z,L4139                         ; 28 25
   cp      0x27                            ; fe 27
-  jr      z,L9ef9                         ; 28 21
-L9ed8:
+  jr      z,L4139                         ; 28 21
+L4118:
   cp      b                               ; b8
   ret     z                               ; c8
   cp      0x20                            ; fe 20
   inc     hl                              ; 23
-  jr      z,L9ecd                         ; 28 ee
+  jr      z,L410D                         ; 28 ee
   dec     hl                              ; 2b
   or      a                               ; b7
-  jr      nz,L9ee5                        ; 20 02
+  jr      nz,L4125                        ; 20 02
   inc     a                               ; 3c
   ret                                     ; c9
-L9ee5:
+L4125:
   inc     hl                              ; 23
   set     5,a                             ; cb ef
   ld      (de),a                          ; 12
   inc     de                              ; 13
   dec     c                               ; 0d
-  jr      nz,L9ecd                        ; 20 e0
-  jr      L9efe                           ; 18 0f
-L9eef:
+  jr      nz,L410D                        ; 20 e0
+  jr      L413E                           ; 18 0f
+L412F:
   call    0xdd77                          ; cd 77 dd
   or      a                               ; b7
-  jr      z,L9ed8                         ; 28 e3
+  jr      z,L4118                         ; 28 e3
   cp      0x22                            ; fe 22
-  jr      z,L9ed8                         ; 28 df
-L9ef9:
+  jr      z,L4118                         ; 28 df
+L4139:
   ld      (de),a                          ; 12
   inc     de                              ; 13
   dec     c                               ; 0d
-  jr      nz,L9eef                        ; 20 f1
-L9efe:
+  jr      nz,L412F                        ; 20 f1
+L413E:
   jp      0xd802                          ; c3 02 d8
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
@@ -11318,52 +11318,52 @@ L9efe:
   inc     hl                              ; 23
   ld      a,(hl)                          ; 7e
   ret                                     ; c9
-L9f09:
+L4149:
   call    0xdd78                          ; cd 78 dd
   cp      0x20                            ; fe 20
   ret     nz                              ; c0
   inc     hl                              ; 23
-  jr      L9f09                           ; 18 f7
+  jr      L4149                           ; 18 f7
   ld      hl,0xe351                       ; 21 51 e3
   ld      (0xdf1c),hl                     ; 22 1c df
   ld      hl,0x50e0                       ; 21 e0 50
   call    0xddbf                          ; cd bf dd
   ld      hl,0xac3d                       ; 21 3d ac
-L9f21:
+L4161:
   inc     hl                              ; 23
   ld      a,(0xdf57)                      ; 3a 57 df
   and     0x1f                            ; e6 1f
   ld      (0xd622),a                      ; 32 22 d6
   ld      a,(hl)                          ; 7e
   dec     a                               ; 3d
-  jr      z,L9f35                         ; 28 07
+  jr      z,L4175                         ; 28 07
   inc     a                               ; 3c
   ret     z                               ; c8
   call    0xdf15                          ; cd 15 df
-  jr      L9f21                           ; 18 ec
-L9f35:
+  jr      L4161                           ; 18 ec
+L4175:
   ld      (0xd5b1),hl                     ; 22 b1 d5
   push    hl                              ; e5
   ld      a,(0xde39)                      ; 3a 39 de
   add     a,0xcc                          ; c6 cc
   call    0xdf38                          ; cd 38 df
   pop     hl                              ; e1
-  jr      L9f21                           ; 18 dd
+  jr      L4161                           ; 18 dd
   ld      c,0x00                          ; 0e 00
   call    0x22b0                          ; cd b0 22
   ld      (0xdf57),hl                     ; 22 57 df
   ld      b,0x08                          ; 06 08
-L9f4e:
+L418E:
   push    hl                              ; e5
   ld      c,0x20                          ; 0e 20
-L9f51:
+L4191:
   ld      (hl),0x00                       ; 36 00
   inc     l                               ; 2c
   dec     c                               ; 0d
-  jr      nz,L9f51                        ; 20 fa
+  jr      nz,L4191                        ; 20 fa
   pop     hl                              ; e1
   inc     h                               ; 24
-  djnz    L9f4e                           ; 10 f3
+  djnz    L418E                           ; 10 f3
   ret                                     ; c9
   exx                                     ; d9
   call    0xde03                          ; cd 03 de
@@ -11377,26 +11377,26 @@ L9f51:
   ld      (0xdddf),hl                     ; 22 df dd
   ld      a,h                             ; 7c
   cp      0x05                            ; fe 05
-  jr      nz,L9f8d                        ; 20 19
+  jr      nz,L41CD                        ; 20 19
   ld      a,0x00                          ; 3e 00
-  jr      L9fe4                           ; 18 6c
-L9f78:
+  jr      L4224                           ; 18 6c
+L41B8:
   ld      h,0x02                          ; 26 02
-L9f7a:
+L41BA:
   call    0xde79                          ; cd 79 de
-  jr      nz,L9f87                        ; 20 08
+  jr      nz,L41C7                        ; 20 08
   dec     hl                              ; 2b
   inc     h                               ; 24
   dec     h                               ; 25
-  jr      nz,L9f7a                        ; 20 f6
+  jr      nz,L41BA                        ; 20 f6
   call    0xde73                          ; cd 73 de
-L9f87:
+L41C7:
   ld      hl,0x0000                       ; 21 00 00
   ld      (0xdddf),hl                     ; 22 df dd
-L9f8d:
+L41CD:
   di                                      ; f3
   call    0xde79                          ; cd 79 de
-  jr      z,L9f78                         ; 28 e5
+  jr      z,L41B8                         ; 28 e5
   ld      b,0x00                          ; 06 00
   ld      c,e                             ; 4b
   ld      a,e                             ; 7b
@@ -11404,76 +11404,76 @@ L9f8d:
   ld      hl,0x0204                       ; 21 04 02
   ld      a,d                             ; 7a
   cp      0x19                            ; fe 19
-  jr      z,La018                         ; 28 76
+  jr      z,L4258                         ; 28 76
   add     hl,bc                           ; 09
   ld      a,(hl)                          ; 7e
   cp      0x20                            ; fe 20
   ld      b,a                             ; 47
-  jr      c,L9fd0                         ; 38 27
+  jr      c,L4210                         ; 38 27
   ld      a,d                             ; 7a
   cp      0x28                            ; fe 28
   ld      a,b                             ; 78
   set     5,a                             ; cb ef
-  jr      nz,L9fc1                        ; 20 10
+  jr      nz,L4201                        ; 20 10
   call    0xdef1                          ; cd f1 de
-  jr      nz,L9fba                        ; 20 04
+  jr      nz,L41FA                        ; 20 04
   sub     0x2d                            ; d6 2d
-  jr      L9fd0                           ; 18 16
-L9fba:
+  jr      L4210                           ; 18 16
+L41FA:
   call    0xdef9                          ; cd f9 de
-  jr      nz,L9fc1                        ; 20 02
+  jr      nz,L4201                        ; 20 02
   res     5,a                             ; cb af
-L9fc1:
+L4201:
   ld      b,a                             ; 47
   ld      a,0x00                          ; 3e 00
   or      a                               ; b7
   ld      a,b                             ; 78
-  jr      z,L9fd0                         ; 28 08
+  jr      z,L4210                         ; 28 08
   call    0xdef9                          ; cd f9 de
-  jr      nz,L9fd0                        ; 20 03
+  jr      nz,L4210                        ; 20 03
   ld      a,0x20                          ; 3e 20
   xor     b                               ; a8
-L9fd0:
+L4210:
   ld      b,a                             ; 47
   or      a                               ; b7
-  jr      z,L9f8d                         ; 28 b9
+  jr      z,L41CD                         ; 28 b9
   cp      0x80                            ; fe 80
-  jr      z,L9f8d                         ; 28 b5
+  jr      z,L41CD                         ; 28 b5
   ld      b,a                             ; 47
   ld      a,0x00                          ; 3e 00
   cp      0x00                            ; fe 00
   ld      (0xde52),a                      ; 32 52 de
   ld      a,b                             ; 78
   jp      z,0xddde                        ; ca de dd
-L9fe4:
+L4224:
   push    af                              ; f5
   call    0xdeda                          ; cd da de
   pop     af                              ; f1
   ld      h,0x14                          ; 26 14
-L9feb:
+L422B:
   dec     hl                              ; 2b
   inc     h                               ; 24
   dec     h                               ; 25
-  jr      nz,L9feb                        ; 20 fb
+  jr      nz,L422B                        ; 20 fb
   bit     7,a                             ; cb 7f
   ld      (0xddeb),a                      ; 32 eb dd
   ret     z                               ; c8
   ld      h,0x4e                          ; 26 4e
-L9ff8:
+L4238:
   dec     hl                              ; 2b
   inc     h                               ; 24
   dec     h                               ; 25
-  jr      nz,L9ff8                        ; 20 fb
+  jr      nz,L4238                        ; 20 fb
   ld      hl,0xde52                       ; 21 52 de
   ld      (hl),0x00                       ; 36 00
   ret                                     ; c9
   push    hl                              ; e5
   call    0x028e                          ; cd 8e 02
   pop     hl                              ; e1
-  jr      z,La00c                         ; 28 02
+  jr      z,L424C                         ; 28 02
   xor     a                               ; af
   ret                                     ; c9
-La00c:
+L424C:
   ld      a,e                             ; 7b
   inc     e                               ; 1c
   ret     z                               ; c8
@@ -11484,30 +11484,30 @@ La00c:
   ret     z                               ; c8
   sub     0x0f                            ; d6 0f
   ret                                     ; c9
-La018:
+L4258:
   ex      de,hl                           ; eb
   ld      a,c                             ; 79
   cp      0x1b                            ; fe 1b
-  jr      z,La035                         ; 28 17
+  jr      z,L4275                         ; 28 17
   ld      hl,0xac3e                       ; 21 3e ac
   ld      a,(hl)                          ; 7e
   dec     a                               ; 3d
-  jr      nz,La035                        ; 20 10
+  jr      nz,L4275                        ; 20 10
   inc     hl                              ; 23
   or      (hl)                            ; b6
-  jr      nz,La035                        ; 20 0c
+  jr      nz,L4275                        ; 20 0c
   ex      de,hl                           ; eb
   add     hl,bc                           ; 09
   ld      a,(hl)                          ; 7e
   call    0xdef9                          ; cd f9 de
-  jr      nz,La035                        ; 20 04
+  jr      nz,L4275                        ; 20 04
   set     7,a                             ; cb ff
-  jr      L9fd0                           ; 18 9b
-La035:
+  jr      L4210                           ; 18 9b
+L4275:
   ld      hl,0xdeb1                       ; 21 b1 de
   add     hl,bc                           ; 09
   ld      a,(hl)                          ; 7e
-  jr      L9fd0                           ; 18 94
+  jr      L4210                           ; 18 94
   ld      hl,(0x5b5e)                     ; 2a 5e 5b
   ld      h,0x25                          ; 26 25
   ld      a,0x7d                          ; 3e 7d
@@ -11522,7 +11522,7 @@ La035:
   ccf                                     ; 3f
   ld      l,0x2b                          ; 2e 2b
   ld      a,a                             ; 7f
-  jr      z,La074                         ; 28 23
+  jr      z,L42B4                         ; 28 23
   nop                                     ; 00
   ld      e,h                             ; 5c
   ld      h,b                             ; 60
@@ -11539,22 +11539,22 @@ La035:
   ld      a,(hl)                          ; 7e
   nop                                     ; 00
   ld      e,0x1e                          ; 1e 1e
-  jr      La06a                           ; 18 02
+  jr      L42AA                           ; 18 02
   ld      e,0x00                          ; 1e 00
-La06a:
+L42AA:
   ld      hl,0x012c                       ; 21 2c 01
   ld      a,0x17                          ; 3e 17
-La06f:
+L42AF:
   ld      b,e                             ; 43
   xor     0x10                            ; ee 10
-La072:
+L42B2:
   out     (0xfe),a                        ; d3 fe
-La074:
-  djnz    La072                           ; 10 fc
+L42B4:
+  djnz    L42B2                           ; 10 fc
   dec     hl                              ; 2b
   inc     h                               ; 24
   dec     h                               ; 25
-  jr      nz,La06f                        ; 20 f4
+  jr      nz,L42AF                        ; 20 f4
   cp      0x30                            ; fe 30
   ret     c                               ; d8
   cp      0x39                            ; fe 39
@@ -11566,23 +11566,23 @@ La074:
   cp      0x7a                            ; fe 7a
   ret     nc                              ; d0
   cp      0x5b                            ; fe 5b
-  jr      c,La090                         ; 38 03
+  jr      c,L42D0                         ; 38 03
   cp      0x61                            ; fe 61
   ret     c                               ; d8
-La090:
+L42D0:
   cp      a                               ; bf
   ret                                     ; c9
   ld      a,0x20                          ; 3e 20
-  jr      La099                           ; 18 03
+  jr      L42D9                           ; 18 03
   ld      a,(hl)                          ; 7e
   and     0x7f                            ; e6 7f
-La099:
+L42D9:
   exx                                     ; d9
   call    0xdf4e                          ; cd 4e df
   exx                                     ; d9
   ret                                     ; c9
   cp      0x80                            ; fe 80
-  jr      c,La0c0                         ; 38 1d
+  jr      c,L4300                         ; 38 1d
   push    hl                              ; e5
   push    de                              ; d5
   ld      hl,0x0000                       ; 21 00 00
@@ -11591,32 +11591,32 @@ La099:
   add     hl,de                           ; 19
   ld      e,(hl)                          ; 5e
   add     hl,de                           ; 19
-La0ae:
+L42EE:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   push    af                              ; f5
   call    0xdf36                          ; cd 36 df
   pop     af                              ; f1
   bit     7,a                             ; cb 7f
-  jr      z,La0ae                         ; 28 f5
+  jr      z,L42EE                         ; 28 f5
   pop     de                              ; d1
   pop     hl                              ; e1
   cp      0xba                            ; fe ba
   ret     z                               ; c8
   ld      a,0x20                          ; 3e 20
-La0c0:
+L4300:
   res     7,a                             ; cb bf
   exx                                     ; d9
   call    0xdf4e                          ; cd 4e df
   ld      a,h                             ; 7c
   add     a,0x0a                          ; c6 0a
   cp      0x5a                            ; fe 5a
-  jr      z,La0d3                         ; 28 06
-La0cd:
+  jr      z,L4313                         ; 28 06
+L430D:
   add     a,0x07                          ; c6 07
   cp      0x58                            ; fe 58
-  jr      c,La0cd                         ; 38 fa
-La0d3:
+  jr      c,L430D                         ; 38 fa
+L4313:
   ld      h,a                             ; 67
   ld      (hl),0x38                       ; 36 38
   exx                                     ; d9
@@ -11631,7 +11631,7 @@ La0d3:
   ld      de,0x4000                       ; 11 00 40
   push    de                              ; d5
   ld      b,0x08                          ; 06 08
-La0e6:
+L4326:
   ld      a,(hl)                          ; 7e
   nop                                     ; 00
   or      (hl)                            ; b6
@@ -11639,43 +11639,43 @@ La0e6:
   ld      (de),a                          ; 12
   inc     hl                              ; 23
   inc     d                               ; 14
-  djnz    La0e6                           ; 10 f7
+  djnz    L4326                           ; 10 f7
   pop     hl                              ; e1
   push    hl                              ; e5
   inc     l                               ; 2c
-  jr      nz,La0fe                        ; 20 0a
+  jr      nz,L433E                        ; 20 0a
   ld      a,h                             ; 7c
   add     a,0x08                          ; c6 08
   cp      0x58                            ; fe 58
-  jr      nz,La0fd                        ; 20 02
+  jr      nz,L433D                        ; 20 02
   ld      a,0x40                          ; 3e 40
-La0fd:
+L433D:
   ld      h,a                             ; 67
-La0fe:
+L433E:
   ld      (0xdf57),hl                     ; 22 57 df
   pop     hl                              ; e1
   ret                                     ; c9
   ld      de,0xac07                       ; 11 07 ac
   ld      b,0x00                          ; 06 00
-La108:
+L4348:
   call    0xdd78                          ; cd 78 dd
   call    0xdef1                          ; cd f1 de
-  jr      z,La11b                         ; 28 0b
+  jr      z,L435B                         ; 28 0b
   res     5,a                             ; cb af
   cp      0x5f                            ; fe 5f
-  jr      z,La11b                         ; 28 05
+  jr      z,L435B                         ; 28 05
   call    0xdef9                          ; cd f9 de
-  jr      nz,La127                        ; 20 0c
-La11b:
+  jr      nz,L4367                        ; 20 0c
+L435B:
   ld      (de),a                          ; 12
   inc     de                              ; 13
   inc     hl                              ; 23
   inc     b                               ; 04
   ld      a,b                             ; 78
   cp      0x09                            ; fe 09
-  jr      c,La108                         ; 38 e4
+  jr      c,L4348                         ; 38 e4
   jp      0xd802                          ; c3 02 d8
-La127:
+L4367:
   ld      a,b                             ; 78
   ld      (0xac06),a                      ; 32 06 ac
   dec     de                              ; 1b
@@ -11698,8 +11698,8 @@ La127:
   dec     hl                              ; 2b
   ld      (0xe040),hl                     ; 22 40 e0
   pop     bc                              ; c1
-  jr      La177                           ; 18 2b
-La14c:
+  jr      L43B7                           ; 18 2b
+L438C:
   push    bc                              ; c5
   dec     hl                              ; 2b
   call    0xade9                          ; cd e9 ad
@@ -11715,42 +11715,42 @@ La14c:
   ld      a,(de)                          ; 1a
   ld      b,a                             ; 47
   inc     de                              ; 13
-La164:
+L43A4:
   call    0xade9                          ; cd e9 ad
   ex      de,hl                           ; eb
   cp      (hl)                            ; be
   ex      de,hl                           ; eb
-  jr      nz,La174                        ; 20 08
+  jr      nz,L43B4                        ; 20 08
   inc     hl                              ; 23
   inc     de                              ; 13
-  djnz    La164                           ; 10 f4
+  djnz    L43A4                           ; 10 f4
   pop     af                              ; f1
   pop     hl                              ; e1
   xor     a                               ; af
   ret                                     ; c9
-La174:
+L43B4:
   pop     hl                              ; e1
   pop     bc                              ; c1
   dec     bc                              ; 0b
-La177:
+L43B7:
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,La14c                        ; 20 d1
+  jr      nz,L438C                        ; 20 d1
   scf                                     ; 37
   ret                                     ; c9
   call    0xca48                          ; cd 48 ca
   ld      hl,(0xdfd1)                     ; 2a d1 df
-  jr      La1b7                           ; 18 32
-La185:
+  jr      L43F7                           ; 18 32
+L43C5:
   pop     hl                              ; e1
   pop     bc                              ; c1
   ret                                     ; c9
-La188:
+L43C8:
   push    bc                              ; c5
   push    hl                              ; e5
   inc     hl                              ; 23
   ld      de,0xac07                       ; 11 07 ac
-La18e:
+L43CE:
   inc     hl                              ; 23
   call    0xade9                          ; cd e9 ad
   ld      c,a                             ; 4f
@@ -11758,28 +11758,28 @@ La18e:
   ld      a,(de)                          ; 1a
   and     0x7f                            ; e6 7f
   cp      c                               ; b9
-  jr      c,La185                         ; 38 ea
-  jr      nz,La1ac                        ; 20 0f
+  jr      c,L43C5                         ; 38 ea
+  jr      nz,L43EC                        ; 20 0f
   ld      a,(de)                          ; 1a
   and     0x80                            ; e6 80
-  jr      nz,La185                        ; 20 e3
+  jr      nz,L43C5                        ; 20 e3
   call    0xade9                          ; cd e9 ad
   bit     7,a                             ; cb 7f
-  jr      nz,La1ac                        ; 20 03
+  jr      nz,L43EC                        ; 20 03
   inc     de                              ; 13
-  jr      La18e                           ; 18 e2
-La1ac:
+  jr      L43CE                           ; 18 e2
+L43EC:
   call    0xade9                          ; cd e9 ad
   bit     7,a                             ; cb 7f
   inc     hl                              ; 23
-  jr      z,La1ac                         ; 28 f8
+  jr      z,L43EC                         ; 28 f8
   pop     af                              ; f1
   pop     bc                              ; c1
   dec     bc                              ; 0b
-La1b7:
+L43F7:
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,La188                        ; 20 cd
+  jr      nz,L43C8                        ; 20 cd
   ret                                     ; c9
   call    0xdf79                          ; cd 79 df
   ret     nc                              ; d0
@@ -11840,24 +11840,24 @@ La1b7:
   dec     hl                              ; 2b
   ld      ix,(0xdfa6)                     ; dd 2a a6 df
   ex      (sp),hl                         ; e3
-  jr      La23c                           ; 18 11
-La22b:
+  jr      L447C                           ; 18 11
+L446B:
   call    0xcc2e                          ; cd 2e cc
   sbc     hl,de                           ; ed 52
-  jr      c,La23a                         ; 38 08
+  jr      c,L447A                         ; 38 08
   push    de                              ; d5
   push    ix                              ; dd e5
   pop     hl                              ; e1
   call    0xe147                          ; cd 47 e1
   pop     de                              ; d1
-La23a:
+L447A:
   ex      (sp),hl                         ; e3
   dec     hl                              ; 2b
-La23c:
+L447C:
   ld      a,h                             ; 7c
   or      l                               ; b5
   ex      (sp),hl                         ; e3
-  jr      nz,La22b                        ; 20 ea
+  jr      nz,L446B                        ; 20 ea
   pop     hl                              ; e1
   push    ix                              ; dd e5
   pop     hl                              ; e1
@@ -11878,7 +11878,7 @@ La23c:
   ld      c,0x00                          ; 0e 00
   ld      ix,0xac06                       ; dd 21 06 ac
   call    0xe0cc                          ; cd cc e0
-  jr      z,La27e                         ; 28 19
+  jr      z,L44BE                         ; 28 19
   ld      (ix+0),0x23                     ; dd 36 00 23
   inc     ix                              ; dd 23
   ld      de,0x1000                       ; 11 00 10
@@ -11887,8 +11887,8 @@ La23c:
   call    0xe10f                          ; cd 0f e1
   ld      de,0x0010                       ; 11 10 00
   call    0xe10f                          ; cd 0f e1
-  jr      La295                           ; 18 17
-La27e:
+  jr      L44D5                           ; 18 17
+L44BE:
   ld      de,0x2710                       ; 11 10 27
   call    0xe10f                          ; cd 0f e1
   ld      de,0x03e8                       ; 11 e8 03
@@ -11897,27 +11897,27 @@ La27e:
   call    0xe10f                          ; cd 0f e1
   ld      e,0x0a                          ; 1e 0a
   call    0xe10f                          ; cd 0f e1
-La295:
+L44D5:
   ld      e,0x01                          ; 1e 01
   ld      c,0x00                          ; 0e 00
   ld      a,0xff                          ; 3e ff
-La29b:
+L44DB:
   inc     a                               ; 3c
   and     a                               ; a7
   sbc     hl,de                           ; ed 52
-  jr      nc,La29b                        ; 30 fa
+  jr      nc,L44DB                        ; 30 fa
   add     hl,de                           ; 19
   bit     0,c                             ; cb 41
-  jr      z,La2a8                         ; 28 02
+  jr      z,L44E8                         ; 28 02
   or      a                               ; b7
   ret     z                               ; c8
-La2a8:
+L44E8:
   res     0,c                             ; cb 81
   add     a,0x30                          ; c6 30
   cp      0x3a                            ; fe 3a
-  jr      c,La2b2                         ; 38 02
+  jr      c,L44F2                         ; 38 02
   add     a,0x07                          ; c6 07
-La2b2:
+L44F2:
   call    0xe131                          ; cd 31 e1
   ld      (ix+0),0x00                     ; dd 36 00 00
   ret                                     ; c9
@@ -11928,14 +11928,14 @@ La2b2:
   call    0xe155                          ; cd 55 e1
   and     a                               ; a7
   sbc     hl,bc                           ; ed 42
-  jr      La2d5                           ; 18 0c
+  jr      L4515                           ; 18 0c
   ld      bc,0x0002                       ; 01 02 00
-  jr      La2d1                           ; 18 03
+  jr      L4511                           ; 18 03
   ld      bc,0x0001                       ; 01 01 00
-La2d1:
+L4511:
   call    0xe155                          ; cd 55 e1
   add     hl,bc                           ; 09
-La2d5:
+L4515:
   ex      de,hl                           ; eb
   ld      a,d                             ; 7a
   call    0xae29                          ; cd 29 ae
@@ -11952,12 +11952,12 @@ La2d5:
   push    hl                              ; e5
   ld      (0xe1e0),hl                     ; 22 e0 e1
   push    bc                              ; c5
-La2ef:
+L452F:
   call    0xd9ee                          ; cd ee d9
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,La2ef                        ; 20 f8
+  jr      nz,L452F                        ; 20 f8
   pop     bc                              ; c1
   pop     de                              ; d1
   push    hl                              ; e5
@@ -11985,14 +11985,14 @@ La2ef:
   ld      hl,0xe037                       ; 21 37 e0
   call    0xe1a4                          ; cd a4 e1
   ld      hl,0xdfa6                       ; 21 a6 df
-La32e:
+L456E:
   ld      e,(hl)                          ; 5e
   inc     hl                              ; 23
   ld      d,(hl)                          ; 56
   ex      de,hl                           ; eb
   and     a                               ; a7
   sbc     hl,bc                           ; ed 42
-  jr      La353                           ; 18 1c
+  jr      L4593                           ; 18 1c
   push    hl                              ; e5
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
@@ -12003,31 +12003,31 @@ La32e:
   sbc     hl,de                           ; ed 52
   pop     hl                              ; e1
   ret     c                               ; d8
-  jr      La34e                           ; 18 08
+  jr      L458E                           ; 18 08
   ld      bc,0x0002                       ; 01 02 00
-  jr      La34e                           ; 18 03
+  jr      L458E                           ; 18 03
   ld      bc,0x0001                       ; 01 01 00
-La34e:
+L458E:
   ld      e,(hl)                          ; 5e
   inc     hl                              ; 23
   ld      d,(hl)                          ; 56
   ex      de,hl                           ; eb
   add     hl,bc                           ; 09
-La353:
+L4593:
   ex      de,hl                           ; eb
   ld      (hl),d                          ; 72
   dec     hl                              ; 2b
   ld      (hl),e                          ; 73
   ret                                     ; c9
   ex      de,hl                           ; eb
-La359:
+L4599:
   xor     a                               ; af
   call    0xae29                          ; cd 29 ae
   inc     hl                              ; 23
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,La359                        ; 20 f6
+  jr      nz,L4599                        ; 20 f6
   ex      de,hl                           ; eb
   ret                                     ; c9
   push    hl                              ; e5
@@ -12039,7 +12039,7 @@ La359:
   sbc     hl,de                           ; ed 52
   pop     hl                              ; e1
   ret     nc                              ; d0
-  jr      La32e                           ; 18 bb
+  jr      L456E                           ; 18 bb
   xor     a                               ; af
   ld      (0xd594),a                      ; 32 94 d5
   call    0xcd56                          ; cd 56 cd
@@ -12051,9 +12051,9 @@ La359:
   ld      a,(0xd594)                      ; 3a 94 d5
   or      a                               ; b7
   ld      a,0x4f                          ; 3e 4f
-  jr      nz,La391                        ; 20 02
+  jr      nz,L45D1                        ; 20 02
   ld      a,0x49                          ; 3e 49
-La391:
+L45D1:
   call    0xdf0f                          ; cd 0f df
   ld      hl,(0xe037)                     ; 2a 37 e0
   call    0xe213                          ; cd 13 e2
@@ -12061,13 +12061,13 @@ La391:
   call    0xdf08                          ; cd 08 df
   call    0xe0d0                          ; cd d0 e0
   ld      hl,0xac06                       ; 21 06 ac
-La3a6:
+L45E6:
   ld      a,(hl)                          ; 7e
   or      a                               ; b7
   ret     z                               ; c8
   call    0xdf0c                          ; cd 0c df
   inc     hl                              ; 23
-  jr      La3a6                           ; 18 f7
+  jr      L45E6                           ; 18 f7
   push    de                              ; d5
   ld      de,0x0000                       ; 11 00 00
   call    0xad77                          ; cd 77 ad
@@ -12089,12 +12089,12 @@ La3a6:
   ld      bc,(0xda17)                     ; ed 4b 17 da
   and     a                               ; a7
   sbc     hl,bc                           ; ed 42
-  jr      nc,La3db                        ; 30 05
+  jr      nc,L461B                        ; 30 05
   ex      de,hl                           ; eb
   ccf                                     ; 3f
   sbc     hl,bc                           ; ed 42
   ccf                                     ; 3f
-La3db:
+L461B:
   pop     hl                              ; e1
   pop     de                              ; d1
   ret     c                               ; d8
@@ -12107,9 +12107,9 @@ La3db:
   ld      (0xe1b3),hl                     ; 22 b3 e1
   ex      de,hl                           ; eb
   call    0xad77                          ; cd 77 ad
-  jr      c,La3f5                         ; 38 01
+  jr      c,L4635                         ; 38 01
   add     hl,bc                           ; 09
-La3f5:
+L4635:
   ex      de,hl                           ; eb
   call    0xe28f                          ; cd 8f e2
   ld      b,0x4d                          ; 06 4d
@@ -12161,7 +12161,7 @@ La3f5:
   ld      a,0x00                          ; 3e 00
   ld      (0xe2c3),a                      ; 32 c3 e2
   jp      nz,0xad7c                       ; c2 7c ad
-La457:
+L4697:
   ld      a,(hl)                          ; 7e
   ex      de,hl                           ; eb
   call    0xae29                          ; cd 29 ae
@@ -12171,7 +12171,7 @@ La457:
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,La457                        ; 20 f3
+  jr      nz,L4697                        ; 20 f3
   ret                                     ; c9
   ld      de,0xac82                       ; 11 82 ac
   call    0xade9                          ; cd e9 ad
@@ -12183,7 +12183,7 @@ La457:
   inc     de                              ; 13
   inc     hl                              ; 23
   bit     3,a                             ; cb 5f
-  jr      z,La486                         ; 28 0e
+  jr      z,L46C6                         ; 28 0e
   call    0xade9                          ; cd e9 ad
   ld      (de),a                          ; 12
   inc     de                              ; 13
@@ -12192,11 +12192,11 @@ La457:
   ld      (de),a                          ; 12
   inc     de                              ; 13
   inc     hl                              ; 23
-  jr      La489                           ; 18 03
-La486:
+  jr      L46C9                           ; 18 03
+L46C6:
   and     0x07                            ; e6 07
   ret     z                               ; c8
-La489:
+L46C9:
   call    0xade9                          ; cd e9 ad
   ld      (de),a                          ; 12
   inc     de                              ; 13
@@ -12204,12 +12204,12 @@ La489:
   cp      0xc0                            ; fe c0
   ret     nc                              ; d0
   cp      0x80                            ; fe 80
-  jr      c,La489                         ; 38 f3
+  jr      c,L46C9                         ; 38 f3
   call    0xade9                          ; cd e9 ad
   ld      (de),a                          ; 12
   inc     de                              ; 13
   inc     hl                              ; 23
-  jr      La489                           ; 18 eb
+  jr      L46C9                           ; 18 eb
   push    hl                              ; e5
   ld      hl,(0xe037)                     ; 2a 37 e0
   call    0xbd66                          ; cd 66 bd
@@ -12378,7 +12378,7 @@ La489:
   ld      e,e                             ; 5b
   ld      e,l                             ; 5d
   ld      e,a                             ; 5f
-La64e:
+L488E:
   ld      h,c                             ; 61
   ld      h,e                             ; 63
   ld      h,l                             ; 65
@@ -12428,11 +12428,11 @@ La64e:
   call    z,0xd2cf                        ; cc cf d2
   push    de                              ; d5
   ret     c                               ; d8
-La683:
+L48C3:
   in      a,(0xde)                        ; db de
   pop     hl                              ; e1
   call    po,0xeae7                       ; e4 e7 ea
-La689:
+L48C9:
   otdr                                    ; ed bb
 
 
@@ -12667,7 +12667,7 @@ La689:
 .ascii " +++++++++++++++++++++,-./0123456789:<>ADGJM"
 .byte '0'+0x80
 
-La7a7:
+L49E7:
   or      c                               ; b1
   or      d                               ; b2
   or      e                               ; b3
@@ -12691,7 +12691,7 @@ La7a7:
   ld      l,b                             ; 68
   ld      sp,hl                           ; f9
   ld      l,c                             ; 69
-La7c7:
+L4A07:
   ret     m                               ; f8
   ld      l,c                             ; 69
   ld      sp,hl                           ; f9
@@ -12706,29 +12706,29 @@ La7c7:
   ld      (hl),b                          ; 70
   rst     0x28                            ; ef
   ld      (hl),e                          ; 73
-La7d7:
+L4A17:
   ret     p                               ; f0
-  jr      z,La83d                         ; 28 63
+  jr      z,L4A7D                         ; 28 63
   xor     c                               ; a9
   ld      h,c                             ; 61
   ld      h,(hl)                          ; 66
   and     a                               ; a7
-  jr      z,La842                         ; 28 62
+  jr      z,L4A82                         ; 28 62
   ld      h,e                             ; 63
   xor     c                               ; a9
-  jr      z,La848                         ; 28 64
+  jr      z,L4A88                         ; 28 64
   ld      h,l                             ; 65
   xor     c                               ; a9
-  jr      z,La850                         ; 28 68
+  jr      z,L4A90                         ; 28 68
   ld      l,h                             ; 6c
   xor     c                               ; a9
-  jr      z,La855                         ; 28 69
+  jr      z,L4A95                         ; 28 69
   ld      a,b                             ; 78
   xor     c                               ; a9
-  jr      z,La859                         ; 28 69
+  jr      z,L4A99                         ; 28 69
   ld      a,c                             ; 79
   xor     c                               ; a9
-  jr      z,La867                         ; 28 73
+  jr      z,L4AA7                         ; 28 73
   ld      (hl),b                          ; 70
   xor     c                               ; a9
   nop                                     ; 00
@@ -12737,8 +12737,8 @@ La7d7:
   nop                                     ; 00
   inc     b                               ; 04
   nop                                     ; 00
-  jr      nc,La7fe                        ; 30 00
-La7fe:
+  jr      nc,L4A3E                        ; 30 00
+L4A3E:
   nop                                     ; 00
   nop                                     ; 00
   nop                                     ; 00
@@ -12789,19 +12789,19 @@ La7fe:
   ld      h,b                             ; 60
   nop                                     ; 00
   inc     b                               ; 04
-La83d:
+L4A7D:
   add     a,b                             ; 80
   ld      d,d                             ; 52
   ld      (hl),b                          ; 70
   ex      af,af'                          ; 08
   dec     b                               ; 05
-La842:
+L4A82:
   nop                                     ; 00
   ld      l,0x50                          ; 2e 50
   inc     b                               ; 04
   dec     b                               ; 05
   scf                                     ; 37
-La848:
+L4A88:
   ld      c,e                             ; 4b
   ld      h,b                             ; 60
   nop                                     ; 00
@@ -12810,21 +12810,21 @@ La848:
   ld      d,d                             ; 52
   add     a,b                             ; 80
   ex      af,af'                          ; 08
-La850:
+L4A90:
   ld      b,0x01                          ; 06 01
   inc     d                               ; 14
   ld      d,l                             ; 55
   add     a,a                             ; 87
-La855:
+L4A95:
   ld      b,0x37                          ; 06 37
   ld      (hl),h                          ; 74
   nop                                     ; 00
-La859:
+L4A99:
   nop                                     ; 00
   ld      b,0x80                          ; 06 80
   ld      d,e                             ; 53
   ld      b,b                             ; 40
-La85e:
+L4A9E:
   rrca                                    ; 0f
   ld      b,0xa4                          ; 06 a4
   ld      d,e                             ; 53
@@ -12833,7 +12833,7 @@ La85e:
   rlca                                    ; 07
   nop                                     ; 00
   sub     (hl)                            ; 96
-La867:
+L4AA7:
   nop                                     ; 00
   inc     b                               ; 04
   rlca                                    ; 07
@@ -12865,14 +12865,14 @@ La867:
   nop                                     ; 00
   ld      e,0xc2                          ; 1e c2
   rrc     c                               ; cb 09
-  jr      nz,La8a8                        ; 20 1e
+  jr      nz,L4AE8                        ; 20 1e
   jp      c,0x09cf                        ; da cf 09
   scf                                     ; 37
   ld      a,d                             ; 7a
   nop                                     ; 00
   nop                                     ; 00
   add     hl,bc                           ; 09
-La892:
+L4AD2:
   add     a,b                             ; 80
   ld      e,b                             ; 58
   ld      e,b                             ; 58
@@ -12893,7 +12893,7 @@ La892:
   ld      b,0x0b                          ; 06 0b
   add     a,b                             ; 80
   ld      e,b                             ; 58
-La8a8:
+L4AE8:
   ld      l,b                             ; 68
   ex      af,af'                          ; 08
   inc     c                               ; 0c
@@ -12904,7 +12904,7 @@ La8a8:
   add     a,b                             ; 80
   ld      e,b                             ; 58
   ld      (hl),b                          ; 70
-La8b3:
+L4AF3:
   ex      af,af'                          ; 08
   dec     c                               ; 0d
   nop                                     ; 00
@@ -12937,13 +12937,13 @@ La8b3:
   ld      e,b                             ; 58
   ld      c,b                             ; 48
   ex      af,af'                          ; 08
-  djnz    La8dc                           ; 10 03
+  djnz    L4B1C                           ; 10 03
   ld      a,l                             ; 7d
   ld      h,b                             ; 60
   ex      af,af'                          ; 08
-La8dc:
-  djnz    La85e                           ; 10 80
-  jr      La930                           ; 18 50
+L4B1C:
+  djnz    L4A9E                           ; 10 80
+  jr      L4B70                           ; 18 50
   ex      af,af'                          ; 08
   ld      de,0x1402                       ; 11 02 14
   cp      l                               ; bd
@@ -12978,11 +12978,11 @@ La8dc:
   dec     d                               ; 15
   nop                                     ; 00
   ld      l,0x60                          ; 2e 60
-La90d:
+L4B4D:
   inc     b                               ; 04
   dec     d                               ; 15
   add     a,b                             ; 80
-  jr      La892                           ; 18 80
+  jr      L4AD2                           ; 18 80
   ex      af,af'                          ; 08
   ld      d,0x01                          ; 16 01
   inc     d                               ; 14
@@ -13005,13 +13005,13 @@ La90d:
   add     a,b                             ; 80
   defb    0x18, 0x48
   ex      af,af'                          ; 08
-  jr      La931                           ; 18 03
+  jr      L4B71                           ; 18 03
   inc     de                              ; 13
   ld      h,b                             ; 60
-La930:
+L4B70:
   rlca                                    ; 07
-La931:
-  jr      La8b3                           ; 18 80
+L4B71:
+  jr      L4AF3                           ; 18 80
   ld      a,(de)                          ; 1a
   ld      d,b                             ; 50
   ex      af,af'                          ; 08
@@ -13078,19 +13078,19 @@ La931:
   nop                                     ; 00
   ld      d,(hl)                          ; 56
   nop                                     ; 00
-La980:
+L4BC0:
   inc     b                               ; 04
   rra                                     ; 1f
   add     a,b                             ; 80
   ld      a,(de)                          ; 1a
   ld      c,b                             ; 48
   ex      af,af'                          ; 08
-  jr      nz,La98b                        ; 20 03
+  jr      nz,L4BCB                        ; 20 03
   inc     de                              ; 13
   dec     b                               ; 05
   add     a,a                             ; 87
-La98b:
-  jr      nz,La90d                        ; 20 80
+L4BCB:
+  jr      nz,L4B4D                        ; 20 80
   ld      h,h                             ; 64
   ld      d,b                             ; 50
   ex      af,af'                          ; 08
@@ -13105,7 +13105,7 @@ La98b:
   ex      af,af'                          ; 08
   ld      (0x1502),hl                     ; 22 02 15
   ld      l,e                             ; 6b
-  djnz    La9c7                           ; 10 22
+  djnz    L4C07                           ; 10 22
   ld      (0x6b15),hl                     ; 22 15 6b
   ld      (hl),h                          ; 74
   ld      (0x6480),hl                     ; 22 80 64
@@ -13115,7 +13115,7 @@ La98b:
   nop                                     ; 00
   ld      (hl),0xc0                       ; 36 c0
   ld      b,0x23                          ; 06 23
-  jr      nz,La9ec                        ; 20 36
+  jr      nz,L4C2C                        ; 20 36
   ret     c                               ; d8
   ld      a,(bc)                          ; 0a
   inc     hl                              ; 23
@@ -13128,10 +13128,10 @@ La98b:
   ld      (hl),0x70                       ; 36 70
   inc     b                               ; 04
   inc     h                               ; 24
-  jr      nz,La9fb                        ; 20 36
+  jr      nz,L4C3B                        ; 20 36
   ret     z                               ; c8
   ex      af,af'                          ; 08
-La9c7:
+L4C07:
   inc     h                               ; 24
   add     a,b                             ; 80
   ld      h,h                             ; 64
@@ -13142,7 +13142,7 @@ La9c7:
   ld      l,0x70                          ; 2e 70
   inc     b                               ; 04
   dec     h                               ; 25
-  jr      nz,Laa02                        ; 20 2e
+  jr      nz,L4C42                        ; 20 2e
   ret     z                               ; c8
   ex      af,af'                          ; 08
   dec     h                               ; 25
@@ -13162,7 +13162,7 @@ La9c7:
   ld      b,b                             ; 40
   rrca                                    ; 0f
   ld      h,0xa4                          ; 26 a4
-La9ec:
+L4C2C:
   ld      h,l                             ; 65
   ld      (hl),b                          ; 70
   rla                                     ; 17
@@ -13170,30 +13170,30 @@ La9ec:
   nop                                     ; 00
   inc     l                               ; 2c
   nop                                     ; 00
-La9f3:
+L4C33:
   inc     b                               ; 04
   daa                                     ; 27
   add     a,b                             ; 80
   ld      h,h                             ; 64
   ld      c,b                             ; 48
   ex      af,af'                          ; 08
-  jr      z,La9fe                         ; 28 03
-La9fb:
+  jr      z,L4C3E                         ; 28 03
+L4C3B:
   ld      (de),a                          ; 12
   and     l                               ; a5
   add     a,a                             ; 87
-La9fe:
-  jr      z,La980                         ; 28 80
+L4C3E:
+  jr      z,L4BC0                         ; 28 80
   ld      h,(hl)                          ; 66
   ld      d,b                             ; 50
-Laa02:
+L4C42:
   ex      af,af'                          ; 08
   add     hl,hl                           ; 29
   nop                                     ; 00
   ld      e,0xc3                          ; 1e c3
   dec     bc                              ; 0b
   add     hl,hl                           ; 29
-  jr      nz,Laa29                        ; 20 1e
+  jr      nz,L4C69                        ; 20 1e
   in      a,(0x6f)                        ; db 6f
   add     hl,hl                           ; 29
   add     a,b                             ; 80
@@ -13213,7 +13213,7 @@ Laa02:
   ld      l,0xc0                          ; 2e c0
   ld      b,0x2b                          ; 06 2b
   defb    0x20, 0x2e
-Laa29:
+L4C69:
   ret     c                               ; d8
   ld      a,(bc)                          ; 0a
   dec     hl                              ; 2b
@@ -13226,7 +13226,7 @@ Laa29:
   ld      (hl),0x80                       ; 36 80
   inc     b                               ; 04
   inc     l                               ; 2c
-  jr      nz,Laa6e                        ; 20 36
+  jr      nz,L4CAE                        ; 20 36
   ret     pe                              ; e8
   ex      af,af'                          ; 08
   inc     l                               ; 2c
@@ -13239,7 +13239,7 @@ Laa29:
   ld      l,0x80                          ; 2e 80
   inc     b                               ; 04
   dec     l                               ; 2d
-  jr      nz,Laa75                        ; 20 2e
+  jr      nz,L4CB5                        ; 20 2e
   ret     pe                              ; e8
   ex      af,af'                          ; 08
   dec     l                               ; 2d
@@ -13270,16 +13270,16 @@ Laa29:
   ld      h,(hl)                          ; 66
   ld      c,b                             ; 48
   ex      af,af'                          ; 08
-  jr      nc,Laa71                        ; 30 03
-Laa6e:
+  jr      nc,L4CB1                        ; 30 03
+L4CAE:
   ld      (de),a                          ; 12
   defb    0xfd
   add     a,a                             ; 87
-Laa71:
-  jr      nc,La9f3                        ; 30 80
+L4CB1:
+  jr      nc,L4C33                        ; 30 80
   sbc     a,d                             ; 9a
   ld      d,b                             ; 50
-Laa75:
+L4CB5:
   ex      af,af'                          ; 08
   ld      sp,0x1502                       ; 31 02 15
   dec     e                               ; 1d
@@ -13296,14 +13296,14 @@ Laa75:
   inc     sp                              ; 33
   nop                                     ; 00
   scf                                     ; 37
-  jr      Laa95                           ; 18 06
+  jr      L4CD5                           ; 18 06
   inc     sp                              ; 33
   add     a,b                             ; 80
   sbc     a,d                             ; 9a
   ld      l,b                             ; 68
   ex      af,af'                          ; 08
   inc     (hl)                            ; 34
-Laa95:
+L4CD5:
   nop                                     ; 00
   scf                                     ; 37
   ld      b,b                             ; 40
@@ -13359,11 +13359,11 @@ Laa95:
   sbc     a,d                             ; 9a
   ld      c,b                             ; 48
   ex      af,af'                          ; 08
-  jr      c,Laad5                         ; 38 03
+  jr      c,L4D15                         ; 38 03
   ld      (de),a                          ; 12
   ld      e,l                             ; 5d
   add     a,a                             ; 87
-Laad5:
+L4D15:
   defb    0x38, 0x80
   ld      l,b                             ; 68
   ld      d,b                             ; 50
@@ -13388,14 +13388,14 @@ Laad5:
   dec     sp                              ; 3b
   nop                                     ; 00
   cpl                                     ; 2f
-  jr      Laafe                           ; 18 06
+  jr      L4D3E                           ; 18 06
   dec     sp                              ; 3b
   add     a,b                             ; 80
   ld      l,b                             ; 68
   ld      l,b                             ; 68
   ex      af,af'                          ; 08
   inc     a                               ; 3c
-Laafe:
+L4D3E:
   nop                                     ; 00
   ld      (hl),0x48                       ; 36 48
   inc     b                               ; 04
@@ -13501,7 +13501,7 @@ Laafe:
   ld      d,d                             ; 52
   inc     b                               ; 04
   ld      b,l                             ; 45
-  jr      nz,Lab96                        ; 20 14
+  jr      nz,L4DD6                        ; 20 14
   ld      d,e                             ; 53
   xor     b                               ; a8
   ld      b,l                             ; 45
@@ -13519,7 +13519,7 @@ Laafe:
   ld      b,(hl)                          ; 46
   inc     h                               ; 24
   inc     d                               ; 14
-Lab96:
+L4DD6:
   ld      d,l                             ; 55
   out     (0x46),a                        ; d3 46
   ld      b,b                             ; 40
@@ -13599,7 +13599,7 @@ Lab96:
   call    nz,0x204c                       ; c4 4c 20
   inc     d                               ; 14
   ld      e,e                             ; 5b
-  jr      z,Lac49                         ; 28 4c
+  jr      z,L4E89                         ; 28 4c
   add     a,b                             ; 80
   ld      (0xc811),hl                     ; 22 11 c8
   ld      c,l                             ; 4d
@@ -13608,7 +13608,7 @@ Lab96:
   ld      e,d                             ; 5a
   inc     b                               ; 04
   ld      c,l                             ; 4d
-  jr      nz,Lac1d                        ; 20 14
+  jr      nz,L4E5D                        ; 20 14
   ld      e,e                             ; 5b
   xor     b                               ; a8
   ld      c,l                             ; 4d
@@ -13626,7 +13626,7 @@ Lab96:
   ld      c,(hl)                          ; 4e
   inc     h                               ; 24
   inc     d                               ; 14
-Lac1d:
+L4E5D:
   ld      e,l                             ; 5d
   out     (0x4e),a                        ; d3 4e
   add     a,b                             ; 80
@@ -13661,7 +13661,7 @@ Lac1d:
   ld      (0x4819),hl                     ; 22 19 48
   ld      d,c                             ; 51
   nop                                     ; 00
-Lac49:
+L4E89:
   inc     d                               ; 14
   ld      h,c                             ; 61
   ld      h,h                             ; 64
@@ -13709,7 +13709,7 @@ Lac49:
   ld      h,d                             ; 62
   inc     b                               ; 04
   ld      d,l                             ; 55
-  jr      nz,Lac9f                        ; 20 14
+  jr      nz,L4EDF                        ; 20 14
   ld      h,e                             ; 63
   xor     b                               ; a8
   ld      d,l                             ; 55
@@ -13727,7 +13727,7 @@ Lac49:
   out     (0x56),a                        ; d3 56
   ld      b,b                             ; 40
   inc     c                               ; 0c
-Lac9f:
+L4EDF:
   defb    0x10, 0x08
   ld      d,(hl)                          ; 56
   add     a,b                             ; 80
@@ -13802,7 +13802,7 @@ Lac9f:
   call    nz,0x205c                       ; c4 5c 20
   inc     d                               ; 14
   ld      l,e                             ; 6b
-  jr      z,Lad5d                         ; 28 5c
+  jr      z,L4F9D                         ; 28 5c
   add     a,b                             ; 80
   ld      (0xc821),hl                     ; 22 21 c8
   ld      e,l                             ; 5d
@@ -13811,7 +13811,7 @@ Lac9f:
   ld      l,d                             ; 6a
   inc     b                               ; 04
   ld      e,l                             ; 5d
-  jr      nz,Lad21                        ; 20 14
+  jr      nz,L4F61                        ; 20 14
   ld      l,e                             ; 6b
   xor     b                               ; a8
   ld      e,l                             ; 5d
@@ -13829,7 +13829,7 @@ Lac9f:
   out     (0x5e),a                        ; d3 5e
   ld      b,b                             ; 40
   inc     c                               ; 0c
-Lad21:
+L4F61:
   defb    0x18, 0x08
   ld      e,(hl)                          ; 5e
   add     a,b                             ; 80
@@ -13856,7 +13856,7 @@ Lad21:
   ld      (hl),c                          ; 71
   ld      b,h                             ; 44
   ld      h,b                             ; 60
-  jr      nz,Lad58                        ; 20 14
+  jr      nz,L4F98                        ; 20 14
   ret                                     ; c9
   ld      c,b                             ; 48
   ld      h,b                             ; 60
@@ -13872,14 +13872,14 @@ Lad21:
   ld      (hl),c                          ; 71
   ld      h,h                             ; 64
   ld      h,c                             ; 61
-  jr      nz,Lad6c                        ; 20 14
-Lad58:
+  jr      nz,L4FAC                        ; 20 14
+L4F98:
   ret                                     ; c9
   ld      l,b                             ; 68
   ld      h,c                             ; 61
   ld      b,b                             ; 40
   ld      b,a                             ; 47
-Lad5d:
+L4F9D:
   ld      hl,0x61cc                       ; 21 cc 61
   add     a,b                             ; 80
   ld      (0x6829),hl                     ; 22 29 68
@@ -13889,8 +13889,8 @@ Lad5d:
   ld      (hl),c                          ; 71
   add     a,h                             ; 84
   ld      h,d                             ; 62
-  jr      nz,Lad80                        ; 20 14
-Lad6c:
+  jr      nz,L4FC0                        ; 20 14
+L4FAC:
   ret                                     ; c9
   adc     a,b                             ; 88
   ld      h,d                             ; 62
@@ -13905,8 +13905,8 @@ Lad6c:
   ld      (hl),c                          ; 71
   and     h                               ; a4
   ld      h,e                             ; 63
-  jr      nz,Lad94                        ; 20 14
-Lad80:
+  jr      nz,L4FD4                        ; 20 14
+L4FC0:
   ret                                     ; c9
   xor     b                               ; a8
   ld      h,e                             ; 63
@@ -13923,7 +13923,7 @@ Lad80:
   ld      (hl),c                          ; 71
   call    nz,0x2064                       ; c4 64 20
   inc     d                               ; 14
-Lad94:
+L4FD4:
   sra     b                               ; cb 28
   ld      h,h                             ; 64
   add     a,b                             ; 80
@@ -13960,7 +13960,7 @@ Lad94:
   ld      (hl),c                          ; 71
   inc     h                               ; 24
   ld      h,a                             ; 67
-  jr      nz,Ladda                        ; 20 14
+  jr      nz,L501A                        ; 20 14
   ret                                     ; c9
   defb    0x28, 0x67
   ld      b,b                             ; 40
@@ -13976,8 +13976,8 @@ Lad94:
   add     a,c                             ; 81
   ld      b,h                             ; 44
   ld      l,b                             ; 68
-  jr      nz,Ladee                        ; 20 14
-Ladda:
+  jr      nz,L502E                        ; 20 14
+L501A:
   jp      (hl)                            ; e9
   ld      c,b                             ; 48
   ld      l,b                             ; 68
@@ -13993,8 +13993,8 @@ Ladda:
   add     a,c                             ; 81
   ld      h,h                             ; 64
   ld      l,c                             ; 69
-  jr      nz,Lae02                        ; 20 14
-Ladee:
+  jr      nz,L5042                        ; 20 14
+L502E:
   jp      (hl)                            ; e9
   ld      l,b                             ; 68
   ld      l,c                             ; 69
@@ -14009,8 +14009,8 @@ Ladee:
   add     a,c                             ; 81
   add     a,h                             ; 84
   ld      l,d                             ; 6a
-  jr      nz,Lae16                        ; 20 14
-Lae02:
+  jr      nz,L5056                        ; 20 14
+L5042:
   jp      (hl)                            ; e9
   adc     a,b                             ; 88
   ld      l,d                             ; 6a
@@ -14025,8 +14025,8 @@ Lae02:
   add     a,c                             ; 81
   and     h                               ; a4
   ld      l,e                             ; 6b
-  jr      nz,Lae2a                        ; 20 14
-Lae16:
+  jr      nz,L506A                        ; 20 14
+L5056:
   jp      (hl)                            ; e9
   xor     b                               ; a8
   ld      l,e                             ; 6b
@@ -14043,7 +14043,7 @@ Lae16:
   add     a,c                             ; 81
   call    nz,0x206c                       ; c4 6c 20
   inc     d                               ; 14
-Lae2a:
+L506A:
   ex      de,hl                           ; eb
   defb    0x28, 0x6c
   add     a,b                             ; 80
@@ -14081,9 +14081,9 @@ Lae2a:
   add     a,c                             ; 81
   inc     h                               ; 24
   ld      l,a                             ; 6f
-  jr      nz,Lae70                        ; 20 14
+  jr      nz,L50B0                        ; 20 14
   jp      (hl)                            ; e9
-  jr      z,Laece                         ; 28 6f
+  jr      z,L510E                         ; 28 6f
   ld      b,b                             ; 40
   ld      d,h                             ; 54
   nop                                     ; 00
@@ -14099,7 +14099,7 @@ Lae2a:
   ld      (hl),b                          ; 70
   inc     h                               ; 24
   dec     d                               ; 15
-Lae70:
+L50B0:
   ld      (hl),c                          ; 71
   ld      d,e                             ; 53
   ld      (hl),b                          ; 70
@@ -14179,7 +14179,7 @@ Lae70:
   ld      (0x083a),hl                     ; 22 3a 08
   halt                                    ; 76
   nop                                     ; 00
-Laece:
+L510E:
   ld      a,(hl)                          ; 7e
   nop                                     ; 00
   inc     b                               ; 04
@@ -14238,7 +14238,7 @@ Laece:
   ld      (0x8841),hl                     ; 22 41 88
   ld      a,e                             ; 7b
   nop                                     ; 00
-Laf19:
+L5159:
   inc     d                               ; 14
   ld      c,c                             ; 49
   and     h                               ; a4
@@ -14257,7 +14257,7 @@ Laf19:
   call    nz,0x207c                       ; c4 7c 20
   inc     d                               ; 14
   ld      c,e                             ; 4b
-  jr      z,Lafad                         ; 28 7c
+  jr      z,L51ED                         ; 28 7c
   add     a,b                             ; 80
   ld      (0xc841),hl                     ; 22 41 c8
   ld      a,l                             ; 7d
@@ -14282,7 +14282,7 @@ Laf19:
   inc     d                               ; 14
   ld      c,l                             ; 4d
   out     (0x7e),a                        ; d3 7e
-Laf4f:
+L518F:
   add     a,b                             ; 80
   ld      (0x0c45),hl                     ; 22 45 0c
   ld      a,(hl)                          ; 7e
@@ -14327,7 +14327,7 @@ Laf4f:
   nop                                     ; 00
   ld      e,0x49                          ; 1e 49
   and     h                               ; a4
-Laf85:
+L51C5:
   add     a,e                             ; 83
   add     a,b                             ; 80
   ld      c,h                             ; 4c
@@ -14338,7 +14338,7 @@ Laf85:
   ld      e,0x49                          ; 1e 49
   call    nz,0x2084                       ; c4 84 20
   ld      e,0x4b                          ; 1e 4b
-  jr      z,Laf19                         ; 28 84
+  jr      z,L5159                         ; 28 84
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,bc                           ; 09
@@ -14360,7 +14360,7 @@ Laf85:
   nop                                     ; 00
   ld      e,0x4d                          ; 1e 4d
   rlca                                    ; 07
-Lafad:
+L51ED:
   add     a,(hl)                          ; 86
   inc     h                               ; 24
   ld      e,0x4d                          ; 1e 4d
@@ -14382,7 +14382,7 @@ Lafad:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,bc                           ; 09
-  jr      z,Laf4f                         ; 28 88
+  jr      z,L518F                         ; 28 88
   nop                                     ; 00
   inc     e                               ; 1c
   ld      c,c                             ; 49
@@ -14421,7 +14421,7 @@ Lafad:
   call    nz,0x208c                       ; c4 8c 20
   inc     e                               ; 1c
   ld      c,e                             ; 4b
-  jr      z,Laf85                         ; 28 8c
+  jr      z,L51C5                         ; 28 8c
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      de,0x8dc8                       ; 11 c8 8d
@@ -14430,7 +14430,7 @@ Lafad:
   ld      c,d                             ; 4a
   inc     b                               ; 04
   adc     a,l                             ; 8d
-  jr      nz,Lb021                        ; 20 1c
+  jr      nz,L5261                        ; 20 1c
   ld      c,e                             ; 4b
   xor     b                               ; a8
   adc     a,l                             ; 8d
@@ -14458,14 +14458,14 @@ Lafad:
   dec     d                               ; 15
   rst     0x10                            ; d7
   adc     a,a                             ; 8f
-Lb021:
+L5261:
   nop                                     ; 00
   inc     e                               ; 1c
   ld      c,c                             ; 49
   inc     h                               ; 24
   adc     a,a                             ; 8f
   add     a,b                             ; 80
-Lb027:
+L5267:
   ld      c,h                             ; 4c
   ld      de,0x9028                       ; 11 28 90
   nop                                     ; 00
@@ -14517,7 +14517,7 @@ Lb027:
   ret     z                               ; c8
   ex      af,af'                          ; 08
   sub     h                               ; 94
-Lb05d:
+L529D:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,de                           ; 19
@@ -14565,7 +14565,7 @@ Lb05d:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,de                           ; 19
-  jr      z,Lb027                         ; 28 98
+  jr      z,L5267                         ; 28 98
   nop                                     ; 00
   ld      e,(hl)                          ; 5e
   ld      c,c                             ; 49
@@ -14578,7 +14578,7 @@ Lb05d:
   ld      e,(hl)                          ; 5e
   ld      c,c                             ; 49
   ld      h,h                             ; 64
-Lb09d:
+L52DD:
   sbc     a,c                             ; 99
   add     a,b                             ; 80
   ld      c,h                             ; 4c
@@ -14591,7 +14591,7 @@ Lb09d:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      hl,0x9b88                       ; 21 88 9b
-Lb0ad:
+L52ED:
   nop                                     ; 00
   ld      e,(hl)                          ; 5e
   ld      c,c                             ; 49
@@ -14606,8 +14606,8 @@ Lb0ad:
   call    nz,0x209c                       ; c4 9c 20
   ld      e,(hl)                          ; 5e
   ld      c,e                             ; 4b
-  jr      z,Lb05d                         ; 28 9c
-Lb0c1:
+  jr      z,L529D                         ; 28 9c
+L5301:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      hl,0x9dc8                       ; 21 c8 9d
@@ -14616,8 +14616,8 @@ Lb0c1:
   ld      c,d                             ; 4a
   inc     b                               ; 04
   sbc     a,l                             ; 9d
-  jr      nz,Lb12b                        ; 20 5e
-Lb0cd:
+  jr      nz,L536B                        ; 20 5e
+L530D:
   ld      c,e                             ; 4b
   xor     b                               ; a8
   sbc     a,l                             ; 9d
@@ -14652,25 +14652,25 @@ Lb0cd:
   ld      c,h                             ; 4c
   ld      hl,0xa028                       ; 21 28 a0
   nop                                     ; 00
-  jr      nz,Lb146                        ; 20 50
+  jr      nz,L5386                        ; 20 50
   inc     b                               ; 04
   and     b                               ; a0
   ld      b,b                             ; 40
   ld      a,0x00                          ; 3e 00
-  djnz    Lb09d                           ; 10 a0
+  djnz    L52DD                           ; 10 a0
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,hl                           ; 29
   ld      c,b                             ; 48
   and     c                               ; a1
   nop                                     ; 00
-  jr      nz,Lb15d                        ; 20 58
+  jr      nz,L539D                        ; 20 58
   inc     b                               ; 04
   and     c                               ; a1
   ld      b,b                             ; 40
-  jr      z,Lb10a                         ; 28 00
-Lb10a:
-  djnz    Lb0ad                           ; 10 a1
+  jr      z,L534A                         ; 28 00
+L534A:
+  djnz    L52ED                           ; 10 a1
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,hl                           ; 29
@@ -14685,30 +14685,30 @@ Lb10a:
   and     d                               ; a2
   add     a,b                             ; 80
   ld      c,h                             ; 4c
-Lb11d:
+L535D:
   add     hl,hl                           ; 29
   adc     a,b                             ; 88
   and     e                               ; a3
   nop                                     ; 00
-  jr      nz,Lb18b                        ; 20 68
+  jr      nz,L53CB                        ; 20 68
   inc     b                               ; 04
   and     e                               ; a3
   ld      b,b                             ; 40
   adc     a,(hl)                          ; 8e
   nop                                     ; 00
-  djnz    Lb0cd                           ; 10 a3
+  djnz    L530D                           ; 10 a3
   add     a,b                             ; 80
-Lb12b:
+L536B:
   ld      c,h                             ; 4c
   add     hl,hl                           ; 29
-Lb12d:
+L536D:
   xor     b                               ; a8
   and     h                               ; a4
   nop                                     ; 00
-  jr      nz,Lb1a2                        ; 20 70
+  jr      nz,L53E2                        ; 20 70
   inc     b                               ; 04
   and     h                               ; a4
-  jr      nz,Lb156                        ; 20 20
+  jr      nz,L5396                        ; 20 20
   ret     z                               ; c8
   ex      af,af'                          ; 08
   and     h                               ; a4
@@ -14716,27 +14716,27 @@ Lb12d:
   ld      c,h                             ; 4c
   add     hl,hl                           ; 29
   ret     z                               ; c8
-Lb13d:
+L537D:
   and     l                               ; a5
   nop                                     ; 00
-  jr      nz,Lb0c1                        ; 20 80
+  jr      nz,L5301                        ; 20 80
   inc     b                               ; 04
   and     l                               ; a5
-  jr      nz,Lb165                        ; 20 20
+  jr      nz,L53A5                        ; 20 20
   ret     pe                              ; e8
-Lb146:
+L5386:
   ex      af,af'                          ; 08
   and     l                               ; a5
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      hl,(0xa608)                     ; 2a 08 a6
-Lb14d:
+L538D:
   nop                                     ; 00
   ld      hl,0x0740                       ; 21 40 07
   and     (hl)                            ; a6
   inc     h                               ; 24
   ld      hl,0x1370                       ; 21 70 13
-Lb156:
+L5396:
   and     (hl)                            ; a6
   add     a,b                             ; 80
   ld      c,h                             ; 4c
@@ -14744,15 +14744,15 @@ Lb156:
   rrca                                    ; 0f
   and     (hl)                            ; a6
   and     h                               ; a4
-Lb15d:
+L539D:
   ld      c,h                             ; 4c
   dec     l                               ; 2d
   rst     0x10                            ; d7
   and     a                               ; a7
   nop                                     ; 00
-  jr      nz,Lb1ac                        ; 20 48
+  jr      nz,L53EC                        ; 20 48
   inc     b                               ; 04
-Lb165:
+L53A5:
   and     a                               ; a7
   add     a,b                             ; 80
   ld      c,h                             ; 4c
@@ -14766,7 +14766,7 @@ Lb165:
   ld      b,b                             ; 40
   inc     a                               ; 3c
   nop                                     ; 00
-  djnz    Lb11d                           ; 10 a8
+  djnz    L535D                           ; 10 a8
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      sp,0xa948                       ; 31 48 a9
@@ -14777,20 +14777,20 @@ Lb165:
   xor     c                               ; a9
   ld      b,b                             ; 40
   ld      h,0x00                          ; 26 00
-  djnz    Lb12d                           ; 10 a9
+  djnz    L536D                           ; 10 a9
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      sp,0xaa68                       ; 31 68 aa
   nop                                     ; 00
   ld      l,h                             ; 6c
-Lb18b:
+L53CB:
   ld      h,b                             ; 60
   inc     b                               ; 04
   xor     d                               ; aa
   ld      b,b                             ; 40
-  jr      c,Lb191                         ; 38 00
-Lb191:
-  djnz    Lb13d                           ; 10 aa
+  jr      c,L53D1                         ; 38 00
+L53D1:
+  djnz    L537D                           ; 10 aa
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      sp,0xab88                       ; 31 88 ab
@@ -14802,8 +14802,8 @@ Lb191:
   ld      b,b                             ; 40
   adc     a,h                             ; 8c
   nop                                     ; 00
-  djnz    Lb14d                           ; 10 ab
-Lb1a2:
+  djnz    L538D                           ; 10 ab
+L53E2:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      sp,0xaca8                       ; 31 a8 ac
@@ -14812,8 +14812,8 @@ Lb1a2:
   ld      (hl),b                          ; 70
   inc     b                               ; 04
   xor     h                               ; ac
-Lb1ac:
-  jr      nz,Lb21a                        ; 20 6c
+L53EC:
+  jr      nz,L545A                        ; 20 6c
   ret     z                               ; c8
   ex      af,af'                          ; 08
   xor     h                               ; ac
@@ -14825,7 +14825,7 @@ Lb1ac:
   add     a,b                             ; 80
   inc     b                               ; 04
   xor     l                               ; ad
-  jr      nz,Lb229                        ; 20 6c
+  jr      nz,L5469                        ; 20 6c
   ret     pe                              ; e8
   ex      af,af'                          ; 08
   xor     l                               ; ad
@@ -14904,7 +14904,7 @@ Lb1ac:
   or      e                               ; b3
   nop                                     ; 00
   ld      d,0x68                          ; 16 68
-Lb213:
+L5453:
   inc     b                               ; 04
   or      e                               ; b3
   ld      b,b                             ; 40
@@ -14912,7 +14912,7 @@ Lb213:
   nop                                     ; 00
   dec     d                               ; 15
   or      e                               ; b3
-Lb21a:
+L545A:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,sp                           ; 39
@@ -14926,7 +14926,7 @@ Lb21a:
   ret     z                               ; c8
   ex      af,af'                          ; 08
   or      h                               ; b4
-Lb229:
+L5469:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,sp                           ; 39
@@ -14936,7 +14936,7 @@ Lb229:
   ld      d,0x80                          ; 16 80
   inc     b                               ; 04
   or      l                               ; b5
-  jr      nz,Lb24b                        ; 20 16
+  jr      nz,L548B                        ; 20 16
   ret     pe                              ; e8
   ex      af,af'                          ; 08
   or      l                               ; b5
@@ -14957,7 +14957,7 @@ Lb229:
   ld      c,h                             ; 4c
   dec     a                               ; 3d
   rrca                                    ; 0f
-Lb24b:
+L548B:
   or      (hl)                            ; b6
   and     h                               ; a4
   ld      c,h                             ; 4c
@@ -14971,7 +14971,7 @@ Lb24b:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,sp                           ; 39
-  jr      z,Lb213                         ; 28 b8
+  jr      z,L5453                         ; 28 b8
   nop                                     ; 00
   inc     b                               ; 04
   ld      d,b                             ; 50
@@ -15028,7 +15028,7 @@ Lb24b:
   dec     d                               ; 15
   cp      e                               ; bb
   add     a,b                             ; 80
-Lb293:
+L54D3:
   ld      c,h                             ; 4c
   ld      b,c                             ; 41
   xor     b                               ; a8
@@ -15038,12 +15038,12 @@ Lb293:
   ld      (hl),b                          ; 70
   inc     b                               ; 04
   cp      h                               ; bc
-  jr      nz,Lb2a2                        ; 20 04
+  jr      nz,L54E2                        ; 20 04
   ret     z                               ; c8
   ex      af,af'                          ; 08
   cp      h                               ; bc
   add     a,b                             ; 80
-Lb2a2:
+L54E2:
   ld      c,h                             ; 4c
   ld      b,c                             ; 41
   ret     z                               ; c8
@@ -15053,12 +15053,12 @@ Lb2a2:
   add     a,b                             ; 80
   inc     b                               ; 04
   cp      l                               ; bd
-  jr      nz,Lb2b1                        ; 20 04
+  jr      nz,L54F1                        ; 20 04
   ret     pe                              ; e8
   ex      af,af'                          ; 08
   cp      l                               ; bd
   add     a,b                             ; 80
-Lb2b1:
+L54F1:
   ld      c,h                             ; 4c
   ld      b,d                             ; 42
   ex      af,af'                          ; 08
@@ -15091,7 +15091,7 @@ Lb2b1:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   ld      b,c                             ; 41
-  jr      z,Lb293                         ; 28 c0
+  jr      z,L54D3                         ; 28 c0
   nop                                     ; 00
   ld      c,a                             ; 4f
   nop                                     ; 00
@@ -15109,7 +15109,7 @@ Lb2b1:
   pop     bc                              ; c1
   add     a,b                             ; 80
   ld      h,d                             ; 62
-Lb2e4:
+L5524:
   add     hl,bc                           ; 09
   ld      l,b                             ; 68
   jp      nz,0x1102                       ; c2 02 11
@@ -15118,7 +15118,7 @@ Lb2e4:
   jp      nz,0x6280                       ; c2 80 62
   add     hl,bc                           ; 09
   adc     a,b                             ; 88
-Lb2f0:
+L5530:
   jp      0x1102                          ; c3 02 11
   ld      h,b                             ; 60
   ld      a,(bc)                          ; 0a
@@ -15160,7 +15160,7 @@ Lb2f0:
   add     a,b                             ; 80
   ld      h,d                             ; 62
   add     hl,bc                           ; 09
-  jr      z,Lb2f0                         ; 28 c8
+  jr      z,L5530                         ; 28 c8
   nop                                     ; 00
   ld      c,(hl)                          ; 4e
   and     b                               ; a0
@@ -15178,7 +15178,7 @@ Lb2f0:
   ld      h,d                             ; 62
   ld      de,0xca68                       ; 11 68 ca
   ld      (bc),a                          ; 02
-  djnz    Lb2e4                           ; 10 a5
+  djnz    L5524                           ; 10 a5
   adc     a,d                             ; 8a
   jp      z,0x6280                        ; ca 80 62
   ld      de,0xcb88                       ; 11 88 cb
@@ -15301,7 +15301,7 @@ Lb2f0:
   adc     a,d                             ; 8a
   jp      c,0x6280                        ; da 80 62
   ld      hl,0xdb88                       ; 21 88 db
-Lb3e1:
+L5621:
   ld      bc,0x4d0e                       ; 01 0e 4d
   xor     e                               ; ab
   in      a,(0x80)                        ; db 80
@@ -15332,20 +15332,20 @@ Lb3e1:
   ld      hl,0xe028                       ; 21 28 e0
   nop                                     ; 00
   ld      c,a                             ; 4f
-  djnz    Lb417                           ; 10 05
+  djnz    L5657                           ; 10 05
   ret     po                              ; e0
   add     a,b                             ; 80
   ld      h,d                             ; 62
   add     hl,hl                           ; 29
   ld      c,b                             ; 48
-Lb417:
+L5657:
   pop     hl                              ; e1
   nop                                     ; 00
   ld      c,b                             ; 48
   ret     nz                              ; c0
   ld      a,(bc)                          ; 0a
   pop     hl                              ; e1
-  jr      nz,Lb467                        ; 20 48
+  jr      nz,L56A7                        ; 20 48
   ret     c                               ; d8
   ld      c,0xe1                          ; 0e e1
   add     a,b                             ; 80
@@ -15364,7 +15364,7 @@ Lb417:
   ld      e,e                             ; 5b
   inc     de                              ; 13
   ex      (sp),hl                         ; e3
-  jr      nz,Lb443                        ; 20 0b
+  jr      nz,L5683                        ; 20 0b
   ld      e,e                             ; 5b
   ld      (hl),a                          ; 77
   ex      (sp),hl                         ; e3
@@ -15374,7 +15374,7 @@ Lb417:
   xor     b                               ; a8
   call    po,0x6f02                       ; e4 02 6f
   dec     d                               ; 15
-Lb443:
+L5683:
   adc     a,c                             ; 89
   call    po,0x6280                       ; e4 80 62
   add     hl,hl                           ; 29
@@ -15385,12 +15385,12 @@ Lb443:
   ret     nz                              ; c0
   dec     bc                              ; 0b
   push    hl                              ; e5
-  jr      nz,Lb3e1                        ; 20 90
+  jr      nz,L5621                        ; 20 90
   ret     c                               ; d8
   rrca                                    ; 0f
   push    hl                              ; e5
   add     a,b                             ; 80
-Lb455:
+L5695:
   ld      h,d                             ; 62
   ld      hl,(0xe608)                     ; 2a 08 e6
   ld      bc,0x6021                       ; 01 21 60
@@ -15403,12 +15403,12 @@ Lb455:
   ld      h,d                             ; 62
   dec     l                               ; 2d
   rst     0x10                            ; d7
-Lb467:
+L56A7:
   rst     0x20                            ; e7
   add     a,b                             ; 80
   ld      h,d                             ; 62
   add     hl,hl                           ; 29
-  jr      z,Lb455                         ; 28 e8
+  jr      z,L5695                         ; 28 e8
   nop                                     ; 00
   ld      c,a                             ; 4f
   ex      af,af'                          ; 08
@@ -15519,14 +15519,14 @@ Lb467:
   rrca                                    ; 0f
   or      0xa4                            ; f6 a4
   ld      h,d                             ; 62
-Lb505:
+L5745:
   dec     a                               ; 3d
   rst     0x10                            ; d7
   rst     0x30                            ; f7
   add     a,b                             ; 80
   ld      h,d                             ; 62
   add     hl,sp                           ; 39
-  jr      z,Lb505                         ; 28 f8
+  jr      z,L5745                         ; 28 f8
   nop                                     ; 00
   ld      c,(hl)                          ; 4e
   adc     a,b                             ; 88
@@ -15541,7 +15541,7 @@ Lb505:
   dec     d                               ; 15
   dec     de                              ; 1b
   ld      b,0xf9                          ; 06 f9
-  jr      nz,Lb533                        ; 20 15
+  jr      nz,L5773                        ; 20 15
   dec     de                              ; 1b
   ld      l,d                             ; 6a
   ld      sp,hl                           ; f9
@@ -15559,7 +15559,7 @@ Lb505:
   nop                                     ; 00
   ex      af,af'                          ; 08
   nop                                     ; 00
-Lb533:
+L5773:
   inc     b                               ; 04
   ei                                      ; fb
   add     a,b                             ; 80
@@ -15640,13 +15640,13 @@ Lb533:
   ld      sp,0x0000                       ; 31 00 00
   pop     hl                              ; e1
   ld      (0x5c5d),hl                     ; 22 5d 5c
-  jr      Lb5c3                           ; 18 09
+  jr      L5803                           ; 18 09
   ld      de,0x0000                       ; 11 00 00
   ld      hl,(0x5c3d)                     ; 2a 3d 5c
   ld      (hl),e                          ; 73
   inc     hl                              ; 23
   ld      (hl),d                          ; 72
-Lb5c3:
+L5803:
   ld      (iy+0),0xff                     ; fd 36 00 ff
   di                                      ; f3
   ret                                     ; c9
@@ -15664,13 +15664,13 @@ Lb5c3:
   ld      de,0xf3f2                       ; 11 f2 f3
   call    0xf3fd                          ; cd fd f3
   jp      0xd440                          ; c3 40 d4
-Lb5e2:
+L5822:
   ld      de,0xf3e9                       ; 11 e9 f3
   call    0xf3fd                          ; cd fd f3
   jp      0xabe0                          ; c3 e0 ab
   ld      a,(0xcd7b)                      ; 3a 7b cd
   cp      0x21                            ; fe 21
-  jr      z,Lb5e2                         ; 28 f0
+  jr      z,L5822                         ; 28 f0
   call    0xe1f3                          ; cd f3 e1
   call    0xf493                          ; cd 93 f4
   ld      a,0x14                          ; 3e 14
@@ -15700,22 +15700,22 @@ Lb5e2:
   ld      (de),a                          ; 12
   dec     de                              ; 1b
   ld      bc,0x0900                       ; 01 00 09
-Lb639:
+L5879:
   ld      a,(hl)                          ; 7e
   dec     hl                              ; 2b
   cp      0x20                            ; fe 20
-  jr      nz,Lb640                        ; 20 01
+  jr      nz,L5880                        ; 20 01
   ld      a,c                             ; 79
-Lb640:
+L5880:
   ld      (de),a                          ; 12
   cp      0x20                            ; fe 20
-  jr      z,Lb64a                         ; 28 05
+  jr      z,L588A                         ; 28 05
   or      a                               ; b7
-  jr      z,Lb64a                         ; 28 02
+  jr      z,L588A                         ; 28 02
   ld      c,0x20                          ; 0e 20
-Lb64a:
+L588A:
   dec     de                              ; 1b
-  djnz    Lb639                           ; 10 ec
+  djnz    L5879                           ; 10 ec
   ld      a,(hl)                          ; 7e
   ld      (de),a                          ; 12
   call    0x212b                          ; cd 2b 21
@@ -15743,7 +15743,7 @@ Lb64a:
   inc     hl                              ; 23
   ld      h,(hl)                          ; 66
   ld      l,a                             ; 6f
-Lb685:
+L58C5:
   push    hl                              ; e5
   call    0x1df9                          ; cd f9 1d
   pop     hl                              ; e1
@@ -15762,10 +15762,10 @@ Lb685:
   ld      a,h                             ; 7c
   ld      bc,0x0200                       ; 01 00 02
   cp      b                               ; b8
-  jr      nc,Lb6a7                        ; 30 02
+  jr      nc,L58E7                        ; 30 02
   ld      b,h                             ; 44
   ld      c,l                             ; 4d
-Lb6a7:
+L58E7:
   push    hl                              ; e5
   push    bc                              ; c5
   ld      hl,0x0000                       ; 21 00 00
@@ -15777,7 +15777,7 @@ Lb6a7:
   pop     hl                              ; e1
   sbc     hl,bc                           ; ed 42
   ex      (sp),hl                         ; e3
-  jr      nz,Lb685                        ; 20 ca
+  jr      nz,L58C5                        ; 20 ca
   call    0x217b                          ; cd 7b 21
   pop     hl                              ; e1
   ret                                     ; c9
@@ -15792,20 +15792,20 @@ Lb6a7:
   rst     0x28                            ; ef
   pop     hl                              ; e1
   cp      0x70                            ; fe 70
-  jr      z,Lb6d7                         ; 28 07
+  jr      z,L5917                         ; 28 07
   cp      0x72                            ; fe 72
-  jr      z,Lb6d7                         ; 28 03
+  jr      z,L5917                         ; 28 03
   cp      0x79                            ; fe 79
   ret     nz                              ; c0
-Lb6d7:
+L5917:
   call    0x1f88                          ; cd 88 1f
   xor     a                               ; af
   ret                                     ; c9
   call    0xf493                          ; cd 93 f4
-  jr      nz,Lb6e7                        ; 20 06
+  jr      nz,L5927                        ; 20 06
   call    0xf536                          ; cd 36 f5
   jp      nz,0xf5ec                       ; c2 ec f5
-Lb6e7:
+L5927:
   ld      bc,0xf4ce                       ; 01 ce f4
   call    0xf43f                          ; cd 3f f4
   push    ix                              ; dd e5
@@ -15832,23 +15832,23 @@ Lb6e7:
   call    0x201e                          ; cd 1e 20
   or      b                               ; b0
   ld      a,d                             ; 7a
-  jr      nz,Lb721                        ; 20 0b
+  jr      nz,L5961                        ; 20 0b
   ld      a,0x0c                          ; 3e 0c
   inc     b                               ; 04
-  jr      Lb723                           ; 18 08
-Lb71b:
+  jr      L5963                           ; 18 08
+L595B:
   call    0x217b                          ; cd 7b 21
   jp      0xf4ce                          ; c3 ce f4
-Lb721:
+L5961:
   or      0x0e                            ; f6 0e
-Lb723:
+L5963:
   ld      d,a                             ; 57
   call    0x210a                          ; cd 0a 21
-  jr      z,Lb731                         ; 28 08
+  jr      z,L5971                         ; 28 08
   ld      hl,0x0000                       ; 21 00 00
   call    0x20f6                          ; cd f6 20
-  jr      nz,Lb71b                        ; 20 ea
-Lb731:
+  jr      nz,L595B                        ; 20 ea
+L5971:
   ex      de,hl                           ; eb
   ex      (sp),hl                         ; e3
   ld      (hl),e                          ; 73
@@ -15861,7 +15861,7 @@ Lb731:
   call    0x20db                          ; cd db 20
   inc     b                               ; 04
   dec     b                               ; 05
-  jr      nz,Lb71b                        ; 20 d8
+  jr      nz,L595B                        ; 20 d8
   call    0xf629                          ; cd 29 f6
   pop     hl                              ; e1
   ld      (0xf637),hl                     ; 22 37 f6
@@ -15886,7 +15886,7 @@ Lb731:
   call    0xd3f8                          ; cd f8 d3
   jp      0xd440                          ; c3 40 d4
   ld      e,0xff                          ; 1e ff
-Lb781:
+L59C1:
   call    0xade9                          ; cd e9 ad
   inc     hl                              ; 23
   ld      d,a                             ; 57
@@ -15897,7 +15897,7 @@ Lb781:
   dec     bc                              ; 0b
   ld      a,b                             ; 78
   or      c                               ; b1
-  jr      nz,Lb781                        ; 20 f0
+  jr      nz,L59C1                        ; 20 f0
   ret                                     ; c9
   push    hl                              ; e5
   ld      hl,0x0000                       ; 21 00 00
@@ -15909,14 +15909,14 @@ Lb781:
   ld      (0xf612),hl                     ; 22 12 f6
   ld      a,h                             ; 7c
   cp      0x02                            ; fe 02
-  jr      c,Lb7b1                         ; 38 0a
+  jr      c,L59F1                         ; 38 0a
   push    de                              ; d5
   push    bc                              ; c5
   call    0xf636                          ; cd 36 f6
   call    0xf629                          ; cd 29 f6
   pop     bc                              ; c1
   pop     de                              ; d1
-Lb7b1:
+L59F1:
   pop     hl                              ; e1
   ret                                     ; c9
   ld      hl,0x3a00                       ; 21 00 3a
@@ -15945,7 +15945,7 @@ Lb7b1:
   ld      bc,0xb080                       ; 01 80 b0
   call    0xf43f                          ; cd 3f f4
   call    0xb070                          ; cd 70 b0
-Lb7f8:
+L5A38:
   call    0xf430                          ; cd 30 f4
   jp      0x02e1                          ; c3 e1 02
   ld      de,0xac11                       ; 11 11 ac
@@ -15960,7 +15960,7 @@ Lb7f8:
   call    0xf43f                          ; cd 3f f4
   call    0xb6c7                          ; cd c7 b6
   call    0xb078                          ; cd 78 b0
-  jr      Lb7f8                           ; 18 d6
+  jr      L5A38                           ; 18 d6
 
 
 
