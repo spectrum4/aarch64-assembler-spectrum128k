@@ -13859,207 +13859,239 @@ La683:
   call po,0xeae7 ;   e4 e7 ea
 La689:
   otdr ;   ed bb
-  ld h,e ;   63
-  ret p ;   f0
-  ld h,h ;   64
-  jp (hl) ;   e9
-  ld h,l ;   65
-  jp (hl) ;   e9
-  ld h,l ;   65
-  ret m ;   f8
-  ld l,c ;   69
-  out (c),l ;   ed 69
-  xor 0x6a ;   ee 6a
-  ret p ;   f0
-  ld l,d ;   6a
-  jp p,0xe46c ;   f2 6c e4
-  ld l,a ;   6f
-  jp p,0xec72 ;   f2 72 ec
-  ld (hl),d ;   72
-  jp p,0x6461 ;   f2 61 64
-  ex (sp),hl ;   e3
-  ld h,c ;   61
-  ld h,h ;   64
-  call po,0x6e61 ;   e4 61 6e
-  call po,0x6962 ;   e4 62 69
-  call p,0x6363 ;   f4 63 63
-  and 0x63 ;   e6 63
-  ld (hl),b ;   70
-  call po,0x7063 ;   e4 63 70
-  jp (hl) ;   e9
-  ld h,e ;   63
-  ld (hl),b ;   70
-  call pe,0x6164 ;   ec 64 61
-  pop hl ;   e1
-  ld h,h ;   64
-  ld h,l ;   65
-  ex (sp),hl ;   e3
-  ld h,l ;   65
-  ld l,(hl) ;   6e
-  call p,0x7165 ;   f4 65 71
-  push af ;   f5
-  ld h,l ;   65
-  ld a,b ;   78
-  ret m ;   f8
-  ld l,c ;   69
-  ld l,(hl) ;   6e
-  ex (sp),hl ;   e3
-  ld l,c ;   69
-  ld l,(hl) ;   6e
-  call po,0x6e69 ;   e4 69 6e
-  jp (hl) ;   e9
-  ld l,h ;   6c
-  ld h,h ;   64
-  call po,0x646c ;   e4 6c 64
-  jp (hl) ;   e9
-  ld l,(hl) ;   6e
-  ld h,l ;   65
-  rst 0x20 ;   e7
-  ld l,(hl) ;   6e
-  ld l,a ;   6f
-  ret p ;   f0
-  ld l,a ;   6f
-  ld (hl),d ;   72
-  rst 0x20 ;   e7
-  ld l,a ;   6f
-  ld (hl),l ;   75
-  call p,0x6f70 ;   f4 70 6f
-  ret p ;   f0
-  ld (hl),b ;   70
-  ld (hl),l ;   75
-  call p,0x6572 ;   f4 72 65
-  di ;   f3
-  ld (hl),d ;   72
-  ld h,l ;   65
-  call p,0x6c72 ;   f4 72 6c
-  pop hl ;   e1
-  ld (hl),d ;   72
-  ld l,h ;   6c
-  ex (sp),hl ;   e3
-  ld (hl),d ;   72
-  ld l,h ;   6c
-  call po,0x7272 ;   e4 72 72
-  pop hl ;   e1
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  ex (sp),hl ;   e3
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  call po,0x7372 ;   e4 72 73
-  call p,0x6273 ;   f4 73 62
-  ex (sp),hl ;   e3
-  ld (hl),e ;   73
-  ld h,e ;   63
-  and 0x73 ;   e6 73
-  ld h,l ;   65
-  call p,0x6c73 ;   f4 73 6c
-  pop hl ;   e1
-  ld (hl),e ;   73
-  ld (hl),d ;   72
-  pop hl ;   e1
-  ld (hl),e ;   73
-  ld (hl),d ;   72
-  call pe,0x7573 ;   ec 73 75
-  jp po,0x6f78 ;   e2 78 6f
-  jp p,0x6163 ;   f2 63 61
-  ld l,h ;   6c
-  call pe,0x7063 ;   ec 63 70
-  ld h,h ;   64
-  jp p,0x7063 ;   f2 63 70
-  ld l,c ;   69
-  jp p,0x6564 ;   f2 64 65
-  ld h,(hl) ;   66
-  jp po,0x6564 ;   e2 64 65
-  ld h,(hl) ;   66
-  defb 0xed, 0x64
-  ld h,l ;   65
-  ld h,(hl) ;   66
-  di ;   f3
-  ld h,h ;   64
-  ld h,l ;   65
-  ld h,(hl) ;   66
-  rst 0x30 ;   f7
-  ld h,h ;   64
-  ld l,d ;   6a
-  ld l,(hl) ;   6e
-  jp m,0x6168 ;   fa 68 61
-  ld l,h ;   6c
-  call p,0x6e69 ;   f4 69 6e
-  ld h,h ;   64
-  jp p,0x6e69 ;   f2 69 6e
-  ld l,c ;   69
-  jp p,0x646c ;   f2 6c 64
-  ld h,h ;   64
-  jp p,0x646c ;   f2 6c 64
-  ld l,c ;   69
-  jp p,0x746f ;   f2 6f 74
-  ld h,h ;   64
-  jp p,0x746f ;   f2 6f 74
-  ld l,c ;   69
-  jp p,0x756f ;   f2 6f 75
-  ld (hl),h ;   74
-  call po,0x756f ;   e4 6f 75
-  ld (hl),h ;   74
-  jp (hl) ;   e9
-  ld (hl),b ;   70
-  ld (hl),l ;   75
-  ld (hl),e ;   73
-  ret pe ;   e8
-  ld (hl),d ;   72
-  ld h,l ;   65
-  ld (hl),h ;   74
-  jp (hl) ;   e9
-  ld (hl),d ;   72
-  ld h,l ;   65
-  ld (hl),h ;   74
-  xor 0x72 ;   ee 72
-  ld l,h ;   6c
-  ld h,e ;   63
-  pop hl ;   e1
-  ld (hl),d ;   72
-  ld (hl),d ;   72
-  ld h,e ;   63
-  pop hl ;   e1
-  ld (hl),e ;   73
-  ld l,h ;   6c
-  ld l,c ;   69
-  pop hl ;   e1
-  jr nz,La7a7 ;   20 2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  dec hl ;   2b
-  inc l ;   2c
-  dec l ;   2d
-  ld l,0x2f ;   2e 2f
-  jr nc,La7c7 ;   30 31
-  ld (0x3433),a ;   32 33 34
-  dec (hl) ;   35
-  ld (hl),0x37 ;   36 37
-  jr c,La7d7 ;   38 39
-  ld a,(0x3e3c) ;   3a 3c 3e
-  ld b,c ;   41
-  ld b,h ;   44
-  ld b,a ;   47
-  ld c,d ;   4a
-  ld c,l ;   4d
-  or b ;   b0
+
+
+.ascii "c"
+.byte 'p'+0x80
+
+.ascii "d"
+.byte 'i'+0x80
+
+.ascii "e"
+.byte 'i'+0x80
+
+.ascii "e"
+.byte 'x'+0x80
+
+.ascii "i"
+.byte 'm'+0x80
+
+.ascii "i"
+.byte 'n'+0x80
+
+.ascii "j"
+.byte 'p'+0x80
+
+.ascii "j"
+.byte 'r'+0x80
+
+.ascii "l"
+.byte 'd'+0x80
+
+.ascii "o"
+.byte 'r'+0x80
+
+.ascii "r"
+.byte 'l'+0x80
+
+.ascii "r"
+.byte 'r'+0x80
+
+.ascii "ad"
+.byte 'c'+0x80
+
+.ascii "ad"
+.byte 'd'+0x80
+
+.ascii "an"
+.byte 'd'+0x80
+
+.ascii "bi"
+.byte 't'+0x80
+
+.ascii "cc"
+.byte 'f'+0x80
+
+.ascii "cp"
+.byte 'd'+0x80
+
+.ascii "cp"
+.byte 'i'+0x80
+
+.ascii "cp"
+.byte 'l'+0x80
+
+.ascii "da"
+.byte 'a'+0x80
+
+.ascii "de"
+.byte 'c'+0x80
+
+.ascii "en"
+.byte 't'+0x80
+
+.ascii "eq"
+.byte 'u'+0x80
+
+.ascii "ex"
+.byte 'x'+0x80
+
+.ascii "in"
+.byte 'c'+0x80
+
+.ascii "in"
+.byte 'd'+0x80
+
+.ascii "in"
+.byte 'i'+0x80
+
+.ascii "ld"
+.byte 'd'+0x80
+
+.ascii "ld"
+.byte 'i'+0x80
+
+.ascii "ne"
+.byte 'g'+0x80
+
+.ascii "no"
+.byte 'p'+0x80
+
+.ascii "or"
+.byte 'g'+0x80
+
+.ascii "ou"
+.byte 't'+0x80
+
+.ascii "po"
+.byte 'p'+0x80
+
+.ascii "pu"
+.byte 't'+0x80
+
+.ascii "re"
+.byte 's'+0x80
+
+.ascii "re"
+.byte 't'+0x80
+
+.ascii "rl"
+.byte 'a'+0x80
+
+.ascii "rl"
+.byte 'c'+0x80
+
+.ascii "rl"
+.byte 'd'+0x80
+
+.ascii "rr"
+.byte 'a'+0x80
+
+.ascii "rr"
+.byte 'c'+0x80
+
+.ascii "rr"
+.byte 'd'+0x80
+
+.ascii "rs"
+.byte 't'+0x80
+
+.ascii "sb"
+.byte 'c'+0x80
+
+.ascii "sc"
+.byte 'f'+0x80
+
+.ascii "se"
+.byte 't'+0x80
+
+.ascii "sl"
+.byte 'a'+0x80
+
+.ascii "sr"
+.byte 'a'+0x80
+
+.ascii "sr"
+.byte 'l'+0x80
+
+.ascii "su"
+.byte 'b'+0x80
+
+.ascii "xo"
+.byte 'r'+0x80
+
+.ascii "cal"
+.byte 'l'+0x80
+
+.ascii "cpd"
+.byte 'r'+0x80
+
+.ascii "cpi"
+.byte 'r'+0x80
+
+.ascii "def"
+.byte 'b'+0x80
+
+.ascii "def"
+.byte 'm'+0x80
+
+.ascii "def"
+.byte 's'+0x80
+
+.ascii "def"
+.byte 'w'+0x80
+
+.ascii "djn"
+.byte 'z'+0x80
+
+.ascii "hal"
+.byte 't'+0x80
+
+.ascii "ind"
+.byte 'r'+0x80
+
+.ascii "ini"
+.byte 'r'+0x80
+
+.ascii "ldd"
+.byte 'r'+0x80
+
+.ascii "ldi"
+.byte 'r'+0x80
+
+.ascii "otd"
+.byte 'r'+0x80
+
+.ascii "oti"
+.byte 'r'+0x80
+
+.ascii "out"
+.byte 'd'+0x80
+
+.ascii "out"
+.byte 'i'+0x80
+
+.ascii "pus"
+.byte 'h'+0x80
+
+.ascii "ret"
+.byte 'i'+0x80
+
+.ascii "ret"
+.byte 'n'+0x80
+
+.ascii "rlc"
+.byte 'a'+0x80
+
+.ascii "rrc"
+.byte 'a'+0x80
+
+.ascii "sli"
+.byte 'a'+0x80
+
+.ascii " +++++++++++++++++++++,-./0123456789:<>ADGJM"
+.byte '0'+0x80
+
 La7a7:
   or c ;   b1
   or d ;   b2
