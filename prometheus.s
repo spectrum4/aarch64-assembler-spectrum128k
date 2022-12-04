@@ -36,27 +36,27 @@ L0017:
   ld      (de),a                          ; [0x4fab] = 0 (second byte after code)
   ld      de,0x5800                       ; DE = start of attributes file
   ld      b,0x00
-  L0026:
+  1:
     ld      a,0x3f
     ld      (de),a                        ; write 0x3f to next memory address
     inc     de
     ld      (de),a                        ; write 0x3f to next memory address
     inc     de
-    djnz    L0026                         ; repeat 256 times
+    djnz    1b                            ; repeat 256 times
                                           ; top two screen thirds are now white on white (no flash no bright)
-  L002E:
+  2:
     ld      a,0x38                        ; white paper black ink
     ld      (de),a                        ; for bottom third of
     inc     de                            ; screen
-    djnz    L002E                         ;
+    djnz    2b
   ld      de,0x5000                       ; DE=display file address for start of bottom third of screen
-  L0037:
+  3:
     xor     a                             ; Clear
     ld      (de),a                        ; display file
     inc     de                            ; for entire
     ld      a,d                           ; bottom
     cp      0x58                          ; third
-    jr      c,L0037                       ; of screen
+    jr      c,3b                          ; of screen
   pop     ix                              ; IX=0x41e4 (location of L01E4)
   pop     de                              ; DE=original location of code block + 4
   dec     de
@@ -67,126 +67,138 @@ L0017:
   push    ix                              ; push 0x41e4 (location of relocated L01E4)
   ex      de,hl                           ; DE=location of L0FAA (start of code that hasn't been relocated)
                                           ; HL=original location of code block
-  ld      bc,0x40d0                       ; 01 d0 40
-  ld      de,0x2710                       ; 11 10 27
-  call    0x4126                          ; cd 26 41
-  ld      de,0x03e8                       ; 11 e8 03
-  call    0x4126                          ; cd 26 41
-  ld      de,0x0064                       ; 11 64 00
-  call    0x4126                          ; cd 26 41
-  ld      e,0x0a                          ; 1e 0a
-  call    0x4126                          ; cd 26 41
-  ld      e,0x01                          ; 1e 01
-  call    0x4126                          ; cd 26 41
-  ld      hl,0x5041                       ; 21 41 50
-  ld      (0x41bc),hl                     ; 22 bc 41
-  call    0x41a9                          ; cd a9 41
+  ld      bc,0x40d0                       ; store result at L00D0
+  ld      de,0x2710                       ; DE=10000
+  call    0x4126                          ; Update [L00D0] first char (calling routine at 8f)
+  ld      de,0x03e8                       ; DE=1000
+  call    0x4126                          ; Update [L00D0] second char
+  ld      de,0x0064                       ; DE=100
+  call    0x4126                          ; Update [L00D0] third char
+  ld      e,0x0a                          ; DE=10
+  call    0x4126                          ; Update [L00D0] fourth char
+  ld      e,0x01                          ; DE=1
+  call    0x4126                          ; Update [L00D0] fifth char
+  ld      hl,0x5041                       ; HL = display file address of print position (1,18)
+  ld      (0x41bc),hl                     ; [L01BC] = display file address of print position (1,18)
+  call    0x41a9                          ; Print "PROMETHEUS 128 disk version L"
 
-.ascii "PROMETHEUS 128 disk version "
-defb    0xcc
+  .ascii  "PROMETHEUS 128 disk version "
+  .byte   'L'+0x80
 
-  ld      hl,0x5081                       ; 21 81 50
-  ld      (0x41bc),hl                     ; 22 bc 41
-  call    0x41a9                          ; cd a9 41
+  ld      hl,0x5081                       ; Print position (1,20)
+  ld      (0x41bc),hl                     ; Store it
+  call    0x41a9                          ; Print "© 1993 PROXIMA software v.o.s"
 
-defb    0x7f                              ; (C)
-.ascii " 1993 PROXIMA software "
-L00AF:
-defb    0x76
-  ld      l,0x6f                          ; 2e 6f
-  ld      l,0xf3                          ; 2e f3
-  im      1                               ; ed 56
-  ei                                      ; fb
-  res     5,(iy+1)                        ; fd cb 01 ae
-L00BC:
-  ld      hl,0x50c8                       ; 21 c8 50
-  ld      (0x41bc),hl                     ; 22 bc 41
-  call    0x41a9                          ; cd a9 41
+  .byte   0x7f                            ; ©
+  .ascii  " 1993 PROXIMA software v.o."
+  .byte   's'+0x80
 
-.ascii "Address"
+  im      1                               ; Interrupt Mode 1
+  ei                                      ; Enable interrupts
 
-L00CC:
-  cp      d                               ; ba
-  call    0x41a9                          ; cd a9 41
-  defb    0x30, 0x30
-  defb    0x30, 0x30
-  jr      nc,L0135                        ; 30 5f
-  and     b                               ; a0
-L00D7:
-  halt                                    ; 76
-  bit     5,(iy+1)                        ; fd cb 01 6e
-  jr      z,L00D7                         ; 28 f9
-  ld      hl,0x00c8                       ; 21 c8 00
-  ld      e,0x02                          ; 1e 02
-  ld      d,h                             ; 54
-  call    0x03b5                          ; cd b5 03
-  ld      a,(0x5c08)                      ; 3a 08 5c
-  res     5,(iy+1)                        ; fd cb 01 ae
-  cp      0x0c                            ; fe 0c
-L00F0:
-  jr      nz,L0108                        ; 20 16
-  ld      hl,(0x4115)                     ; 2a 15 41
-  ld      bc,0x40d0                       ; 01 d0 40
-  or      a                               ; b7
-  sbc     hl,bc                           ; ed 42
-  add     hl,bc                           ; 09
-  jr      z,L00D7                         ; 28 d9
-  ld      (hl),0x20                       ; 36 20
-  dec     hl                              ; 2b
-  ld      (hl),0x5f                       ; 36 5f
-  ld      (0x4115),hl                     ; 22 15 41
-  jr      L00BC                           ; 18 b4
-L0108:
-  cp      0x0d                            ; fe 0d
-  jr      z,L0132                         ; 28 26
-  cp      0x30                            ; fe 30
-  jr      c,L00D7                         ; 38 c7
-  cp      0x3a                            ; fe 3a
-  jr      nc,L00D7                        ; 30 c3
-  ld      hl,0x40d5                       ; 21 d5 40
-  inc     hl                              ; 23
-  bit     7,(hl)                          ; cb 7e
-  dec     hl                              ; 2b
-L011B:
-  jr      nz,L00D7                        ; 20 ba
-  ld      (hl),a                          ; 77
-  inc     hl                              ; 23
-  ld      (hl),0x5f                       ; 36 5f
-  ld      (0x4115),hl                     ; 22 15 41
-  jr      L00BC                           ; 18 96
-  ld      a,0x2f                          ; 3e 2f
-L0128:
-  or      a                               ; b7
-  inc     a                               ; 3c
-  sbc     hl,de                           ; ed 52
-  jr      nc,L0128                        ; 30 fa
-  add     hl,de                           ; 19
-  ld      (bc),a                          ; 02
-  inc     bc                              ; 03
-  ret                                     ; c9
-L0132:
-  ld      bc,0x40d0                       ; 01 d0 40
-L0135:
-  ld      a,0x04                          ; 3e 04
-  out     (0xfe),a                        ; d3 fe
-  ld      hl,0x0000                       ; 21 00 00
-L013C:
-  ld      a,(bc)                          ; 0a
-  inc     bc                              ; 03
-  cp      0x5f                            ; fe 5f
-  jr      z,L0150                         ; 28 0e
-  add     hl,hl                           ; 29
-  push    hl                              ; e5
-  add     hl,hl                           ; 29
-  add     hl,hl                           ; 29
-  pop     de                              ; d1
-  add     hl,de                           ; 19
-  sub     0x30                            ; d6 30
-  ld      e,a                             ; 5f
-  ld      d,0x00                          ; 16 00
-  add     hl,de                           ; 19
-  jr      L013C                           ; 18 ec
-L0150:
+  res     5,(iy+1)                        ; clear FLAGS bit 5 - indicate no new key is pressed
+
+4:
+  ld      hl,0x50c8                       ; Print position (8,23)
+  ld      (0x41bc),hl                     ; Store it
+  call    0x41a9                          ; Print "Address:"
+
+  .ascii  "Address"
+  .byte   ':'+0x80
+
+  call    0x41a9                          ; Print "<code address>_ "
+
+  L00D0:
+  .ascii  "00000_"                        ; buffer for address input for address relocation
+  .byte   ' '+0x80
+
+5:
+  6:
+    halt                                  ; wait 1/50th second
+    bit     5,(iy+1)                      ; has a key been pressed?
+    jr      z,6b                          ; repeat until key pressed
+
+  ld      hl,0x00c8                       ; HL=200
+  ld      e,0x02
+  ld      d,h                             ; DE=2
+  call    0x03b5                          ; call ROM 1 beeper routine, 3 cycles duration
+  ld      a,(0x5c08)                      ; A = last key pressed
+  res     5,(iy+1)                        ; clear FLAGS bit 5 - indicate no new key is pressed
+  cp      0x0c                            ; Delete key?
+  jr      nz,7f                           ; Jump ahead to 7 if it wasn't delete key
+# Delete key has been pressed
+  ld      hl,(0x4115)                     ; HL=[L0115] = memory location where cursor is
+  ld      bc,0x40d0                       ; BC=L00D0 memory location where address starts
+  or      a                               ; clear carry
+  sbc     hl,bc                           ; set zero flag if cursor at start of number, (HL=cursor offset)
+  add     hl,bc                           ; HL=cursor memory location again
+  jr      z,5b                            ; Jump back to wait for key if already at start of address
+# Delete can take place, not on first char
+  ld      (hl),' '                        ; Replace memory value with a space
+  dec     hl                              ; Cursor left
+  ld      (hl),'_'                        ; Replace memory value with a '_'
+  ld      (0x4115),hl                     ; Store new cursor position
+  jr      4b                              ; Go back to print string, including "Address:"
+7:
+# Wasn't delete key pressed
+  cp      0x0d                            ; Was it enter pressed?
+  jr      z,9f                            ; If so, jump forward to 9:
+  cp      0x30                            ; Was it a char less than 0?
+  jr      c,5b                            ; If so go back to wait for another key
+  cp      0x3a                            ; Was it higher than 9?
+  jr      nc,5b                           ; If so go back to wait for another key
+
+.byte   0x21                              ; HL=[L0115]=memory location for cursor
+L0115:
+.byte   0xd5, 0x40                        ; 0x40d5 = start position for cursor in address field
+# Key press was 0-9
+  inc     hl                              ; cursor right
+  bit     7,(hl)                          ; is bit 7 set for char at new position?
+  dec     hl                              ; cursor left
+  jr      nz,5b                           ; if so, go back to wait for another key (at end of string)
+  ld      (hl),a                          ; update memory location with new value
+  inc     hl                              ; cursor right
+  ld      (hl),'_'                        ; write '_' to next address
+  ld      (0x4115),hl                     ; update cursor position in memory
+  jr      4b                              ; Go back to print string, including "Address:"
+
+# Get next decimal character (in ASCII) from HL and place in [BC++]
+8:
+  ld      a,0x2f                          ; A = 47
+  1:
+    or      a                             ; clear carry
+    inc     a                             ; increment A (carry remains clear)
+    sbc     hl,de                         ; HL=HL-DE
+    jr      nc,1b                         ; repeat until wrapped around 0
+  add     hl,de                           ; undo last subtraction, so now HL=entry HL % entry DE
+                                          ; and A = 48 + int(HL/DE)
+  ld      (bc),a                          ; [BC]=48+int(HL/DE)
+  inc     bc                              ; BC++
+  ret
+
+9:
+# enter pressed
+  ld      bc,0x40d0                       ; BC = start address of number entered
+  ld      a,0x04
+  out     (0xfe),a                        ; BORDER 4 (green)
+  ld      hl,0x0000
+  L013C:
+    ld      a,(bc)                        ; 0a
+    inc     bc                            ; 03
+    cp      0x5f                          ; fe 5f
+    jr      z,10f                         ; 28 0e
+    add     hl,hl                         ; 29
+    push    hl                            ; e5
+    add     hl,hl                         ; 29
+    add     hl,hl                         ; 29
+    pop     de                            ; d1
+    add     hl,de                         ; 19
+    sub     0x30                          ; d6 30
+    ld      e,a                           ; 5f
+    ld      d,0x00                        ; 16 00
+    add     hl,de                         ; 19
+    jr      L013C                         ; 18 ec
+10:
   ex      de,hl                           ; eb
   pop     ix                              ; dd e1
   pop     hl                              ; e1
@@ -250,34 +262,50 @@ L019F:
   ld      (hl),e                          ; 73
   pop     de                              ; d1
   jr      L016B                           ; 18 c2
-  pop     hl                              ; e1
-L01AA:
-  ld      a,(hl)                          ; 7e
-  call    0x41b4                          ; cd b4 41
-  bit     7,(hl)                          ; cb 7e
-  inc     hl                              ; 23
-  jr      z,L01AA                         ; 28 f7
-  jp      (hl)                            ; e9
-  add     a,a                             ; 87
-  exx                                     ; d9
-  ld      l,a                             ; 6f
-  ld      h,0x0f                          ; 26 0f
-  add     hl,hl                           ; 29
-  add     hl,hl                           ; 29
-  ld      de,0x0000                       ; 11 00 00
-  push    de                              ; d5
-  ld      b,0x08                          ; 06 08
-L01C1:
-  ld      a,(hl)                          ; 7e
-  ld      (de),a                          ; 12
-  inc     hl                              ; 23
-  inc     d                               ; 14
-  djnz    L01C1                           ; 10 fa
-  pop     hl                              ; e1
-  inc     l                               ; 2c
-  ld      (0x41bc),hl                     ; 22 bc 41
-  exx                                     ; d9
-  ret                                     ; c9
+
+# This routine prints the text string immediately after the location it is called
+# from, and returns to the first address after it. Setting bit 7 of last character
+# terminates the string.
+L01A9:
+  pop     hl                              ; HL = return address
+  L01AA:
+    ld      a,(hl)                        ; A=byte after address we were called from
+    call    0x41b4                        ; call 1f
+    bit     7,(hl)                        ; was bit 7 set?
+    inc     hl                            ; next byte
+    jr      z,L01AA                       ; if bit 7 wasn't set, repeat
+  jp      (hl)                            ; return to code after text section
+
+# Print char in A to display file address in [L01BC] and update [L01BC] to next DF location
+# (so long as we don't cross a screen third boundary)
+1:
+  add     a,a                             ; A=2*(A % 128)
+  exx                                     ; HL=HL' DE=DE' BC=BC'
+  ld      l,a                             ; L=A
+  ld      h,0x0f                          ; HL=0x0f00+2*(entry A)
+  add     hl,hl                           ; HL=0x1e00+4*(entry A)
+  add     hl,hl                           ; HL=0x3c00+8*(entry A)
+  .byte   0x11                            ; LD DE with [L01BC]
+L01BC:
+  .byte   0x00, 0x00
+  push    de                              ; push [L01BC]
+
+# This draws character (ASCII value in A) to display file address [L01BC]
+# using charset at 0x3d00
+
+  ld      b,0x08                          ; repeat following loop 8 times
+  L01C1:
+    ld      a,(hl)
+    ld      (de),a                        ; copy byte from [HL] to [DE]
+    inc     hl                            ; HL += 1
+    inc     d                             ; DE += 256
+    djnz    L01C1
+  pop     hl                              ; HL = [L01BC]
+  inc     l                               ; HL = next display file address (so long as we don't cross a screen third boundary)
+  ld      (0x41bc),hl                     ; Update [L01BC]
+  exx                                     ; restore original BC, DE, HL registers
+  ret
+
   ld      a,b                             ; 78
   or      c                               ; b1
   ret     z                               ; c8
@@ -3451,7 +3479,7 @@ L0E62:
   nop                                     ; 00
   dec     b                               ; 05
   nop                                     ; 00
-  defb    0xdd
+  .byte   0xdd
   djnz    L0F09                           ; 10 0c
   nop                                     ; 00
   rlca                                    ; 07
@@ -4854,7 +4882,7 @@ L1688:
   ld      bc,0xb0bd                       ; 01 bd b0
   adc     a,c                             ; 89
   ld      d,b                             ; 50
-  defb    0x18, 0x8a
+  .byte   0x18, 0x8a
   ld      bc,0xb0bf                       ; 01 bf b0
   ld      d,d                             ; 52
   ld      d,b                             ; 50
@@ -4905,7 +4933,7 @@ L16BF:
   or      b                               ; b0
   ld      c,b                             ; 48
   ld      c,b                             ; 48
-  defb    0x28, 0x81
+  .byte   0x28, 0x81
   ret     po                              ; e0
   cp      a                               ; bf
   or      b                               ; b0
@@ -5271,7 +5299,7 @@ L18D7:
   ld      h,a                             ; 67
   pop     af                              ; f1
   ld      l,a                             ; 6f
-  defb    0x18, 0xcb
+  .byte   0x18, 0xcb
   call    0xbfc6                          ; cd c6 bf
   jr      L188E                           ; 18 a5
   call    0xb5a0                          ; cd a0 b5
@@ -5304,7 +5332,7 @@ L18F0:
   dec     bc                              ; 0b
   dec     b                               ; 05
   ld      h,d                             ; 62
-  defb    0x20, 0x87
+  .byte   0x20, 0x87
   ld      h,l                             ; 65
   ld      c,0x60                          ; 0e 60
   ld      b,0x78                          ; 06 78
@@ -6059,7 +6087,7 @@ L1E44:
 L1E4F:
   cp      (hl)                            ; be
   inc     hl                              ; 23
-  defb    0x28, 0x0e
+  .byte   0x28, 0x0e
   inc     hl                              ; 23
   djnz    L1E4F                           ; 10 f9
   pop     hl                              ; e1
@@ -7254,7 +7282,7 @@ L2623:
   ld      b,b                             ; 40
   ex      af,af'                          ; 08
   ld      a,h                             ; 7c
-  defb    0x20, 0x04
+  .byte   0x20, 0x04
   ld      hl,(0xb4ed)                     ; 2a ed b4
   ld      ix,0xb257                       ; dd 21 57 b2
   ld      b,0x20                          ; 06 20
@@ -7486,7 +7514,7 @@ L27B1:
   ld      de,0x0012                       ; 11 12 00
   rlca                                    ; 07
   ld      c,0x15                          ; 0e 15
-  defb    0x20, 0x1c
+  .byte   0x20, 0x1c
   inc     sp                              ; 33
   cpl                                     ; 2f
   ld      a,0x00                          ; 3e 00
@@ -7790,86 +7818,86 @@ L295B:
   inc     hl                              ; 23
   sub     c                               ; 91
 
-.ascii "Lengh"
-.byte 't'+0x80
+.ascii  "Lengh"
+.byte   't'+0x80
 
-.ascii "Firs"
-.byte 't'+0x80
+.ascii  "Firs"
+.byte   't'+0x80
 
-.ascii "Las"
-.byte 't'+0x80
+.ascii  "Las"
+.byte   't'+0x80
 
-.ascii "Memor"
-.byte 'y'+0x80
+.ascii  "Memor"
+.byte   'y'+0x80
 
-.ascii "l"
-.byte 'd'+0x80
+.ascii  "l"
+.byte   'd'+0x80
 
-.ascii " UNIVERSUM Contro"
-.byte 'l'+0x80
+.ascii  " UNIVERSUM Contro"
+.byte   'l'+0x80
 
-.ascii "ON"
-.byte ' '+0x80
+.ascii  "ON"
+.byte   ' '+0x80
 
-.ascii "OF"
-.byte 'F'+0x80
+.ascii  "OF"
+.byte   'F'+0x80
 
-.ascii "NO"
-.byte 'N'+0x80
+.ascii  "NO"
+.byte   'N'+0x80
 
-.ascii "DE"
-.byte 'F'+0x80
+.ascii  "DE"
+.byte   'F'+0x80
 
-.ascii "AL"
-.byte 'L'+0x80
+.ascii  "AL"
+.byte   'L'+0x80
 
-.ascii "Cal"
-.byte 'l'+0x80
+.ascii  "Cal"
+.byte   'l'+0x80
 
-.ascii "Read/Writ"
-.byte 'e'+0x80
+.ascii  "Read/Writ"
+.byte   'e'+0x80
 
-.ascii "Ru"
-.byte 'n'+0x80
+.ascii  "Ru"
+.byte   'n'+0x80
 
-.ascii "Interrup"
-.byte 't'+0x80
+.ascii  "Interrup"
+.byte   't'+0x80
 
-.ascii "ERRO"
-.byte 'R'+0x80
+.ascii  "ERRO"
+.byte   'R'+0x80
 
-.ascii "No ru"
-.byte 'n'+0x80
+.ascii  "No ru"
+.byte   'n'+0x80
 
-.ascii "No writ"
-.byte 'e'+0x80
+.ascii  "No writ"
+.byte   'e'+0x80
 
-.ascii "No rea"
-.byte 'd'+0x80
+.ascii  "No rea"
+.byte   'd'+0x80
 
-.ascii "Def"
-.byte 'b'+0x80
+.ascii  "Def"
+.byte   'b'+0x80
 
-.ascii "Def"
-.byte 'w'+0x80
+.ascii  "Def"
+.byte   'w'+0x80
 
-.ascii "windows"
-.byte ':'+0x80
+.ascii  "windows"
+.byte   ':'+0x80
 
-.ascii "Wit"
-.byte 'h'+0x80
+.ascii  "Wit"
+.byte   'h'+0x80
 
-.ascii "T"
-.byte 'o'+0x80
+.ascii  "T"
+.byte   'o'+0x80
 
-.ascii "Leade"
-.byte 'r'+0x80
+.ascii  "Leade"
+.byte   'r'+0x80
 
-.ascii "1. byte"
-.byte ':'+0x80
+.ascii  "1. byte"
+.byte   ':'+0x80
 
-.ascii " MemPage"
-.byte ':'+0x80
+.ascii  " MemPage"
+.byte   ':'+0x80
 
   ld      d,e                             ; 53
   rst     0x08                            ; cf
@@ -8096,7 +8124,7 @@ L2BBA:
 L2BC3:
   ld      hl,(0xe227)                     ; 2a 27 e2
   call    0xe22e                          ; cd 2e e2
-  defb    0x38, 0x0d
+  .byte   0x38, 0x0d
   ld      de,0xc80c                       ; 11 0c c8
   ld      bc,0x0002                       ; 01 02 00
   call    0xe28d                          ; cd 8d e2
@@ -9610,7 +9638,7 @@ L3637:
   ld      hl,0x0000                       ; 21 00 00
   ld      b,0x10                          ; 06 10
 L3658:
-  defb    0xcb, 0x31
+  .byte   0xcb, 0x31
   rla                                     ; 17
   adc     hl,hl                           ; ed 6a
   sbc     hl,de                           ; ed 52
@@ -12219,146 +12247,146 @@ L46C9:
   add     a,b                             ; 80
 
 
-.ascii "Bad mnemoni"
-.byte 'c'+0x80
+.ascii  "Bad mnemoni"
+.byte   'c'+0x80
 
-.ascii "Bad operan"
-.byte 'd'+0x80
+.ascii  "Bad operan"
+.byte   'd'+0x80
 
-.ascii "Big numbe"
-.byte 'r'+0x80
+.ascii  "Big numbe"
+.byte   'r'+0x80
 
-.ascii "Syntax horro"
-.byte 'r'+0x80
+.ascii  "Syntax horro"
+.byte   'r'+0x80
 
-.ascii "Bad strin"
-.byte 'g'+0x80
+.ascii  "Bad strin"
+.byte   'g'+0x80
 
-.ascii "Bad instructio"
-.byte 'n'+0x80
+.ascii  "Bad instructio"
+.byte   'n'+0x80
 
-.ascii "Memory ful"
-.byte 'l'+0x80
+.ascii  "Memory ful"
+.byte   'l'+0x80
 
-.ascii "Bad PUT (ORG"
-.byte ')'+0x80
+.ascii  "Bad PUT (ORG"
+.byte   ')'+0x80
 
-.ascii " unknow"
-.byte 'n'+0x80
+.ascii  " unknow"
+.byte   'n'+0x80
 
-.ascii "Wait pleas"
-.byte 'e'+0x80
+.ascii  "Wait pleas"
+.byte   'e'+0x80
 
-.ascii "Assembly complet"
-.byte 'e'+0x80
+.ascii  "Assembly complet"
+.byte   'e'+0x80
 
-.ascii "Start tap"
-.byte 'e'+0x80
+.ascii  "Start tap"
+.byte   'e'+0x80
 
-.ascii "Tape erro"
-.byte 'r'+0x80
+.ascii  "Tape erro"
+.byte   'r'+0x80
 
-.ascii "Any ke"
-.byte 'y'+0x80
+.ascii  "Any ke"
+.byte   'y'+0x80
 
-.ascii "(C) 93 UNIVERSU"
-.byte 'M'+0x80
+.ascii  "(C) 93 UNIVERSU"
+.byte   'M'+0x80
 
-.ascii "Source ERRO"
-.byte 'R'+0x80
+.ascii  "Source ERRO"
+.byte   'R'+0x80
 
-.ascii "Found"
-.byte ':'+0x80
+.ascii  "Found"
+.byte   ':'+0x80
 
-.ascii "Already define"
-.byte 'd'+0x80
+.ascii  "Already define"
+.byte   'd'+0x80
 
-.ascii "ENT "
-.byte '?'+0x80
+.ascii  "ENT "
+.byte   '?'+0x80
 
-.ascii "Not foun"
-.byte 'd'+0x80
+.ascii  "Not foun"
+.byte   'd'+0x80
 
-.ascii "Overwrite"
-.byte '?'+0x80
+.ascii  "Overwrite"
+.byte   '?'+0x80
 
-.ascii "Disk erro"
-.byte 'r'+0x80
+.ascii  "Disk erro"
+.byte   'r'+0x80
 
-.byte 0x1a
+.byte   0x1a
 
-.ascii "!%(',/.kq+.1768<?ADHLKPgSASSEMBL"
-.byte 'Y'+0x80
+.ascii  "!%(',/.kq+.1768<?ADHLKPgSASSEMBL"
+.byte   'Y'+0x80
 
-.ascii "BASI"
-.byte 'C'+0x80
+.ascii  "BASI"
+.byte   'C'+0x80
 
-.ascii "COP"
-.byte 'Y'+0x80
+.ascii  "COP"
+.byte   'Y'+0x80
 
-.ascii "DELET"
-.byte 'E'+0x80
+.ascii  "DELET"
+.byte   'E'+0x80
 
-.ascii "FIN"
-.byte 'D'+0x80
+.ascii  "FIN"
+.byte   'D'+0x80
 
-.ascii "GEN"
-.byte 'S'+0x80
+.ascii  "GEN"
+.byte   'S'+0x80
 
-.ascii "LOA"
-.byte 'D'+0x80
+.ascii  "LOA"
+.byte   'D'+0x80
 
-.ascii "MONITO"
-.byte 'R'+0x80
+.ascii  "MONITO"
+.byte   'R'+0x80
 
-.ascii "NE"
-.byte 'W'+0x80
+.ascii  "NE"
+.byte   'W'+0x80
 
-.ascii "PRIN"
-.byte 'T'+0x80
+.ascii  "PRIN"
+.byte   'T'+0x80
 
-.ascii "QUI"
-.byte 'T'+0x80
+.ascii  "QUI"
+.byte   'T'+0x80
 
-.ascii "RU"
-.byte 'N'+0x80
+.ascii  "RU"
+.byte   'N'+0x80
 
-.ascii "SAV"
-.byte 'E'+0x80
+.ascii  "SAV"
+.byte   'E'+0x80
 
-.ascii "TABL"
-.byte 'E'+0x80
+.ascii  "TABL"
+.byte   'E'+0x80
 
-.ascii "U-TO"
-.byte 'P'+0x80
+.ascii  "U-TO"
+.byte   'P'+0x80
 
-.ascii "VERIF"
-.byte 'Y'+0x80
+.ascii  "VERIF"
+.byte   'Y'+0x80
 
-.ascii "CLEA"
-.byte 'R'+0x80
+.ascii  "CLEA"
+.byte   'R'+0x80
 
-.ascii "REPLAC"
-.byte 'E'+0x80
+.ascii  "REPLAC"
+.byte   'E'+0x80
 
-.ascii "S-BEGI"
-.byte 'N'+0x80
+.ascii  "S-BEGI"
+.byte   'N'+0x80
 
-.ascii "S-TO"
-.byte 'P'+0x80
+.ascii  "S-TO"
+.byte   'P'+0x80
 
-.ascii "CAL"
-.byte 'C'+0x80
+.ascii  "CAL"
+.byte   'C'+0x80
 
-.ascii "Source begin"
-.byte ':'+0x80
+.ascii  "Source begin"
+.byte   ':'+0x80
 
-.ascii "   S-top"
-.byte ':'+0x80
+.ascii  "   S-top"
+.byte   ':'+0x80
 
-.ascii "Result"
-.byte ':'+0x80
-.byte 0
+.ascii  "Result"
+.byte   ':'+0x80
+.byte   0
 
 
   ld      c,l                             ; 4d
@@ -12436,236 +12464,236 @@ L48C9:
   otdr                                    ; ed bb
 
 
-.ascii "c"
-.byte 'p'+0x80
+.ascii  "c"
+.byte   'p'+0x80
 
-.ascii "d"
-.byte 'i'+0x80
+.ascii  "d"
+.byte   'i'+0x80
 
-.ascii "e"
-.byte 'i'+0x80
+.ascii  "e"
+.byte   'i'+0x80
 
-.ascii "e"
-.byte 'x'+0x80
+.ascii  "e"
+.byte   'x'+0x80
 
-.ascii "i"
-.byte 'm'+0x80
+.ascii  "i"
+.byte   'm'+0x80
 
-.ascii "i"
-.byte 'n'+0x80
+.ascii  "i"
+.byte   'n'+0x80
 
-.ascii "j"
-.byte 'p'+0x80
+.ascii  "j"
+.byte   'p'+0x80
 
-.ascii "j"
-.byte 'r'+0x80
+.ascii  "j"
+.byte   'r'+0x80
 
-.ascii "l"
-.byte 'd'+0x80
+.ascii  "l"
+.byte   'd'+0x80
 
-.ascii "o"
-.byte 'r'+0x80
+.ascii  "o"
+.byte   'r'+0x80
 
-.ascii "r"
-.byte 'l'+0x80
+.ascii  "r"
+.byte   'l'+0x80
 
-.ascii "r"
-.byte 'r'+0x80
+.ascii  "r"
+.byte   'r'+0x80
 
-.ascii "ad"
-.byte 'c'+0x80
+.ascii  "ad"
+.byte   'c'+0x80
 
-.ascii "ad"
-.byte 'd'+0x80
+.ascii  "ad"
+.byte   'd'+0x80
 
-.ascii "an"
-.byte 'd'+0x80
+.ascii  "an"
+.byte   'd'+0x80
 
-.ascii "bi"
-.byte 't'+0x80
+.ascii  "bi"
+.byte   't'+0x80
 
-.ascii "cc"
-.byte 'f'+0x80
+.ascii  "cc"
+.byte   'f'+0x80
 
-.ascii "cp"
-.byte 'd'+0x80
+.ascii  "cp"
+.byte   'd'+0x80
 
-.ascii "cp"
-.byte 'i'+0x80
+.ascii  "cp"
+.byte   'i'+0x80
 
-.ascii "cp"
-.byte 'l'+0x80
+.ascii  "cp"
+.byte   'l'+0x80
 
-.ascii "da"
-.byte 'a'+0x80
+.ascii  "da"
+.byte   'a'+0x80
 
-.ascii "de"
-.byte 'c'+0x80
+.ascii  "de"
+.byte   'c'+0x80
 
-.ascii "en"
-.byte 't'+0x80
+.ascii  "en"
+.byte   't'+0x80
 
-.ascii "eq"
-.byte 'u'+0x80
+.ascii  "eq"
+.byte   'u'+0x80
 
-.ascii "ex"
-.byte 'x'+0x80
+.ascii  "ex"
+.byte   'x'+0x80
 
-.ascii "in"
-.byte 'c'+0x80
+.ascii  "in"
+.byte   'c'+0x80
 
-.ascii "in"
-.byte 'd'+0x80
+.ascii  "in"
+.byte   'd'+0x80
 
-.ascii "in"
-.byte 'i'+0x80
+.ascii  "in"
+.byte   'i'+0x80
 
-.ascii "ld"
-.byte 'd'+0x80
+.ascii  "ld"
+.byte   'd'+0x80
 
-.ascii "ld"
-.byte 'i'+0x80
+.ascii  "ld"
+.byte   'i'+0x80
 
-.ascii "ne"
-.byte 'g'+0x80
+.ascii  "ne"
+.byte   'g'+0x80
 
-.ascii "no"
-.byte 'p'+0x80
+.ascii  "no"
+.byte   'p'+0x80
 
-.ascii "or"
-.byte 'g'+0x80
+.ascii  "or"
+.byte   'g'+0x80
 
-.ascii "ou"
-.byte 't'+0x80
+.ascii  "ou"
+.byte   't'+0x80
 
-.ascii "po"
-.byte 'p'+0x80
+.ascii  "po"
+.byte   'p'+0x80
 
-.ascii "pu"
-.byte 't'+0x80
+.ascii  "pu"
+.byte   't'+0x80
 
-.ascii "re"
-.byte 's'+0x80
+.ascii  "re"
+.byte   's'+0x80
 
-.ascii "re"
-.byte 't'+0x80
+.ascii  "re"
+.byte   't'+0x80
 
-.ascii "rl"
-.byte 'a'+0x80
+.ascii  "rl"
+.byte   'a'+0x80
 
-.ascii "rl"
-.byte 'c'+0x80
+.ascii  "rl"
+.byte   'c'+0x80
 
-.ascii "rl"
-.byte 'd'+0x80
+.ascii  "rl"
+.byte   'd'+0x80
 
-.ascii "rr"
-.byte 'a'+0x80
+.ascii  "rr"
+.byte   'a'+0x80
 
-.ascii "rr"
-.byte 'c'+0x80
+.ascii  "rr"
+.byte   'c'+0x80
 
-.ascii "rr"
-.byte 'd'+0x80
+.ascii  "rr"
+.byte   'd'+0x80
 
-.ascii "rs"
-.byte 't'+0x80
+.ascii  "rs"
+.byte   't'+0x80
 
-.ascii "sb"
-.byte 'c'+0x80
+.ascii  "sb"
+.byte   'c'+0x80
 
-.ascii "sc"
-.byte 'f'+0x80
+.ascii  "sc"
+.byte   'f'+0x80
 
-.ascii "se"
-.byte 't'+0x80
+.ascii  "se"
+.byte   't'+0x80
 
-.ascii "sl"
-.byte 'a'+0x80
+.ascii  "sl"
+.byte   'a'+0x80
 
-.ascii "sr"
-.byte 'a'+0x80
+.ascii  "sr"
+.byte   'a'+0x80
 
-.ascii "sr"
-.byte 'l'+0x80
+.ascii  "sr"
+.byte   'l'+0x80
 
-.ascii "su"
-.byte 'b'+0x80
+.ascii  "su"
+.byte   'b'+0x80
 
-.ascii "xo"
-.byte 'r'+0x80
+.ascii  "xo"
+.byte   'r'+0x80
 
-.ascii "cal"
-.byte 'l'+0x80
+.ascii  "cal"
+.byte   'l'+0x80
 
-.ascii "cpd"
-.byte 'r'+0x80
+.ascii  "cpd"
+.byte   'r'+0x80
 
-.ascii "cpi"
-.byte 'r'+0x80
+.ascii  "cpi"
+.byte   'r'+0x80
 
-.ascii "def"
-.byte 'b'+0x80
+.ascii  "def"
+.byte   'b'+0x80
 
-.ascii "def"
-.byte 'm'+0x80
+.ascii  "def"
+.byte   'm'+0x80
 
-.ascii "def"
-.byte 's'+0x80
+.ascii  "def"
+.byte   's'+0x80
 
-.ascii "def"
-.byte 'w'+0x80
+.ascii  "def"
+.byte   'w'+0x80
 
-.ascii "djn"
-.byte 'z'+0x80
+.ascii  "djn"
+.byte   'z'+0x80
 
-.ascii "hal"
-.byte 't'+0x80
+.ascii  "hal"
+.byte   't'+0x80
 
-.ascii "ind"
-.byte 'r'+0x80
+.ascii  "ind"
+.byte   'r'+0x80
 
-.ascii "ini"
-.byte 'r'+0x80
+.ascii  "ini"
+.byte   'r'+0x80
 
-.ascii "ldd"
-.byte 'r'+0x80
+.ascii  "ldd"
+.byte   'r'+0x80
 
-.ascii "ldi"
-.byte 'r'+0x80
+.ascii  "ldi"
+.byte   'r'+0x80
 
-.ascii "otd"
-.byte 'r'+0x80
+.ascii  "otd"
+.byte   'r'+0x80
 
-.ascii "oti"
-.byte 'r'+0x80
+.ascii  "oti"
+.byte   'r'+0x80
 
-.ascii "out"
-.byte 'd'+0x80
+.ascii  "out"
+.byte   'd'+0x80
 
-.ascii "out"
-.byte 'i'+0x80
+.ascii  "out"
+.byte   'i'+0x80
 
-.ascii "pus"
-.byte 'h'+0x80
+.ascii  "pus"
+.byte   'h'+0x80
 
-.ascii "ret"
-.byte 'i'+0x80
+.ascii  "ret"
+.byte   'i'+0x80
 
-.ascii "ret"
-.byte 'n'+0x80
+.ascii  "ret"
+.byte   'n'+0x80
 
-.ascii "rlc"
-.byte 'a'+0x80
+.ascii  "rlc"
+.byte   'a'+0x80
 
-.ascii "rrc"
-.byte 'a'+0x80
+.ascii  "rrc"
+.byte   'a'+0x80
 
-.ascii "sli"
-.byte 'a'+0x80
+.ascii  "sli"
+.byte   'a'+0x80
 
-.ascii " +++++++++++++++++++++,-./0123456789:<>ADGJM"
-.byte '0'+0x80
+.ascii  " +++++++++++++++++++++,-./0123456789:<>ADGJM"
+.byte   '0'+0x80
 
 L49E7:
   or      c                               ; b1
@@ -12958,14 +12986,14 @@ L4B1C:
   daa                                     ; 27
   ld      (de),a                          ; 12
   add     a,b                             ; 80
-  defb    0x18, 0x60
+  .byte   0x18, 0x60
   ex      af,af'                          ; 08
   inc     de                              ; 13
   nop                                     ; 00
   ld      (hl),0xb8                       ; 36 b8
   ld      b,0x13                          ; 06 13
   add     a,b                             ; 80
-  defb    0x18, 0x68
+  .byte   0x18, 0x68
   ex      af,af'                          ; 08
   inc     d                               ; 14
   nop                                     ; 00
@@ -12973,7 +13001,7 @@ L4B1C:
   inc     b                               ; 04
   inc     d                               ; 14
   add     a,b                             ; 80
-  defb    0x18, 0x70
+  .byte   0x18, 0x70
   ex      af,af'                          ; 08
   dec     d                               ; 15
   nop                                     ; 00
@@ -13003,7 +13031,7 @@ L4B4D:
   inc     b                               ; 04
   rla                                     ; 17
   add     a,b                             ; 80
-  defb    0x18, 0x48
+  .byte   0x18, 0x48
   ex      af,af'                          ; 08
   jr      L4B71                           ; 18 03
   inc     de                              ; 13
@@ -13020,7 +13048,7 @@ L4B71:
   ld      e,0xc2                          ; 1e c2
   ex      de,hl                           ; eb
   add     hl,de                           ; 19
-  defb    0x20, 0x1e
+  .byte   0x20, 0x1e
   jp      c,0x19ef                        ; da ef 19
   add     a,b                             ; 80
   ld      a,(de)                          ; 1a
@@ -13212,7 +13240,7 @@ L4C42:
   nop                                     ; 00
   ld      l,0xc0                          ; 2e c0
   ld      b,0x2b                          ; 06 2b
-  defb    0x20, 0x2e
+  .byte   0x20, 0x2e
 L4C69:
   ret     c                               ; d8
   ld      a,(bc)                          ; 0a
@@ -13253,7 +13281,7 @@ L4C69:
   add     a,a                             ; 87
   ld      l,0x21                          ; 2e 21
   inc     d                               ; 14
-  defb    0xed, 0x8b
+  .byte   0xed, 0x8b
   ld      l,0x80                          ; 2e 80
   ld      h,a                             ; 67
   ld      b,b                             ; 40
@@ -13273,7 +13301,7 @@ L4C69:
   jr      nc,L4CB1                        ; 30 03
 L4CAE:
   ld      (de),a                          ; 12
-  defb    0xfd
+  .byte   0xfd
   add     a,a                             ; 87
 L4CB1:
   jr      nc,L4C33                        ; 30 80
@@ -13364,7 +13392,7 @@ L4CD5:
   ld      e,l                             ; 5d
   add     a,a                             ; 87
 L4D15:
-  defb    0x38, 0x80
+  .byte   0x38, 0x80
   ld      l,b                             ; 68
   ld      d,b                             ; 50
   ex      af,af'                          ; 08
@@ -13373,7 +13401,7 @@ L4D15:
   ld      e,0xc4                          ; 1e c4
   ld      l,e                             ; 6b
   add     hl,sp                           ; 39
-  defb    0x20, 0x1e
+  .byte   0x20, 0x1e
   call    c,0x396f                        ; dc 6f 39
   add     a,b                             ; 80
   ld      l,b                             ; 68
@@ -13487,7 +13515,7 @@ L4D3E:
   call    nz,0x2044                       ; c4 44 20
   inc     d                               ; 14
   ld      d,e                             ; 53
-  defb    0x28, 0x44
+  .byte   0x28, 0x44
   ld      b,b                             ; 40
   ld      b,b                             ; 40
   nop                                     ; 00
@@ -13700,7 +13728,7 @@ L4E89:
   call    nz,0x2054                       ; c4 54 20
   inc     d                               ; 14
   ld      h,e                             ; 63
-  defb    0x28, 0x54
+  .byte   0x28, 0x54
   add     a,b                             ; 80
   ld      (0xc819),hl                     ; 22 19 c8
   ld      d,l                             ; 55
@@ -13728,7 +13756,7 @@ L4E89:
   ld      b,b                             ; 40
   inc     c                               ; 0c
 L4EDF:
-  defb    0x10, 0x08
+  .byte   0x10, 0x08
   ld      d,(hl)                          ; 56
   add     a,b                             ; 80
   ld      (0x0c1d),hl                     ; 22 1d 0c
@@ -13830,7 +13858,7 @@ L4EDF:
   ld      b,b                             ; 40
   inc     c                               ; 0c
 L4F61:
-  defb    0x18, 0x08
+  .byte   0x18, 0x08
   ld      e,(hl)                          ; 5e
   add     a,b                             ; 80
   ld      (0x0c25),hl                     ; 22 25 0c
@@ -13934,7 +13962,7 @@ L4FD4:
   ld      (hl),d                          ; 72
   inc     b                               ; 04
   ld      h,l                             ; 65
-  defb    0x20, 0x14
+  .byte   0x20, 0x14
   res     5,b                             ; cb a8
   ld      h,l                             ; 65
   add     a,b                             ; 80
@@ -13962,7 +13990,7 @@ L4FD4:
   ld      h,a                             ; 67
   jr      nz,L501A                        ; 20 14
   ret                                     ; c9
-  defb    0x28, 0x67
+  .byte   0x28, 0x67
   ld      b,b                             ; 40
   ld      e,d                             ; 5a
   nop                                     ; 00
@@ -14045,7 +14073,7 @@ L5056:
   inc     d                               ; 14
 L506A:
   ex      de,hl                           ; eb
-  defb    0x28, 0x6c
+  .byte   0x28, 0x6c
   add     a,b                             ; 80
   ld      (0xc831),hl                     ; 22 31 c8
   ld      l,l                             ; 6d
@@ -14054,7 +14082,7 @@ L506A:
   add     a,d                             ; 82
   inc     b                               ; 04
   ld      l,l                             ; 6d
-  defb    0x20, 0x14
+  .byte   0x20, 0x14
   ex      de,hl                           ; eb
   xor     b                               ; a8
   ld      l,l                             ; 6d
@@ -14266,7 +14294,7 @@ L5159:
   ld      c,d                             ; 4a
   inc     b                               ; 04
   ld      a,l                             ; 7d
-  defb    0x20, 0x14
+  .byte   0x20, 0x14
   ld      c,e                             ; 4b
   xor     b                               ; a8
   ld      a,l                             ; 7d
@@ -14348,7 +14376,7 @@ L51C5:
   ld      e,0x4a                          ; 1e 4a
   inc     b                               ; 04
   add     a,l                             ; 85
-  defb    0x20, 0x1e
+  .byte   0x20, 0x1e
   ld      c,e                             ; 4b
   xor     b                               ; a8
   add     a,l                             ; 85
@@ -14513,7 +14541,7 @@ L5267:
   ld      (hl),b                          ; 70
   inc     b                               ; 04
   sub     h                               ; 94
-  defb    0x20, 0x6a
+  .byte   0x20, 0x6a
   ret     z                               ; c8
   ex      af,af'                          ; 08
   sub     h                               ; 94
@@ -14528,7 +14556,7 @@ L529D:
   add     a,b                             ; 80
   inc     b                               ; 04
   sub     l                               ; 95
-  defb    0x20, 0x6a
+  .byte   0x20, 0x6a
   ret     pe                              ; e8
   ex      af,af'                          ; 08
   sub     l                               ; 95
@@ -14677,7 +14705,7 @@ L534A:
   ld      l,b                             ; 68
   and     d                               ; a2
   nop                                     ; 00
-  defb    0x20, 0x60
+  .byte   0x20, 0x60
   inc     b                               ; 04
   and     d                               ; a2
   ld      b,b                             ; 40
@@ -14757,7 +14785,7 @@ L53A5:
   add     a,b                             ; 80
   ld      c,h                             ; 4c
   add     hl,hl                           ; 29
-  defb    0x28, 0xa8
+  .byte   0x28, 0xa8
   nop                                     ; 00
   ld      l,h                             ; 6c
   ld      d,b                             ; 50
@@ -14922,7 +14950,7 @@ L545A:
   ld      d,0x70                          ; 16 70
   inc     b                               ; 04
   or      h                               ; b4
-  defb    0x20, 0x16
+  .byte   0x20, 0x16
   ret     z                               ; c8
   ex      af,af'                          ; 08
   or      h                               ; b4
@@ -15234,7 +15262,7 @@ L5530:
   add     hl,de                           ; 19
   ld      l,b                             ; 68
   jp      nc,0x1002                       ; d2 02 10
-  defb    0xfd
+  .byte   0xfd
   adc     a,d                             ; 8a
   jp      nc,0x6280                       ; d2 80 62
   add     hl,de                           ; 19
@@ -15248,7 +15276,7 @@ L5530:
   add     hl,de                           ; 19
   xor     b                               ; a8
   call    nc,0x6e02                       ; d4 02 6e
-  defb    0xfd
+  .byte   0xfd
   adc     a,c                             ; 89
   call    nc,0x6280                       ; d4 80 62
   add     hl,de                           ; 19
@@ -15279,7 +15307,7 @@ L5530:
   add     a,b                             ; 80
   ld      h,d                             ; 62
   add     hl,de                           ; 19
-  defb    0x28, 0xd8
+  .byte   0x28, 0xd8
   nop                                     ; 00
   ld      c,(hl)                          ; 4e
   ld      e,b                             ; 58
@@ -15297,7 +15325,7 @@ L5530:
   ld      h,d                             ; 62
   ld      hl,0xda68                       ; 21 68 da
   ld      (bc),a                          ; 02
-  defb    0x10, 0x5d
+  .byte   0x10, 0x5d
   adc     a,d                             ; 8a
   jp      c,0x6280                        ; da 80 62
   ld      hl,0xdb88                       ; 21 88 db
@@ -15420,7 +15448,7 @@ L56A7:
   nop                                     ; 00
   ld      de,0x0440                       ; 11 40 04
   jp      (hl)                            ; e9
-  defb    0x20, 0x11
+  .byte   0x20, 0x11
   ld      c,b                             ; 48
   ex      af,af'                          ; 08
   jp      (hl)                            ; e9
@@ -15572,7 +15600,7 @@ L5773:
   call    m,0x6280                        ; fc 80 62
   ld      b,c                             ; 41
   ret     z                               ; c8
-  defb    0xfd
+  .byte   0xfd
   add     a,b                             ; 80
   ld      h,d                             ; 62
   ld      b,d                             ; 42
@@ -15593,7 +15621,7 @@ L5773:
   add     a,b                             ; 80
   ld      h,d                             ; 62
   ld      b,c                             ; 41
-  defb    0x28, 0xff
+  .byte   0x28, 0xff
   rst     0x38                            ; ff
   rst     0x38                            ; ff
   rst     0x38                            ; ff

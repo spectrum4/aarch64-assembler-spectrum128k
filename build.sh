@@ -4,7 +4,7 @@ CODE_ADDRESS=0x8000
 
 set -e
 
-cat prometheus.s | ~/git/spectrum4/utils/asm-format/asm-format > p.s
+cat prometheus.s | sed 's/\.byte/peter/' | sed 's/.ascii/jasper/' | ~/git/spectrum4/utils/asm-format/asm-format | sed 's/peter/\.byte/' | sed 's/jasper/.ascii/' > p.s
 mv p.s prometheus.s
 
 z80-unknown-elf-as prometheus.s -o prometheus.o
