@@ -45,13 +45,22 @@ func main() {
 }
 
 func BASICLoader(loadAddress uint16, name string) *zxtape.File {
+
+	clearAddress := loadAddress - 1
+
+	// Let's see clear address as low as possible, so code can be relocated on
+	// start up without problems
+	if clearAddress > 23999 {
+		clearAddress = 23999
+	}
+
 	p := &zxbasic.Program{
 		Lines: []zxbasic.Line{
 			{
 				Number: 10,
 				Tokens: []zxbasic.Token{
 					zxbasic.CLEAR,
-					zxbasic.Number(loadAddress - 1),
+					zxbasic.Number(clearAddress),
 				},
 			},
 			{
