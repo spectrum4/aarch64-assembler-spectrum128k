@@ -7,19 +7,20 @@ _start:
   di
   call    0x0052                          ; This is the first ret statement in ROM1
                                           ; It is called simply for the side effect of
-                                          ; placing the next address on the stack so
+                                          ; placing L0004 on the stack so
                                           ; we can determine what address the code is
                                           ; loaded to (code is relocatable so could
                                           ; loaded at non-default address)
+L0004:
   dec     sp
   dec     sp                              ; lower the stack pointer to recover address
-  pop     hl                              ; fetch it into HL
+  pop     hl                              ; HL=L0004
   push    hl                              ; stack it
-  ld      bc,0x0013                       ;
-  add     hl,bc                           ; add 0x13 bytes to HL => HL=_start+0x17=L0017
-  ld      bc,0x01cd                       ; prepare to copy 0x1cd bytes memory region: (L0017 - L01E4)
-  ld      de,0x4017                       ; target location is in 0x17 bytes into display file
-  ldir                                    ; copy 0x1cd bytes from _start+0x17 to 0x4017 in display file
+  ld      bc,L0017-L0004                  ;
+  add     hl,bc                           ; HL=L0017
+  ld      bc,L01E4-L0017                  ; prepare to copy memory region: (L0017 - L01E4)
+  ld      de,0x4000+L0017-_start          ; target location is 0x17 bytes into display file
+  ldir                                    ; copy from L0017 to 0x4017 in display file
   jp      0x4017                          ; jump to the code that has just been copied to display file
                                           ; (L0017)
 
@@ -27,7 +28,7 @@ _start:
 # The following section (L0017 until L0FAA) gets relocated to 0x4017-4fa9 in the display file
 
 L0017:
-  ld      bc,0x0dc6                       ; prepare to copy remaining 0xdc6 bytes (L01E4-L0FAA)
+  ld      bc,L0FAA-L01E4                  ; prepare to copy remaining 0xdc6 bytes (L01E4-L0FAA)
   push    de                              ; stack L01E4 location (0x41e4)
   ldir                                    ; relocate L01E4-L0FAA to 0x41e4
   xor     a                               ; a=0
@@ -69,25 +70,25 @@ L0017:
                                           ; HL=original location of code block
   ld      bc,0x40d0                       ; store result at L00D0
   ld      de,0x2710                       ; DE=10000
-  call    0x4126                          ; Update [L00D0] first char (calling routine at 8f)
+  call    0x4000+8f-_start                ; Update [L00D0] first char (calling routine at 8f)
   ld      de,0x03e8                       ; DE=1000
-  call    0x4126                          ; Update [L00D0] second char
+  call    0x4000+8f-_start                ; Update [L00D0] second char
   ld      de,0x0064                       ; DE=100
-  call    0x4126                          ; Update [L00D0] third char
+  call    0x4000+8f-_start                ; Update [L00D0] third char
   ld      e,0x0a                          ; DE=10
-  call    0x4126                          ; Update [L00D0] fourth char
+  call    0x4000+8f-_start                ; Update [L00D0] fourth char
   ld      e,0x01                          ; DE=1
-  call    0x4126                          ; Update [L00D0] fifth char
+  call    0x4000+8f-_start                ; Update [L00D0] fifth char
   ld      hl,0x5041                       ; HL = display file address of print position (1,18)
   ld      (0x41bc),hl                     ; [L01BC] = display file address of print position (1,18)
-  call    0x41a9                          ; Print "PROMETHEUS 128 disk version L"
+  call    0x4000+L01A9-_start             ; Print "PROMETHEUS 128 disk version L"
 
   .ascii  "PROMETHEUS 128 disk version "
   .byte   'L'+0x80
 
   ld      hl,0x5081                       ; Print position (1,20)
   ld      (0x41bc),hl                     ; Store it
-  call    0x41a9                          ; Print "© 1993 PROXIMA software v.o.s"
+  call    0x4000+L01A9-_start             ; Print "© 1993 PROXIMA software v.o.s"
 
   .byte   0x7f                            ; ©
   .ascii  " 1993 PROXIMA software v.o."
@@ -101,12 +102,12 @@ L0017:
 4:
   ld      hl,0x50c8                       ; Print position (8,23)
   ld      (0x41bc),hl                     ; Store it
-  call    0x41a9                          ; Print "Address:"
+  call    0x4000+L01A9-_start             ; Print "Address:"
 
   .ascii  "Address"
   .byte   ':'+0x80
 
-  call    0x41a9                          ; Print "<code address>_ "
+  call    0x4000+L01A9-_start             ; Print "<code address>_ "
 
   L00D0:
   .ascii  "00000_"                        ; buffer for address input for address relocation
@@ -182,29 +183,29 @@ L0115:
   ld      a,0x04
   out     (0xfe),a                        ; BORDER 4 (green)
   ld      hl,0x0000
-  L013C:
-    ld      a,(bc)                        ; 0a
-    inc     bc                            ; 03
-    cp      0x5f                          ; fe 5f
-    jr      z,10f                         ; 28 0e
-    add     hl,hl                         ; 29
-    push    hl                            ; e5
-    add     hl,hl                         ; 29
-    add     hl,hl                         ; 29
-    pop     de                            ; d1
-    add     hl,de                         ; 19
-    sub     0x30                          ; d6 30
-    ld      e,a                           ; 5f
-    ld      d,0x00                        ; 16 00
-    add     hl,de                         ; 19
-    jr      L013C                         ; 18 ec
-10:
-  ex      de,hl                           ; eb
-  pop     ix                              ; dd e1
-  pop     hl                              ; e1
-  ld      bc,0x4ab8                       ; 01 b8 4a
-  push    de                              ; d5
-  call    0x41ce                          ; cd ce 41
+  10:                                     ; get requested start address in HL
+    ld      a,(bc)                        ; fetch.ascii value
+    inc     bc                            ; bump memory location of stored address string
+    cp      0x5f                          ; is it '_' ?
+    jr      z,11f                         ; if so, exit loop (all numbers read)
+    add     hl,hl                         ; HL=(start of loop HL)*2
+    push    hl                            ; stack (start of loop HL)*2
+    add     hl,hl                         ; HL=(start of loop HL)*4
+    add     hl,hl                         ; HL=(start of loop HL)*8
+    pop     de                            ; DL=(start of loop HL)*2
+    add     hl,de                         ; HL=(start of loop HL)*10
+    sub     0x30                          ; A=int value of char at position
+    ld      e,a
+    ld      d,0x00                        ; DE=int value of char at position
+    add     hl,de                         ; HL=(start of loop HL)*10 + int value of char at position
+    jr      10b                           ; repeat loop
+11:
+  ex      de,hl                           ; DE=user specificed target address
+  pop     ix                              ; IX=location of relocated L01E4
+  pop     hl                              ; HL=location of L0004(?)
+  ld      bc,0x4ab8                       ; BC=LXXXX-LXXXX
+  push    de                              ; stack destination address
+  call    0x4000+L01CE-_start             ; safely copy memory block
   pop     hl                              ; e1
   push    hl                              ; e5
   ld      de,0xabe0                       ; 11 e0 ab
@@ -306,24 +307,29 @@ L01BC:
   exx                                     ; restore original BC, DE, HL registers
   ret
 
-  ld      a,b                             ; 78
-  or      c                               ; b1
-  ret     z                               ; c8
-  push    hl                              ; e5
-  xor     a                               ; af
-  sbc     hl,de                           ; ed 52
-  pop     hl                              ; e1
-  jr      c,L01DB                         ; 38 03
-  ldir                                    ; ed b0
-  ret                                     ; c9
-L01DB:
-  add     hl,bc                           ; 09
-  dec     hl                              ; 2b
-  ex      de,hl                           ; eb
-  add     hl,bc                           ; 09
-  dec     hl                              ; 2b
-  ex      de,hl                           ; eb
-  lddr                                    ; ed b8
+# Safely copy memory region either above or below current location
+# by using LDIR or LDDR depending on whether destination is above
+# or below or current location, or exit if source==destination.
+L01CE:
+  ld      a,b
+  or      c
+  ret     z                               ; return if BC==0
+  push    hl                              ; preserve HL
+  xor     a                               ; A=0, reset carry
+  sbc     hl,de                           ; HL=HL-DE
+  pop     hl                              ; restore HL
+  jr      c,1f                            ; if DE>HL jump ahead to 1:
+  ldir                                    ; copy memory region
+  ret
+1:
+# destination address above current location
+  add     hl,bc
+  dec     hl                              ; HL=last memory address to copy
+  ex      de,hl
+  add     hl,bc
+  dec     hl
+  ex      de,hl                           ; DE=last destination address to copy to
+  lddr                                    ; copy memory region from end to start
   ret                                     ; c9
 
 
