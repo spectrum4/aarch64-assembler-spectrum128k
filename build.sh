@@ -12,11 +12,11 @@ z80-unknown-elf-ld -N -Ttext="${CODE_ADDRESS}" -o prometheus.elf prometheus.o
 z80-unknown-elf-objcopy --set-start="${CODE_ADDRESS}" prometheus.elf -O binary prometheus.img
 
 if ! diff -b prometheus.img orig.img; then
-  hexdump orig.img > A
-  hexdump prometheus.img > B
+  hexdump -C orig.img > A
+  hexdump -C prometheus.img > B
   z80-unknown-elf-objdump -z -b binary --adjust-vma=0x4000 -mz80 -D orig.img > C
   z80-unknown-elf-objdump -z -b binary --adjust-vma=0x4000 -mz80 -D prometheus.img > D
-  diff -y A B | head -3
+  diff A B
   diff C D
   rm A B C D
   echo "Whoops!"
