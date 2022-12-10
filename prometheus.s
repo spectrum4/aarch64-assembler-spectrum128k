@@ -202,23 +202,29 @@ L0115:
     add     hl,de                         ; HL=(start of loop HL)*10 + int value of char at position
     jr      10b                           ; repeat loop
 11:
+# BUG: should really check that value in HL is in suitable range, i.e. higher than
+# current CLEAR address and lower than or equal to 65536-(_end-L0FAA) and also
+# that the original string is 5 chars long, starting with [2-5], so that number
+# didn't wrap around 0 during conversion (e.g. "90000_" -> 0x5F90).
   ex      de,hl                           ; DE=user specificed target address
   pop     ix                              ; IX=location of relocated L01E4 = 0x41e4
   pop     hl                              ; HL=original location of L0FAA
   ld      bc,_end-L0FAA
   push    de                              ; stack user-specified destination address
   call    0x4000+L01CE-_start             ; safely copy memory block L0FAA-_end to user specified address
-  pop     hl
-  push    hl                              ; HL=user specified destination address
+  pop     hl                              ; HL=user-specified destination address
+  push    hl                              ; stack user-specified destination address
+                                          ; (for fake return address to relocated L0FAA routine from function later)
   ld      de,0xabe0                       ; DE=44000
   or      a                               ; clear carry
-  push    hl                              ; stack user-specified destination address (again!)
+  push    hl                              ; stack user-specified destination address (again)
   sbc     hl,de                           ; HL=user-specified destination address - 44000
   ld      c,l
   ld      b,h                             ; BC=user-specified destination address - 44000
-  pop     de                              ; DE-user-specified destination address
+                                          ;   =address offset to add to all current addresses
+  pop     de                              ; DE=user-specified destination address
   xor     a                               ; A=0
-  ld      (0x4000+L0196-_start),a         ; [L0196]=0
+  ld      (0x4000+L0196-_start),a         ; [L0196]=0 - seemingly unneeded and relates to unused code below
   12:
     ld      l,(ix+0)
     ld      h,(ix+1)                      ; HL=[IX]
@@ -227,47 +233,48 @@ L0115:
     ld      a,h
     or      l
     ret     z                             ; Return if [IX] == 0
-    ld      a,h                           ; 7c
-    and     0xc0                          ; A=(H & 0xc0)
-    res     7,h
-    res     6,h                           ; HL=([IX] & 0x3fff)
-    add     hl,de                         ; HL=user-specified address + ([IX] & 0x3fff)
-    push    hl                            ; stack user-specified address + ([IX] & 0x3fff)
+    ld      a,h
+    and     0xc0                          ; A=([IX+1] & 0xc0)          NO EFFECT
+    res     7,h                           ;                            NO EFFECT
+    res     6,h                           ; HL=([IX] & 0x3fff)         NO EFFECT
+    add     hl,de                         ; HL=user-specified address + cumulative ([IX] & 0x3fff)
+    push    hl                            ; stack user-specified address + cumulative ([IX] & 0x3fff) = address that needs value bumping
     ld      e,(hl)
-    inc     hl
-    ld      d,(hl)                        ; DE=[stack user-specified address + ([IX] & 0x3fff)]
-    ex      de,hl                         ; HL=[stack user-specified address + ([IX] & 0x3fff)]
-                                          ; DE=user-specified address + ([IX] & 0x3fff)
-    or      a                             ; clear carry
+    inc     hl                            ; HL = address that needs value bumping + 1
+    ld      d,(hl)                        ; DE=[stack user-specified address + cumulative ([IX] & 0x3fff)] = value that needs bumping
+    ex      de,hl                         ; HL=[stack user-specified address + cumulative ([IX] & 0x3fff)] = value that needs bumping
+                                          ; DE=user-specified address + cumulative ([IX] & 0x3fff) = address that needs value bumping + 1
+    or      a                             ; set zero flag if ([IX] & 0xc000) == 0 (which it always is)
     jr      z,14f                         ; if ([IX] & 0xc000) == 0 jump to 14:
-    cp      0x40
-    jr      z,13f                         ; if ([IX] & 0xc000) == 0x4000 jump to L0x195
-    ld      a,l                           ; 7d
-    add     a,c                           ; A=L+C
-    ld      l,a                           ; L=L+C
-    ld      a,0x00                        ;
-    adc     a,0x00                        ; A=int((L+C)/256)
-    jr      15f                           ; jump ahead to 15:
-  13:
-    .byte   0x3e                          ; A=[L0196]
-  L0196:
-    .byte   0x00
-    add     a,l                           ; A=[L0196]+L
-    add     a,b                           ; A=[L0196]+L+B
-    ld      l,a                           ; L=[L0196]+L+B
-    xor     a                             ; clear carry, A=0
-    jr      15f                           ; jump ahead to 15:
+
+    cp      0x40                          ; UNUSED CODE
+    jr      z,13f                         ; UNUSED CODE
+    ld      a,l                           ; UNUSED CODE
+    add     a,c                           ; UNUSED CODE
+    ld      l,a                           ; UNUSED CODE
+    ld      a,0x00                        ; UNUSED CODE
+    adc     a,0x00                        ; UNUSED CODE
+    jr      15f                           ; UNUSED CODE
+  13:                                     ; UNUSED CODE
+    .byte   0x3e                          ; UNUSED CODE
+  L0196:                                  ; UNUSED CODE
+    .byte   0x00                          ; UNUSED CODE
+    add     a,l                           ; UNUSED CODE
+    add     a,b                           ; UNUSED CODE
+    ld      l,a                           ; UNUSED CODE
+    xor     a                             ; UNUSED CODE
+    jr      15f                           ; UNUSED CODE
   14:
-    add     hl,bc                         ; HL=HL+BC
+    add     hl,bc                         ; HL=value that needs bumping + offset=corrected value of address
     xor     a                             ; clear carry, A=0
   15:
     ld      (0x4000+L0196-_start),a       ; [L0196]=A
-    ex      de,hl                         ; eb
-    ld      (hl),d                        ; 72
-    dec     hl                            ; 2b
-    ld      (hl),e                        ; 73
-    pop     de                            ; d1
-    jr      12b                           ; 18 c2
+    ex      de,hl                         ; DE=correct values of address
+    ld      (hl),d
+    dec     hl
+    ld      (hl),e                        ; [address that needs value bumping] = bumped value
+    pop     de                            ; pop user-specified address + cumulative ([IX] & 0x3fff) (should match HL)
+    jr      12b                           ; repeat loop
 
 # This routine prints the text string immediately after the location it is called
 # from, and returns to the first address after it. Setting bit 7 of last character
@@ -573,16 +580,19 @@ L01E4:
 # to just embed the 0x0000 value at the end, but never mind. :-)
 
 L0FAA:
-  jp      0xabe4                          ; c3 e4 ab
-  nop                                     ; 00
-  ld      hl,0xd43a                       ; 21 3a d4
-  ld      (0xabe1),hl                     ; 22 e1 ab
-  call    0xd40d                          ; cd 0d d4
-  ld      hl,0x4864                       ; 21 64 48
-  ld      (0xdf57),hl                     ; 22 57 df
-  ld      hl,0xac1e                       ; 21 1e ac
-  call    0xd868                          ; cd 68 d8
-  call    0xde03                          ; cd 03 de
+  .byte   0xc3                            ; jp L0FAE (changed below to jp L3804)
+L0FAB:
+  .word   44000+L0FAE-L0FAA
+  nop                                     ; not sure yet why this nop is here
+L0FAE:
+  ld      hl,44000+L3804-L0FAA            ; HL=address of L3804
+  ld      (44000+L0FAB-L0FAA),hl          ; change jp command at L0FAA to 'jp L3804'
+  call    44000+L37D7-L0FAA               ; clear entire screen
+  ld      hl,0x4864                       ; print at (4,11)
+  ld      (44000+L4321-L0FAA),hl          ; store coordinates
+  ld      hl,44000+L0FE8-L0FAA            ; HL=L0FE8 address
+  call    44000+L3C32-L0FAA               ; Print "Install D40/D80 version?" at 4,11
+  call    44000+L41CD-L0FAA               ; call L41CD
   cp      0x61                            ; fe 61
   jr      z,L0FE5                         ; 28 1b
   cp      0x79                            ; fe 79
@@ -598,236 +608,16 @@ L0FAA:
   ld      (0xb6e6),a                      ; 32 e6 b6
 L0FE5:
   jp      0xd41c                          ; c3 1c d4
-  ld      c,c                             ; 49
-  ld      l,(hl)                          ; 6e
-  ld      (hl),e                          ; 73
-  ld      (hl),h                          ; 74
-  ld      h,c                             ; 61
-  ld      l,h                             ; 6c
-  ld      l,h                             ; 6c
-  jr      nz,L1035                        ; 20 44
-  inc     (hl)                            ; 34
-  jr      nc,L1023                        ; 30 2f
-  ld      b,h                             ; 44
-  jr      c,L1027                         ; 38 30
-  jr      nz,L106F                        ; 20 76
-  ld      h,l                             ; 65
-  ld      (hl),d                          ; 72
-  ld      (hl),e                          ; 73
-  ld      l,c                             ; 69
-  ld      l,a                             ; 6f
-  ld      l,(hl)                          ; 6e
-  cp      a                               ; bf
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-L1023:
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-L1027:
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-L1035:
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-L106F:
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
-  nop                                     ; 00
+
+
+L0FE8:
+.ascii  "Install D40/D80 version"
+.byte   '?' + 0x80
+
+.space 206
+
+
+
 L10CE:
   call    0xade9                          ; cd e9 ad
   ex      de,hl                           ; eb
@@ -4231,7 +4021,7 @@ L2660:
   call    0xc47b                          ; cd 7b c4
   ld      a,0x29                          ; 3e 29
 L266C:
-  call    0xdf36                          ; cd 36 df
+  call    44000+L4300-L0FAA               ; cd 36 df
   jr      L269F                           ; 18 2e
   ld      a,(ix+4)                        ; dd 7e 04
   and     0x1f                            ; e6 1f
@@ -4344,7 +4134,7 @@ L271D:
   jr      z,L273B                         ; 28 17
   cp      0xa3                            ; fe a3
   jr      z,L2731                         ; 28 09
-  call    0xdf36                          ; cd 36 df
+  call    44000+L4300-L0FAA               ; cd 36 df
   dec     hl                              ; 2b
   ld      a,h                             ; 7c
   or      l                               ; b5
@@ -4529,7 +4319,7 @@ L285D:
   jr      nz,L2867                        ; 20 02
   sub     0x20                            ; d6 20
 L2867:
-  call    0xdf36                          ; cd 36 df
+  call    44000+L4300-L0FAA               ; cd 36 df
   ld      a,(de)                          ; 1a
   inc     de                              ; 13
   rla                                     ; 17
@@ -6801,15 +6591,24 @@ L37AC:
   ld      bc,0x2001                       ; 01 01 20
   ld      e,0x20                          ; 1e 20
   jr      L37DC                           ; 18 05
-  ld      e,0x20                          ; 1e 20
-  ld      bc,0x0003                       ; 01 03 00
+
+# Print 768 spaces at display file location [L4321] - effectively clear screen
+# since prints wrap around screen from end to start.
+L37D7:
+  ld      e,' '
+  ld      bc,0x0003
+
+# Print char in E, B*C times, or 256*C times if B==0. Set bit 7 of E to invert
+# character. Use system font.  Display file location taken from [L4321].
 L37DC:
-  ld      a,e                             ; 7b
-  call    0xdf38                          ; cd 38 df
-  djnz    L37DC                           ; 10 fa
-  dec     c                               ; 0d
-  jr      nz,L37DC                        ; 20 f7
-  ret                                     ; c9
+  ld      a,e                             ;
+  call    44000+L4302-L0FAA               ; Print char in E, BC times (inverting pixel map if bit 7 of E set)
+  djnz    L37DC
+  dec     c
+  jr      nz,L37DC
+  ret
+
+
   call    0xc711                          ; cd 11 c7
   jr      L3804                           ; 18 19
   ld      a,0x01                          ; 3e 01
@@ -7405,7 +7204,7 @@ L3BDD:
 L3C10:
   call    0xade9                          ; cd e9 ad
   push    af                              ; f5
-  call    0xdf36                          ; cd 36 df
+  call    44000+L4300-L0FAA               ; cd 36 df
   pop     af                              ; f1
   bit     7,a                             ; cb 7f
   inc     hl                              ; 23
@@ -7423,13 +7222,19 @@ L3C2A:
   jr      z,L3C2A                         ; 28 fb
   dec     a                               ; 3d
   jr      nz,L3C2A                        ; 20 f8
+
+
+# Print string at [HL] with bit 7 set to determine last character
+# No inverting, black ink, white paper, location in [L4321] as display file address
 L3C32:
-  ld      a,(hl)                          ; 7e
-  call    0xdf36                          ; cd 36 df
-  bit     7,(hl)                          ; cb 7e
-  inc     hl                              ; 23
-  jr      z,L3C32                         ; 28 f7
+  ld      a,(hl)
+  call    44000+L4300-L0FAA               ; print character (ignore bit 7)
+  bit     7,(hl)                          ; was bit 7 set?
+  inc     hl
+  jr      z,L3C32                         ; continue printing if bit 7 not set
   ret                                     ; c9
+
+
   ld      d,e                             ; 53
   ld      a,c                             ; 79
   ld      l,l                             ; 6d
@@ -8335,7 +8140,7 @@ L4191:
 L41B8:
   ld      h,0x02                          ; 26 02
 L41BA:
-  call    0xde79                          ; cd 79 de
+  call    44000+L4243-L0FAA               ; cd 79 de
   jr      nz,L41C7                        ; 20 08
   dec     hl                              ; 2b
   inc     h                               ; 24
@@ -8345,9 +8150,11 @@ L41BA:
 L41C7:
   ld      hl,0x0000                       ; 21 00 00
   ld      (0xdddf),hl                     ; 22 df dd
+
+
 L41CD:
   di                                      ; f3
-  call    0xde79                          ; cd 79 de
+  call    44000+L4243-L0FAA               ; cd 79 de
   jr      z,L41B8                         ; 28 e5
   ld      b,0x00                          ; 06 00
   ld      c,e                             ; 4b
@@ -8419,12 +8226,15 @@ L4238:
   ld      hl,0xde52                       ; 21 52 de
   ld      (hl),0x00                       ; 36 00
   ret                                     ; c9
+
+L4243:
   push    hl                              ; e5
   call    0x028e                          ; cd 8e 02
   pop     hl                              ; e1
   jr      z,L424C                         ; 28 02
   xor     a                               ; af
   ret                                     ; c9
+
 L424C:
   ld      a,e                             ; 7b
   inc     e                               ; 1c
@@ -8436,6 +8246,7 @@ L424C:
   ret     z                               ; c8
   sub     0x0f                            ; d6 0f
   ret                                     ; c9
+
 L4258:
   ex      de,hl                           ; eb
   ld      a,c                             ; 79
@@ -8547,7 +8358,7 @@ L42EE:
   ld      a,(hl)                          ; 7e
   inc     hl                              ; 23
   push    af                              ; f5
-  call    0xdf36                          ; cd 36 df
+  call    44000+L4300-L0FAA               ; cd 36 df
   pop     af                              ; f1
   bit     7,a                             ; cb 7f
   jr      z,L42EE                         ; 28 f5
@@ -8556,57 +8367,76 @@ L42EE:
   cp      0xba                            ; fe ba
   ret     z                               ; c8
   ld      a,0x20                          ; 3e 20
+
+
+# Use alternate BC/DE/HL to print character in A and update attribute to black
+# ink on white paper, no bright, no flash. Do _not_ invert pixel map if bit 7 of A set.
 L4300:
   res     7,a                             ; cb bf
-  exx                                     ; d9
-  call    0xdf4e                          ; cd 4e df
-  ld      a,h                             ; 7c
-  add     a,0x0a                          ; c6 0a
-  cp      0x5a                            ; fe 5a
-  jr      z,L4313                         ; 28 06
+
+
+# Use alternate BC/DE/HL to print character in A and update attribute to black
+# ink on white paper, no bright, no flash. Invert pixel map if bit 7 of A set.
+L4302:
+  exx                                     ; BC=BC' DE=DE' HL=HL'
+  call    44000+L4318-L0FAA               ; call L4318
+  ld      a,h                             ; A=0x40/0x48/0x50
+  add     a,0x0a                          ; A=0x4A/0x52/0x5A
+  cp      0x5a
+  jr      z,L4313                         ; if bottom third, skip ahead to L4313 with A=0x5A
 L430D:
-  add     a,0x07                          ; c6 07
-  cp      0x58                            ; fe 58
-  jr      c,L430D                         ; 38 fa
+  add     a,0x07                          ; A=0x51 (top third)/0x59 (middle third)
+  cp      0x58
+  jr      c,L430D                         ; if top third, repeat, so A=0x58, otherwise A=0x59
 L4313:
-  ld      h,a                             ; 67
-  ld      (hl),0x38                       ; 36 38
-  exx                                     ; d9
-  ret                                     ; c9
-  add     a,a                             ; 87
-  ld      h,0x0f                          ; 26 0f
-  ld      l,a                             ; 6f
-  sbc     a,a                             ; 9f
-  ld      c,a                             ; 4f
-  add     hl,hl                           ; 29
-  add     hl,hl                           ; 29
-  ld      de,0x4000                       ; 11 00 40
-  push    de                              ; d5
-  ld      b,0x08                          ; 06 08
+  ld      h,a                             ; HL=attributes location
+  ld      (hl),0x38                       ; update attribute: black ink on white paper, no flash, no bright
+  exx                                     ; restore BC/DE/HL
+  ret
+
+# Print character in A, inverting pixels if bit 7 set
+# Display file location in [L4321].
+# Update [L4321] to next screen location.
+# Return start screen location in HL.
+L4318:
+  add     a,a                             ; A=A*2
+  ld      h,0x0f                          ; H=0x0f
+  ld      l,a                             ; HL=0x0f00 + (A*2)
+  sbc     a,a                             ; copy bit 7 of entry A to all other bits of A
+  ld      c,a                             ; C=0xff (if bit 7 of entry A set) or 0x00 otherwise
+  add     hl,hl                           ; HL=0x1e00 + (A*4)
+  add     hl,hl                           ; HL=0x3c00 + (A*8)
+  .byte   0x11                            ; LD DE,[L4321]
+L4321:
+  .word   0x4000                          ; start of display file
+  push    de                              ; stack it
+  ld      b,0x08                          ; B=8
 L4326:
-  ld      a,(hl)                          ; 7e
-  nop                                     ; 00
-  or      (hl)                            ; b6
-  xor     c                               ; a9
-  ld      (de),a                          ; 12
-  inc     hl                              ; 23
-  inc     d                               ; 14
-  djnz    L4326                           ; 10 f7
-  pop     hl                              ; e1
-  push    hl                              ; e5
-  inc     l                               ; 2c
-  jr      nz,L433E                        ; 20 0a
-  ld      a,h                             ; 7c
-  add     a,0x08                          ; c6 08
-  cp      0x58                            ; fe 58
-  jr      nz,L433D                        ; 20 02
-  ld      a,0x40                          ; 3e 40
+  ld      a,(hl)                          ; A=bitmap for char pixel row
+  nop                                     ; why ?
+  or      (hl)                            ; why ?
+  xor     c                               ; invert bitmap if bit 7 set
+  ld      (de),a                          ; update display file
+  inc     hl                              ; next pixel row of font
+  inc     d                               ; next pixel row of screen
+  djnz    L4326                           ; repeat for all 8 pixel rows
+  pop     hl
+  push    hl                              ; hl=current cursor location
+  inc     l                               ; cursor right in screen
+  jr      nz,L433E                        ; jump to L433E if not end of screen third
+  ld      a,h
+  add     a,0x08                          ; A=0x48 / 0x50 / 0x58 if in middle screen, lower screen, or past end of screen
+  cp      0x58                            ; check if past end of screen
+  jr      nz,L433D                        ; if not, jump ahead to L433D
+  ld      a,0x40                          ; loop back to start of display file
 L433D:
-  ld      h,a                             ; 67
+  ld      h,a                             ; HL = updated location in display file
 L433E:
-  ld      (0xdf57),hl                     ; 22 57 df
-  pop     hl                              ; e1
+  ld      (44000+L4321-L0FAA),hl          ; Store updated screen location
+  pop     hl                              ; restore previous screen location
   ret                                     ; c9
+
+
   ld      de,0xac07                       ; 11 07 ac
   ld      b,0x00                          ; 06 00
 L4348:
