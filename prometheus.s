@@ -6598,8 +6598,9 @@ L37D7:
   ld      e,' '
   ld      bc,0x0003
 
-# Print char in E, B*C times, or 256*C times if B==0. Set bit 7 of E to invert
-# character. Use system font.  Display file location taken from [L4321].
+# Print char in E to screen, 256*((C-1)%256)+((B-1)%256)+1 times. Set bit 7 of
+# E to invert character. Use system font. Start display file address taken from
+# [L4321]. Wrap around the screen when passing the end.
 L37DC:
   ld      a,e                             ;
   call    44000+L4302-L0FAA               ; Print char in E, BC times (inverting pixel map if bit 7 of E set)
